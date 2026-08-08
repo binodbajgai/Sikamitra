@@ -1,6 +1,10 @@
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password
+from app.core.security import (
+    create_access_token,
+    hash_password,
+    verify_password,
+)
 from app.models.user import User
 from app.repositories.user_repository import (
     create_user,
@@ -24,3 +28,18 @@ def register_user(db: Session, user_data: UserCreate) -> User:
         password_hash=password_hash,
         university=user_data.university,
     )
+
+
+def login_user(db: Session, email: str, password: str) -> str:
+    user = get_user_by_email(db, email)
+
+    if not user:
+        raise ValueError("Invalid email or password")
+
+    if not verify_password(password, user.password_hash):
+        raise ValueError("Invalid email or password")
+
+    if not user.is_active:
+        raise ValueError("User account is inactive")
+
+    return create_access_token(user.id)
