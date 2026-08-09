@@ -6,6 +6,9 @@ from app.core.config import settings
 from app.core.database import Base, engine
 from app.models.user import User
 from app.models.study_material import StudyMaterial
+from app.models.generated_summary import GeneratedSummary
+from app.models.important_point import ImportantPoint
+from app.models.question import Question
 
 
 config = context.config
