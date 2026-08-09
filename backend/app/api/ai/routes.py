@@ -14,6 +14,9 @@ from app.services.ai_service import (
     generate_summary,
     generate_important_points,
     generate_questions,
+    regenerate_summary,
+    regenerate_important_points,
+    regenerate_questions,
 )
 
 router = APIRouter(
@@ -118,6 +121,89 @@ def create_questions(
 
     try:
         return generate_questions(
+            db,
+            material.id,
+            material.content or "",
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+@router.post(
+    "/materials/{material_id}/summary/regenerate",
+    response_model=SummaryResponse,
+)
+def regenerate_summary_endpoint(
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    material = get_user_material(
+        db,
+        material_id,
+        current_user.id,
+    )
+
+    try:
+        return regenerate_summary(
+            db,
+            material.id,
+            material.content or "",
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+
+@router.post(
+    "/materials/{material_id}/important-points/regenerate",
+    response_model=list[ImportantPointResponse],
+)
+def regenerate_important_points_endpoint(
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    material = get_user_material(
+        db,
+        material_id,
+        current_user.id,
+    )
+
+    try:
+        return regenerate_important_points(
+            db,
+            material.id,
+            material.content or "",
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+
+@router.post(
+    "/materials/{material_id}/questions/regenerate",
+    response_model=list[QuestionResponse],
+)
+def regenerate_questions_endpoint(
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    material = get_user_material(
+        db,
+        material_id,
+        current_user.id,
+    )
+
+    try:
+        return regenerate_questions(
             db,
             material.id,
             material.content or "",
