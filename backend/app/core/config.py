@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
 
+    ai_provider: str = "nvidia"
+    nvidia_api_key: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False

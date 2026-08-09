@@ -1,8 +1,12 @@
 from sqlalchemy.orm import Session
 
+from app.ai.nvidia_provider import NVIDIAProvider
 from app.repositories.generated_summary_repository import create_summary
 from app.repositories.important_point_repository import create_important_point
 from app.repositories.question_repository import create_question
+
+
+provider = NVIDIAProvider()
 
 
 def generate_summary(
@@ -13,7 +17,7 @@ def generate_summary(
     if not content.strip():
         raise ValueError("Material has no content")
 
-    summary_text = content[:1000]
+    summary_text = provider.generate_summary(content)
 
     return create_summary(
         db=db,
@@ -30,25 +34,21 @@ def generate_important_points(
     if not content.strip():
         raise ValueError("Material has no content")
 
-    sentences = [
-        sentence.strip()
-        for sentence in content.replace("\n", " ").split(".")
-        if sentence.strip()
-    ]
+    points = provider.generate_important_points(content)
 
-    points = []
+    created_points = []
 
-    for position, sentence in enumerate(sentences[:5], start=1):
-        points.append(
+    for position, point in enumerate(points, start=1):
+        created_points.append(
             create_important_point(
                 db=db,
                 material_id=material_id,
-                point=sentence,
+                point=point,
                 position=position,
             )
         )
 
-    return points
+    return created_points
 
 
 def generate_questions(
@@ -59,16 +59,23 @@ def generate_questions(
     if not content.strip():
         raise ValueError("Material has no content")
 
-    question = create_question(
-        db=db,
-        material_id=material_id,
-        question="What is the main topic of this study material?",
-        option_a="The content provided in the material",
-        option_b="Database administration",
-        option_c="Network security",
-        option_d="Operating system design",
-        correct_option="A",
-        explanation="This is a temporary test question. The real AI generator will replace it.",
-    )
+    questions = provider.generate_questions(content)
 
-    return [question]
+    created_questions = []
+
+    for question in questions:
+        created_questions.append(
+            create_question(
+                db=db,
+                material_id=material_id,
+                question=question["question"],
+                option_a=question["option_a"],
+                option_b=question["option_b"],
+                option_c=question["option_c"],
+                option_d=question["option_d"],
+                correct_option=question["correct_option"],
+                explanation=question["explanation"],
+            )
+        )
+
+    return created_questions
