@@ -5,6 +5,7 @@ from alembic import context
 from app.core.config import settings
 from app.core.database import Base, engine
 from app.models.user import User
+from app.models.study_material import StudyMaterial
 
 
 config = context.config

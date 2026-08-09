@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.auth.routes import router as auth_router
+from app.api.study_materials.routes import router as study_material_router
 from app.api.router import router
 from app.core.config import settings
 
@@ -10,6 +11,7 @@ app = FastAPI(
 
 app.include_router(router)
 app.include_router(auth_router)
+app.include_router(study_material_router)
 
 @app.get("/")
 def root():
