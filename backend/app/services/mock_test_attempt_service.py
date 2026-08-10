@@ -3,11 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.models.question import Question
-from app.repositories.mock_test_attempt_repository import (
-    create_attempt,
-    get_attempt_by_id,
-    update_attempt_result,
-)
+
 from app.repositories.mock_test_answer_repository import (
     create_answer,
     get_answers_by_attempt,
