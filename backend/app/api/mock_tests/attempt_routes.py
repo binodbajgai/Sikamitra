@@ -4,8 +4,11 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.user import User
+from app.schemas.mock_test_review import (
+    MockTestReviewResponse,
+)
+
 from app.schemas.mock_test_attempt import (
-    MockTestAnswerCreate,
     MockTestAnswerResponse,
     MockTestAttemptCreate,
     MockTestAttemptResponse,
@@ -13,17 +16,12 @@ from app.schemas.mock_test_attempt import (
 from app.services.mock_test_attempt_service import (
     get_attempt,
     get_attempt_answers,
+    get_attempt_history,
+    get_attempt_review,
     start_attempt,
     submit_attempt,
 )
 
-from app.services.mock_test_attempt_service import (
-    get_attempt,
-    get_attempt_answers,
-    get_attempt_history,
-    start_attempt,
-    submit_attempt,
-)
 
 router = APIRouter(
     tags=["Mock Test Attempts"],
@@ -138,3 +136,24 @@ def get_mock_test_attempt_history(
         mock_test_id=mock_test_id,
         user_id=current_user.id,
     )
+
+@router.get(
+    "/mock-test-attempts/{attempt_id}/review",
+    response_model=MockTestReviewResponse,
+)
+def get_mock_test_attempt_review(
+    attempt_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        return get_attempt_review(
+            db=db,
+            attempt_id=attempt_id,
+            user_id=current_user.id,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        )
