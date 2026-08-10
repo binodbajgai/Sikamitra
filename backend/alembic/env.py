@@ -9,6 +9,10 @@ from app.models.study_material import StudyMaterial
 from app.models.generated_summary import GeneratedSummary
 from app.models.important_point import ImportantPoint
 from app.models.question import Question
+from app.models.mock_test import MockTest
+from app.models.mock_test_question import MockTestQuestion
+from app.models.mock_test_attempt import MockTestAttempt
+from app.models.mock_test_answer import MockTestAnswer
 
 
 config = context.config
