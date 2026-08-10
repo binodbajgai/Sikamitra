@@ -188,3 +188,32 @@ def regenerate_questions(
         )
 
     return created_questions
+
+def get_summaries(
+    db: Session,
+    material_id: int,
+):
+    return get_summaries_by_material(
+        db=db,
+        material_id=material_id,
+    )
+
+
+def get_important_points(
+    db: Session,
+    material_id: int,
+):
+    return get_important_points_by_material(
+        db=db,
+        material_id=material_id,
+    )
+
+
+def get_questions(
+    db: Session,
+    material_id: int,
+):
+    return get_questions_by_material(
+        db=db,
+        material_id=material_id,
+    )

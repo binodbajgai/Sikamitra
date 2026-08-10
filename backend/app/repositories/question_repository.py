@@ -42,3 +42,13 @@ def get_questions_by_material(
         .order_by(Question.created_at.asc())
         .all()
     )
+
+def get_question_by_id(
+    db: Session,
+    question_id: int,
+) -> Question | None:
+    return (
+        db.query(Question)
+        .filter(Question.id == question_id)
+        .first()
+    )
