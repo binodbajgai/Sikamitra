@@ -17,6 +17,13 @@ from app.repositories.mock_test_repository import (
     get_mock_test_questions,
 )
 
+from app.repositories.mock_test_attempt_repository import (
+    create_attempt,
+    get_attempt_by_id,
+    get_attempts_by_mock_test,
+    update_attempt_result,
+)
+
 
 def start_attempt(
     db: Session,
@@ -201,3 +208,17 @@ def get_attempt_answers(
         db=db,
         attempt_id=attempt_id,
     )
+
+
+def get_attempt_history(
+    db: Session,
+    mock_test_id: int,
+    user_id: int,
+):
+    attempts = get_attempts_by_mock_test(
+        db=db,
+        mock_test_id=mock_test_id,
+        user_id=user_id,
+    )
+
+    return attempts

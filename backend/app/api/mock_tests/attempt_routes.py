@@ -17,6 +17,14 @@ from app.services.mock_test_attempt_service import (
     submit_attempt,
 )
 
+from app.services.mock_test_attempt_service import (
+    get_attempt,
+    get_attempt_answers,
+    get_attempt_history,
+    start_attempt,
+    submit_attempt,
+)
+
 router = APIRouter(
     tags=["Mock Test Attempts"],
 )
@@ -114,3 +122,19 @@ def get_mock_test_attempt_answers(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         )
+
+
+@router.get(
+    "/mock-tests/{mock_test_id}/attempts",
+    response_model=list[MockTestAttemptResponse],
+)
+def get_mock_test_attempt_history(
+    mock_test_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_attempt_history(
+        db=db,
+        mock_test_id=mock_test_id,
+        user_id=current_user.id,
+    )
