@@ -1,0 +1,146 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: #17201d;
+  background: #f4f1e9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: #f4f1e9;
+}
+
+.auth-panel {
+  width: 100%;
+  max-width: 460px;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 48px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.auth-brand-mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #17201d;
+  color: #f4f1e9;
+}
+
+.auth-content {
+  background: #fffdf8;
+  border: 1px solid #dedbd2;
+  border-radius: 18px;
+  padding: 36px;
+  box-shadow: 0 16px 50px rgba(23, 32, 29, 0.07);
+}
+
+.auth-eyebrow {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #68746f;
+}
+
+.auth-content h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.auth-description {
+  margin: 14px 0 30px;
+  color: #68746f;
+  line-height: 1.6;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.auth-form input {
+  width: 100%;
+  border: 1px solid #d5d3cc;
+  border-radius: 9px;
+  padding: 12px 13px;
+  outline: none;
+  background: #fff;
+}
+
+.auth-form input:focus {
+  border-color: #17201d;
+}
+
+.auth-form button {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px;
+  background: #17201d;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.auth-error {
+  margin: 0;
+  color: #a23b32;
+  font-size: 14px;
+}
+
+.auth-switch {
+  margin: 24px 0 0;
+  text-align: center;
+  color: #68746f;
+  font-size: 14px;
+}
+
+.auth-switch a {
+  color: #17201d;
+  font-weight: 700;
+}
