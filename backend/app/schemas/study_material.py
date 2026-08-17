@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict
 class StudyMaterialCreate(BaseModel):
     title: str
     source_type: str
+    subject_id: int | None = None
     content: str | None = None
     file_name: str | None = None
 
@@ -13,6 +14,7 @@ class StudyMaterialCreate(BaseModel):
 class StudyMaterialResponse(BaseModel):
     id: int
     user_id: int
+    subject_id: int | None
     title: str
     source_type: str
     file_name: str | None

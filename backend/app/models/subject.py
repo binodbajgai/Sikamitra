@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 
 
-class StudyMaterial(Base):
-    __tablename__ = "study_materials"
+class Subject(Base):
+    __tablename__ = "subjects"
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
@@ -20,29 +20,13 @@ class StudyMaterial(Base):
         index=True,
     )
 
-    subject_id: Mapped[int | None] = mapped_column(
-        ForeignKey("subjects.id"),
-        nullable=True,
-        index=True,
-    )
-
-    title: Mapped[str] = mapped_column(
-        String(200),
+    name: Mapped[str] = mapped_column(
+        String(150),
         nullable=False,
     )
 
-    source_type: Mapped[str] = mapped_column(
-        String(20),
-        nullable=False,
-    )
-
-    file_name: Mapped[str | None] = mapped_column(
-        String(255),
-        nullable=True,
-    )
-
-    content: Mapped[str | None] = mapped_column(
-        Text,
+    description: Mapped[str | None] = mapped_column(
+        String(500),
         nullable=True,
     )
 

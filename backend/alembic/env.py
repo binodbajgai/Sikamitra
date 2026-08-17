@@ -13,6 +13,7 @@ from app.models.mock_test import MockTest
 from app.models.mock_test_question import MockTestQuestion
 from app.models.mock_test_attempt import MockTestAttempt
 from app.models.mock_test_answer import MockTestAnswer
+from app.models.subject import Subject
 
 
 config = context.config
