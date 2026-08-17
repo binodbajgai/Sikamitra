@@ -16,6 +16,7 @@ from app.repositories.important_point_repository import (
 from app.repositories.question_repository import (
     create_question,
     get_questions_by_material,
+    delete_questions_by_material,
 )
 
 
@@ -182,6 +183,18 @@ def regenerate_questions(
         raise ValueError("Material has no content")
 
     questions = provider.generate_questions(content)
+
+    if not questions:
+        raise ValueError(
+            "AI did not generate any questions"
+        )
+
+    # Remove the old question bank only after
+    # successful generation.
+    delete_questions_by_material(
+        db=db,
+        material_id=material_id,
+    )
 
     created_questions = []
 

@@ -52,3 +52,15 @@ def get_question_by_id(
         .filter(Question.id == question_id)
         .first()
     )
+
+def delete_questions_by_material(
+    db: Session,
+    material_id: int,
+) -> None:
+    (
+        db.query(Question)
+        .filter(Question.material_id == material_id)
+        .delete(synchronize_session=False)
+    )
+
+    db.commit()

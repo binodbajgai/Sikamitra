@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
+
 import {
   getStudyMaterial,
   type StudyMaterial,
 } from "../api/studyMaterials";
+
 import apiClient from "../api/client";
 
 interface Summary {
@@ -29,11 +31,15 @@ interface Question {
   option_b: string;
   option_c: string;
   option_d: string;
-  correct_answer?: string;
+  correct_option: string;
+  explanation?: string | null;
+  created_at: string;
 }
 
 function MaterialDetail() {
-  const { materialId } = useParams<{ materialId: string }>();
+  const { materialId } = useParams<{
+    materialId: string;
+  }>();
 
   const [material, setMaterial] =
     useState<StudyMaterial | null>(null);
@@ -60,9 +66,23 @@ function MaterialDetail() {
 
   const [error, setError] = useState("");
 
+  /*
+   * ============================================================
+   * LOAD MATERIAL + EXISTING AI RESULTS
+   * ============================================================
+   */
+
   async function loadMaterial() {
     if (!materialId) {
       setError("Invalid material.");
+      setLoading(false);
+      return;
+    }
+
+    const id = Number(materialId);
+
+    if (Number.isNaN(id)) {
+      setError("Invalid material ID.");
       setLoading(false);
       return;
     }
@@ -71,19 +91,15 @@ function MaterialDetail() {
       setLoading(true);
       setError("");
 
-      const id = Number(materialId);
-
-      if (Number.isNaN(id)) {
-        setError("Invalid material ID.");
-        return;
-      }
-
       const materialData =
         await getStudyMaterial(id);
 
       setMaterial(materialData);
 
-      // Load existing summary.
+      /*
+       * Summary
+       */
+
       try {
         const response =
           await apiClient.get<Summary>(
@@ -95,7 +111,10 @@ function MaterialDetail() {
         setSummary(null);
       }
 
-      // Load existing important points.
+      /*
+       * Important points
+       */
+
       try {
         const response =
           await apiClient.get<ImportantPoint[]>(
@@ -107,7 +126,10 @@ function MaterialDetail() {
         setImportantPoints([]);
       }
 
-      // Load existing questions.
+      /*
+       * Questions
+       */
+
       try {
         const response =
           await apiClient.get<Question[]>(
@@ -120,6 +142,7 @@ function MaterialDetail() {
       }
     } catch (err) {
       console.error(err);
+
       setError(
         "Unable to load this study material."
       );
@@ -132,23 +155,34 @@ function MaterialDetail() {
     loadMaterial();
   }, [materialId]);
 
+  /*
+   * ============================================================
+   * SUMMARY
+   * ============================================================
+   */
+
   async function generateSummary() {
     if (!materialId) {
       return;
     }
-  
+
     try {
       setGeneratingSummary(true);
       setError("");
-  
+
+      const endpoint = summary
+        ? `/ai/materials/${materialId}/summary/regenerate`
+        : `/ai/materials/${materialId}/summary`;
+
       const response =
         await apiClient.post<Summary>(
-          `/ai/materials/${materialId}/summary/regenerate`
+          endpoint
         );
-  
+
       setSummary(response.data);
     } catch (err) {
       console.error(err);
+
       setError(
         "Unable to generate the summary."
       );
@@ -157,23 +191,35 @@ function MaterialDetail() {
     }
   }
 
+  /*
+   * ============================================================
+   * IMPORTANT POINTS
+   * ============================================================
+   */
+
   async function generateImportantPoints() {
     if (!materialId) {
       return;
     }
-  
+
     try {
       setGeneratingPoints(true);
       setError("");
-  
+
+      const endpoint =
+        importantPoints.length > 0
+          ? `/ai/materials/${materialId}/important-points/regenerate`
+          : `/ai/materials/${materialId}/important-points`;
+
       const response =
         await apiClient.post<ImportantPoint[]>(
-          `/ai/materials/${materialId}/important-points/regenerate`
+          endpoint
         );
-  
+
       setImportantPoints(response.data);
     } catch (err) {
       console.error(err);
+
       setError(
         "Unable to generate important points."
       );
@@ -181,6 +227,12 @@ function MaterialDetail() {
       setGeneratingPoints(false);
     }
   }
+
+  /*
+   * ============================================================
+   * QUESTIONS
+   * ============================================================
+   */
 
   async function generateQuestions() {
     if (!materialId) {
@@ -191,14 +243,20 @@ function MaterialDetail() {
       setGeneratingQuestions(true);
       setError("");
 
+      const endpoint =
+        questions.length > 0
+          ? `/ai/materials/${materialId}/questions/regenerate`
+          : `/ai/materials/${materialId}/questions`;
+
       const response =
         await apiClient.post<Question[]>(
-          `/ai/materials/${materialId}/questions`
+          endpoint
         );
 
       setQuestions(response.data);
     } catch (err) {
       console.error(err);
+
       setError(
         "Unable to generate questions."
       );
@@ -206,6 +264,12 @@ function MaterialDetail() {
       setGeneratingQuestions(false);
     }
   }
+
+  /*
+   * ============================================================
+   * LOADING
+   * ============================================================
+   */
 
   if (loading) {
     return (
@@ -216,6 +280,12 @@ function MaterialDetail() {
       </div>
     );
   }
+
+  /*
+   * ============================================================
+   * MATERIAL NOT FOUND
+   * ============================================================
+   */
 
   if (!material) {
     return (
@@ -233,6 +303,12 @@ function MaterialDetail() {
       </div>
     );
   }
+
+  /*
+   * ============================================================
+   * PAGE
+   * ============================================================
+   */
 
   return (
     <div className="material-detail-page">
@@ -263,7 +339,10 @@ function MaterialDetail() {
       )}
 
       <main className="material-detail-content">
-        {/* SUMMARY */}
+
+        {/* ======================================================
+            SUMMARY
+        ====================================================== */}
 
         <section className="ai-section">
           <div className="ai-section-header">
@@ -302,7 +381,9 @@ function MaterialDetail() {
           )}
         </section>
 
-        {/* IMPORTANT POINTS */}
+        {/* ======================================================
+            IMPORTANT POINTS
+        ====================================================== */}
 
         <section className="ai-section">
           <div className="ai-section-header">
@@ -343,7 +424,9 @@ function MaterialDetail() {
                       )}
                     </span>
 
-                    <p>{point.point}</p>
+                    <p>
+                      {point.point}
+                    </p>
                   </div>
                 )
               )}
@@ -358,7 +441,9 @@ function MaterialDetail() {
           )}
         </section>
 
-        {/* QUESTIONS */}
+        {/* ======================================================
+            QUESTIONS
+        ====================================================== */}
 
         <section className="ai-section">
           <div className="ai-section-header">
@@ -401,8 +486,10 @@ function MaterialDetail() {
                     </h3>
 
                     <div className="question-options">
+
                       <div>
                         <strong>A</strong>
+
                         <span>
                           {question.option_a}
                         </span>
@@ -410,6 +497,7 @@ function MaterialDetail() {
 
                       <div>
                         <strong>B</strong>
+
                         <span>
                           {question.option_b}
                         </span>
@@ -417,6 +505,7 @@ function MaterialDetail() {
 
                       <div>
                         <strong>C</strong>
+
                         <span>
                           {question.option_c}
                         </span>
@@ -424,10 +513,12 @@ function MaterialDetail() {
 
                       <div>
                         <strong>D</strong>
+
                         <span>
                           {question.option_d}
                         </span>
                       </div>
+
                     </div>
                   </article>
                 )
@@ -442,6 +533,7 @@ function MaterialDetail() {
             </div>
           )}
         </section>
+
       </main>
     </div>
   );

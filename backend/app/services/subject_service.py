@@ -4,39 +4,22 @@ from app.repositories.subject_repository import (
     create_subject,
     delete_subject,
     get_subject_by_id,
-    get_subjects_by_user,
+    get_subject_materials,
+    get_user_subjects,
 )
+from app.schemas.subject import SubjectCreate
 
 
-def create_new_subject(
+def create_user_subject(
     db: Session,
     user_id: int,
-    name: str,
-    description: str | None = None,
+    subject_data: SubjectCreate,
 ):
-    name = name.strip()
-
-    if not name:
-        raise ValueError("Subject name is required")
-
-    if len(name) > 150:
-        raise ValueError(
-            "Subject name cannot exceed 150 characters"
-        )
-
-    if description:
-        description = description.strip()
-
-        if len(description) > 500:
-            raise ValueError(
-                "Subject description cannot exceed 500 characters"
-            )
-
     return create_subject(
         db=db,
         user_id=user_id,
-        name=name,
-        description=description,
+        name=subject_data.name,
+        description=subject_data.description,
     )
 
 
@@ -52,12 +35,33 @@ def get_subject(
     )
 
 
-def get_user_subjects(
+def get_subjects_for_user(
     db: Session,
     user_id: int,
 ):
-    return get_subjects_by_user(
+    return get_user_subjects(
         db=db,
+        user_id=user_id,
+    )
+
+
+def get_materials_for_subject(
+    db: Session,
+    subject_id: int,
+    user_id: int,
+):
+    subject = get_subject_by_id(
+        db=db,
+        subject_id=subject_id,
+        user_id=user_id,
+    )
+
+    if subject is None:
+        raise ValueError("Subject not found")
+
+    return get_subject_materials(
+        db=db,
+        subject_id=subject_id,
         user_id=user_id,
     )
 
@@ -76,7 +80,4 @@ def remove_subject(
     if subject is None:
         raise ValueError("Subject not found")
 
-    delete_subject(
-        db=db,
-        subject=subject,
-    )
+    delete_subject(db, subject)

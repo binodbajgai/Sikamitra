@@ -1,4 +1,11 @@
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user
@@ -25,6 +32,10 @@ router = APIRouter(
 )
 
 
+# --------------------------------------------------
+# Create study material manually
+# --------------------------------------------------
+
 @router.post(
     "/",
     response_model=StudyMaterialResponse,
@@ -42,6 +53,10 @@ def create(
     )
 
 
+# --------------------------------------------------
+# Get all study materials
+# --------------------------------------------------
+
 @router.get(
     "/",
     response_model=list[StudyMaterialResponse],
@@ -55,6 +70,10 @@ def list_materials(
         user_id=current_user.id,
     )
 
+
+# --------------------------------------------------
+# Get one study material
+# --------------------------------------------------
 
 @router.get(
     "/{material_id}",
@@ -80,6 +99,10 @@ def get_one(
     return material
 
 
+# --------------------------------------------------
+# Delete study material
+# --------------------------------------------------
+
 @router.delete(
     "/{material_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -96,6 +119,10 @@ def delete(
     )
 
 
+# --------------------------------------------------
+# Single file upload
+# --------------------------------------------------
+
 @router.post(
     "/upload",
     response_model=StudyMaterialResponse,
@@ -111,8 +138,8 @@ async def upload_document(
         return await process_uploaded_document(
             db=db,
             user_id=current_user.id,
-            file=file,
             subject_id=subject_id,
+            file=file,
         )
 
     except ValueError as exc:
@@ -120,3 +147,40 @@ async def upload_document(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         )
+
+
+# --------------------------------------------------
+# Multiple file upload
+# --------------------------------------------------
+
+@router.post(
+    "/upload-multiple",
+    response_model=list[StudyMaterialResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_multiple_documents(
+    subject_id: int,
+    files: list[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    created_materials = []
+
+    for file in files:
+        try:
+            material = await process_uploaded_document(
+                db=db,
+                user_id=current_user.id,
+                subject_id=subject_id,
+                file=file,
+            )
+
+            created_materials.append(material)
+
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"{file.filename}: {exc}",
+            )
+
+    return created_materials
