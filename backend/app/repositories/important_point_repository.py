@@ -32,3 +32,16 @@ def get_important_points_by_material(
         .order_by(ImportantPoint.position.asc())
         .all()
     )
+
+
+def delete_important_points_by_material(
+    db: Session,
+    material_id: int,
+) -> None:
+    (
+        db.query(ImportantPoint)
+        .filter(ImportantPoint.material_id == material_id)
+        .delete(synchronize_session=False)
+    )
+
+    db.commit()

@@ -1,3 +1,5 @@
+import re
+
 from openai import OpenAI
 
 from app.ai.base import AIProvider
@@ -21,9 +23,22 @@ class NVIDIAProvider(AIProvider):
                 {
                     "role": "system",
                     "content": (
-                        "You are a study assistant. "
-                        "Create a concise and accurate summary "
-                        "of the provided study material."
+                        "You are an expert university study assistant. "
+                        "Create a concise, accurate, student-friendly summary "
+                        "of the provided study material.\n\n"
+
+                        "Requirements:\n"
+                        "- Focus only on the main concepts and ideas.\n"
+                        "- Explain the material clearly for a university student.\n"
+                        "- Do not reproduce the source material line by line.\n"
+                        "- Do not include large code blocks.\n"
+                        "- Do not create a giant reference table.\n"
+                        "- Do not list every example or syntax detail.\n"
+                        "- Use short paragraphs and simple headings when useful.\n"
+                        "- Focus on what a student should understand and remember.\n"
+                        "- Avoid unnecessary repetition.\n"
+                        "- Keep the summary focused and concise.\n"
+                        "- Aim for approximately 200-400 words."
                     ),
                 },
                 {
@@ -48,10 +63,29 @@ class NVIDIAProvider(AIProvider):
                 {
                     "role": "system",
                     "content": (
-                        "You are a study assistant. "
-                        "Extract the most important points from "
-                        "the study material. Return each point "
-                        "on a separate line."
+                        "You are an expert university study assistant. "
+                        "Extract the most important concepts from the provided "
+                        "study material.\n\n"
+
+                        "Return exactly 8 to 15 important points.\n"
+                        "Each point must represent ONE meaningful concept "
+                        "that a student should remember.\n\n"
+
+                        "Rules:\n"
+                        "- Do not copy the material line by line.\n"
+                        "- Do not include source text headings as points.\n"
+                        "- Do not include individual lines of code.\n"
+                        "- Do not include Markdown code fences.\n"
+                        "- Do not include SQL queries as separate points.\n"
+                        "- Do not split one example across multiple points.\n"
+                        "- Combine related information into one meaningful point.\n"
+                        "- Each point should normally be 1-2 sentences.\n"
+                        "- Focus on concepts, definitions, rules, differences, "
+                        "and important facts.\n"
+                        "- Prioritize information useful for exams and revision.\n"
+                        "- Do not include trivial details.\n"
+                        "- Return only the points, one complete point per line.\n"
+                        "- Number the points 1., 2., 3., etc."
                     ),
                 },
                 {
@@ -60,16 +94,40 @@ class NVIDIAProvider(AIProvider):
                 },
             ],
             temperature=0.2,
-            max_tokens=1000,
+            max_tokens=1500,
         )
 
         text = response.choices[0].message.content.strip()
 
-        return [
-            line.strip("-• ").strip()
-            for line in text.splitlines()
-            if line.strip()
-        ]
+        points = []
+
+        for line in text.splitlines():
+            line = line.strip()
+
+            if not line:
+                continue
+
+            # Remove numbering such as:
+            # 1.
+            # 2)
+            # 10.
+            line = re.sub(
+                r"^\s*\d+[\.\)]\s*",
+                "",
+                line,
+            ).strip()
+
+            # Remove bullet characters if the model adds them.
+            line = re.sub(
+                r"^[-•*]\s*",
+                "",
+                line,
+            ).strip()
+
+            if line:
+                points.append(line)
+
+        return points
 
     def generate_questions(
         self,
@@ -130,10 +188,13 @@ class NVIDIAProvider(AIProvider):
             for line in lines:
                 if line.startswith("A:"):
                     options["A"] = line[2:].strip()
+
                 elif line.startswith("B:"):
                     options["B"] = line[2:].strip()
+
                 elif line.startswith("C:"):
                     options["C"] = line[2:].strip()
+
                 elif line.startswith("D:"):
                     options["D"] = line[2:].strip()
 

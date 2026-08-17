@@ -10,6 +10,7 @@ from app.repositories.generated_summary_repository import (
 from app.repositories.important_point_repository import (
     create_important_point,
     get_important_points_by_material,
+    delete_important_points_by_material,
 )
 
 from app.repositories.question_repository import (
@@ -143,7 +144,19 @@ def regenerate_important_points(
     if not content.strip():
         raise ValueError("Material has no content")
 
+    # Generate the new points first.
     points = provider.generate_important_points(content)
+
+    if not points:
+        raise ValueError(
+            "AI did not generate any important points"
+        )
+
+    # Delete the old points only after successful AI generation.
+    delete_important_points_by_material(
+        db=db,
+        material_id=material_id,
+    )
 
     created_points = []
 
