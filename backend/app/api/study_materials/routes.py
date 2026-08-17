@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
-from fastapi import File, UploadFile
 
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
@@ -15,8 +14,10 @@ from app.services.study_material_service import (
     get_materials_for_user,
     remove_material,
 )
+from app.services.document_service import (
+    process_uploaded_document,
+)
 
-from app.services.document_service import process_uploaded_document
 
 router = APIRouter(
     prefix="/study-materials",
@@ -94,6 +95,7 @@ def delete(
         user_id=current_user.id,
     )
 
+
 @router.post(
     "/upload",
     response_model=StudyMaterialResponse,
@@ -101,6 +103,7 @@ def delete(
 )
 async def upload_document(
     file: UploadFile = File(...),
+    subject_id: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -109,7 +112,9 @@ async def upload_document(
             db=db,
             user_id=current_user.id,
             file=file,
+            subject_id=subject_id,
         )
+
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -17,6 +17,7 @@ def create_material(
     return create_study_material(
         db=db,
         user_id=user_id,
+        subject_id=material_data.subject_id,
         title=material_data.title,
         source_type=material_data.source_type,
         content=material_data.content,

@@ -8,11 +8,13 @@ def create_study_material(
     user_id: int,
     title: str,
     source_type: str,
+    subject_id: int | None = None,
     content: str | None = None,
     file_name: str | None = None,
 ) -> StudyMaterial:
     material = StudyMaterial(
         user_id=user_id,
+        subject_id=subject_id,
         title=title,
         source_type=source_type,
         content=content,
