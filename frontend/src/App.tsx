@@ -1,11 +1,19 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import Materials from "./pages/Materials";
-import MaterialDetail from "./pages/MaterialDetail";
+import { useAuth } from "./context/AuthContext.tsx";
+
+import Login from "./pages/Login.tsx";
+import Register from "./pages/Register.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
+import Materials from "./pages/Materials.tsx";
+import MaterialDetail from "./pages/MaterialDetail.tsx";
+
+import AppLayout from "./layouts/AppLayout.tsx";
+
 
 function ProtectedRoute({
   children,
@@ -14,21 +22,46 @@ function ProtectedRoute({
 }) {
   const { user, loading } = useAuth();
 
+  /*
+   * Restore session
+   */
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="app-loading-screen">
+        <div className="app-loading-content">
+          <div className="app-loading-mark">
+            S
+          </div>
+
+          <p>Loading Sikamitra...</p>
+        </div>
+      </div>
+    );
   }
 
+  /*
+   * User is not authenticated
+   */
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
   return <>{children}</>;
 }
 
+
 function App() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* =========================================
+          PUBLIC ROUTES
+      ========================================== */}
+
       <Route
         path="/login"
         element={<Login />}
@@ -39,35 +72,55 @@ function App() {
         element={<Register />}
       />
 
-      {/* Protected routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+
+      {/* =========================================
+          PROTECTED APPLICATION
+      ========================================== */}
 
       <Route
-        path="/materials"
         element={
           <ProtectedRoute>
-            <Materials />
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
 
-      <Route
-        path="/materials/:materialId"
-        element={
-          <ProtectedRoute>
-            <MaterialDetail />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/materials"
+          element={<Materials />}
+        />
 
-      {/* Default */}
+        <Route
+          path="/materials/:materialId"
+          element={<MaterialDetail />}
+        />
+
+        {/* Temporary route.
+            We will build the actual page later. */}
+        <Route
+          path="/mock-tests"
+          element={
+            <div className="coming-soon-page">
+              <span>Mock Tests</span>
+              <h1>Coming soon</h1>
+              <p>
+                Your mock-test workspace will
+                be available here.
+              </p>
+            </div>
+          }
+        />
+      </Route>
+
+
+      {/* =========================================
+          ROOT ROUTE
+      ========================================== */}
+
       <Route
         path="/"
         element={
@@ -78,7 +131,11 @@ function App() {
         }
       />
 
-      {/* Unknown routes */}
+
+      {/* =========================================
+          UNKNOWN ROUTES
+      ========================================== */}
+
       <Route
         path="*"
         element={

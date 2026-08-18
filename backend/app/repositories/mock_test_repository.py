@@ -5,16 +5,22 @@ from app.models.mock_test_question import MockTestQuestion
 from app.models.question import Question
 
 
+# ============================================================
+# CREATE MOCK TEST
+# ============================================================
+
 def create_mock_test(
     db: Session,
     user_id: int,
-    material_id: int,
     title: str,
     question_count: int,
+    material_id: int | None = None,
+    subject_id: int | None = None,
 ) -> MockTest:
     mock_test = MockTest(
         user_id=user_id,
         material_id=material_id,
+        subject_id=subject_id,
         title=title,
         question_count=question_count,
     )
@@ -25,6 +31,10 @@ def create_mock_test(
 
     return mock_test
 
+
+# ============================================================
+# ADD QUESTION TO MOCK TEST
+# ============================================================
 
 def create_mock_test_question(
     db: Session,
@@ -45,6 +55,10 @@ def create_mock_test_question(
     return mock_test_question
 
 
+# ============================================================
+# GET MOCK TEST BY ID
+# ============================================================
+
 def get_mock_test_by_id(
     db: Session,
     mock_test_id: int,
@@ -60,17 +74,27 @@ def get_mock_test_by_id(
     )
 
 
+# ============================================================
+# GET ALL MOCK TESTS FOR USER
+# ============================================================
+
 def get_user_mock_tests(
     db: Session,
     user_id: int,
 ) -> list[MockTest]:
     return (
         db.query(MockTest)
-        .filter(MockTest.user_id == user_id)
+        .filter(
+            MockTest.user_id == user_id,
+        )
         .order_by(MockTest.created_at.desc())
         .all()
     )
 
+
+# ============================================================
+# GET MOCK TEST QUESTIONS
+# ============================================================
 
 def get_mock_test_questions(
     db: Session,
@@ -78,23 +102,8 @@ def get_mock_test_questions(
 ) -> list[MockTestQuestion]:
     return (
         db.query(MockTestQuestion)
-        .filter(MockTestQuestion.mock_test_id == mock_test_id)
-        .order_by(MockTestQuestion.question_order.asc())
-        .all()
-    )
-
-def get_mock_test_questions_with_details(
-    db: Session,
-    mock_test_id: int,
-) -> list[tuple[MockTestQuestion, Question]]:
-    return (
-        db.query(MockTestQuestion, Question)
-        .join(
-            Question,
-            MockTestQuestion.question_id == Question.id,
-        )
         .filter(
-            MockTestQuestion.mock_test_id == mock_test_id
+            MockTestQuestion.mock_test_id == mock_test_id,
         )
         .order_by(
             MockTestQuestion.question_order.asc()
@@ -102,6 +111,37 @@ def get_mock_test_questions_with_details(
         .all()
     )
 
+
+# ============================================================
+# GET MOCK TEST QUESTIONS WITH QUESTION DETAILS
+# ============================================================
+
+def get_mock_test_questions_with_details(
+    db: Session,
+    mock_test_id: int,
+) -> list[tuple[MockTestQuestion, Question]]:
+    return (
+        db.query(
+            MockTestQuestion,
+            Question,
+        )
+        .join(
+            Question,
+            Question.id == MockTestQuestion.question_id,
+        )
+        .filter(
+            MockTestQuestion.mock_test_id == mock_test_id,
+        )
+        .order_by(
+            MockTestQuestion.question_order.asc()
+        )
+        .all()
+    )
+
+
+# ============================================================
+# DELETE MOCK TEST
+# ============================================================
 
 def delete_mock_test(
     db: Session,

@@ -2,20 +2,34 @@ import random
 
 from sqlalchemy.orm import Session
 
-
 from app.repositories.mock_test_repository import (
     create_mock_test,
     create_mock_test_question,
     delete_mock_test,
     get_mock_test_by_id,
-    get_mock_test_questions,
-    get_user_mock_tests,
     get_mock_test_questions_with_details,
+    get_user_mock_tests,
 )
-from app.repositories.question_repository import get_questions_by_material
-from app.repositories.study_material_repository import get_study_material_by_id
+
+from app.repositories.question_repository import (
+    get_questions_by_material,
+)
+
+from app.repositories.subject_repository import (
+    get_subject_by_id,
+    get_subject_materials,
+)
+
+from app.repositories.study_material_repository import (
+    get_study_material_by_id,
+)
+
 from app.schemas.mock_test import MockTestCreate
 
+
+# ============================================================
+# CREATE MOCK TEST FROM ONE MATERIAL
+# ============================================================
 
 def create_test(
     db: Session,
@@ -24,7 +38,9 @@ def create_test(
     test_data: MockTestCreate,
 ):
     if test_data.question_count <= 0:
-        raise ValueError("Question count must be greater than zero")
+        raise ValueError(
+            "Question count must be greater than zero"
+        )
 
     material = get_study_material_by_id(
         db=db,
@@ -33,7 +49,9 @@ def create_test(
     )
 
     if material is None:
-        raise ValueError("Study material not found")
+        raise ValueError(
+            "Study material not found"
+        )
 
     questions = get_questions_by_material(
         db=db,
@@ -42,7 +60,8 @@ def create_test(
 
     if len(questions) < test_data.question_count:
         raise ValueError(
-            f"Only {len(questions)} questions are available for this material"
+            f"Only {len(questions)} questions are available "
+            "for this material"
         )
 
     selected_questions = random.sample(
@@ -54,11 +73,15 @@ def create_test(
         db=db,
         user_id=user_id,
         material_id=material_id,
+        subject_id=None,
         title=test_data.title,
         question_count=test_data.question_count,
     )
 
-    for position, question in enumerate(selected_questions, start=1):
+    for position, question in enumerate(
+        selected_questions,
+        start=1,
+    ):
         create_mock_test_question(
             db=db,
             mock_test_id=mock_test.id,
@@ -68,6 +91,100 @@ def create_test(
 
     return mock_test
 
+
+# ============================================================
+# CREATE MOCK TEST FROM SUBJECT
+# ============================================================
+
+def create_subject_test(
+    db: Session,
+    user_id: int,
+    subject_id: int,
+    test_data: MockTestCreate,
+):
+    if test_data.question_count <= 0:
+        raise ValueError(
+            "Question count must be greater than zero"
+        )
+
+    subject = get_subject_by_id(
+        db=db,
+        subject_id=subject_id,
+        user_id=user_id,
+    )
+
+    if subject is None:
+        raise ValueError(
+            "Subject not found"
+        )
+
+    materials = get_subject_materials(
+        db=db,
+        subject_id=subject_id,
+        user_id=user_id,
+    )
+
+    if not materials:
+        raise ValueError(
+            "This subject has no study materials"
+        )
+
+    question_pool = []
+
+    for material in materials:
+        material_questions = get_questions_by_material(
+            db=db,
+            material_id=material.id,
+        )
+
+        question_pool.extend(
+            material_questions
+        )
+
+    if not question_pool:
+        raise ValueError(
+            "No questions are available for this subject. "
+            "Generate the question banks for its chapters first."
+        )
+
+    if len(question_pool) < test_data.question_count:
+        raise ValueError(
+            f"Only {len(question_pool)} questions are available "
+            f"across this subject, but "
+            f"{test_data.question_count} were requested"
+        )
+
+    selected_questions = random.sample(
+        question_pool,
+        test_data.question_count,
+    )
+
+    mock_test = create_mock_test(
+        db=db,
+        user_id=user_id,
+        material_id=None,
+        subject_id=subject_id,
+        title=test_data.title,
+        question_count=test_data.question_count,
+    )
+
+    for position, question in enumerate(
+        selected_questions,
+        start=1,
+    ):
+        create_mock_test_question(
+            db=db,
+            mock_test_id=mock_test.id,
+            question_id=question.id,
+            question_order=position,
+        )
+
+    return mock_test
+
+
+# ============================================================
+# GET ONE MOCK TEST
+# ============================================================
 
 def get_test(
     db: Session,
@@ -81,10 +198,16 @@ def get_test(
     )
 
     if mock_test is None:
-        raise ValueError("Mock test not found")
+        raise ValueError(
+            "Mock test not found"
+        )
 
     return mock_test
 
+
+# ============================================================
+# LIST USER MOCK TESTS
+# ============================================================
 
 def get_tests_for_user(
     db: Session,
@@ -95,6 +218,10 @@ def get_tests_for_user(
         user_id=user_id,
     )
 
+
+# ============================================================
+# GET QUESTIONS FOR MOCK TEST
+# ============================================================
 
 def get_test_questions(
     db: Session,
@@ -108,7 +235,9 @@ def get_test_questions(
     )
 
     if mock_test is None:
-        raise ValueError("Mock test not found")
+        raise ValueError(
+            "Mock test not found"
+        )
 
     questions = get_mock_test_questions_with_details(
         db=db,
@@ -129,6 +258,10 @@ def get_test_questions(
     ]
 
 
+# ============================================================
+# DELETE MOCK TEST
+# ============================================================
+
 def remove_test(
     db: Session,
     mock_test_id: int,
@@ -141,7 +274,9 @@ def remove_test(
     )
 
     if mock_test is None:
-        raise ValueError("Mock test not found")
+        raise ValueError(
+            "Mock test not found"
+        )
 
     delete_mock_test(
         db=db,

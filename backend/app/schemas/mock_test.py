@@ -11,7 +11,8 @@ class MockTestCreate(BaseModel):
 class MockTestResponse(BaseModel):
     id: int
     user_id: int
-    material_id: int
+    material_id: int | None
+    subject_id: int | None
     title: str
     question_count: int
     created_at: datetime

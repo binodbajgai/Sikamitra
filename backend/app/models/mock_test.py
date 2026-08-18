@@ -20,9 +20,15 @@ class MockTest(Base):
         index=True,
     )
 
-    material_id: Mapped[int] = mapped_column(
+    material_id: Mapped[int | None] = mapped_column(
         ForeignKey("study_materials.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
+        index=True,
+    )
+
+    subject_id: Mapped[int | None] = mapped_column(
+        ForeignKey("subjects.id", ondelete="CASCADE"),
+        nullable=True,
         index=True,
     )
 

@@ -11,6 +11,7 @@ from app.schemas.mock_test import (
 from app.schemas.mock_test_question import MockTestQuestionResponse
 from app.services.mock_test_service import (
     create_test,
+    create_subject_test,
     get_test,
     get_test_questions,
     get_tests_for_user,
@@ -124,5 +125,29 @@ def delete_mock_test(
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        )
+
+@router.post(
+    "/subjects/{subject_id}",
+    response_model=MockTestResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_subject_mock_test(
+    subject_id: int,
+    test_data: MockTestCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        return create_subject_test(
+            db=db,
+            user_id=current_user.id,
+            subject_id=subject_id,
+            test_data=test_data,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         )

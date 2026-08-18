@@ -1,4 +1,6 @@
+import json
 import re
+from difflib import SequenceMatcher
 
 from openai import OpenAI
 
@@ -31,10 +33,11 @@ class NVIDIAProvider(AIProvider):
                         "Create a concise, accurate, student-friendly summary "
                         "of the provided study material.\n\n"
                         "Requirements:\n"
+                        "- Use ONLY information contained in the source.\n"
                         "- Focus on the main concepts and ideas.\n"
                         "- Explain the material clearly for a university student.\n"
                         "- Do not reproduce the source line by line.\n"
-                        "- Do not include large code blocks.\n"
+                        "- Do not add outside knowledge.\n"
                         "- Do not list every example or syntax detail.\n"
                         "- Use short paragraphs and simple headings when useful.\n"
                         "- Avoid unnecessary repetition.\n"
@@ -46,7 +49,7 @@ class NVIDIAProvider(AIProvider):
                     "content": content,
                 },
             ],
-            temperature=0.3,
+            temperature=0.2,
             max_tokens=1000,
         )
 
@@ -75,6 +78,10 @@ class NVIDIAProvider(AIProvider):
                         "You are an expert university study assistant.\n\n"
                         "Extract the most important concepts from the provided "
                         "study material.\n\n"
+                        "STRICT SOURCE RULE:\n"
+                        "Use ONLY information explicitly present in the source.\n"
+                        "Do not add general knowledge, assumptions, explanations, "
+                        "or facts not present in the source.\n\n"
                         "Return 8 to 15 meaningful points.\n"
                         "Each point must represent one concept that a student "
                         "should remember.\n\n"
@@ -94,7 +101,7 @@ class NVIDIAProvider(AIProvider):
                     "content": content,
                 },
             ],
-            temperature=0.2,
+            temperature=0.1,
             max_tokens=1500,
         )
 
@@ -128,7 +135,7 @@ class NVIDIAProvider(AIProvider):
             if line.strip():
                 points.append(line.strip())
 
-        return points
+        return self._deduplicate_strings(points)
 
     # ============================================================
     # EXHAUSTIVE QUESTION BANK
@@ -170,6 +177,42 @@ class NVIDIAProvider(AIProvider):
                 concepts,
             )
 
+            print(
+                f"Generated {len(questions)} raw questions "
+                f"for section {chunk_index}."
+            )
+
+            # ----------------------------------------------------
+            # First deterministic validation
+            # ----------------------------------------------------
+
+            questions = self._basic_validate_questions(
+                questions
+            )
+
+            print(
+                f"{len(questions)} questions remain after "
+                "basic validation."
+            )
+
+            # ----------------------------------------------------
+            # AI source-grounding validation
+            # ----------------------------------------------------
+
+            questions = self._validate_questions_against_source(
+                chunk,
+                questions,
+            )
+
+            print(
+                f"{len(questions)} questions remain after "
+                "source validation."
+            )
+
+            # ----------------------------------------------------
+            # Coverage audit
+            # ----------------------------------------------------
+
             missing = self._find_missing_concepts(
                 chunk,
                 concepts,
@@ -190,11 +233,36 @@ class NVIDIAProvider(AIProvider):
                     )
                 )
 
+                additional_questions = (
+                    self._basic_validate_questions(
+                        additional_questions
+                    )
+                )
+
+                additional_questions = (
+                    self._validate_questions_against_source(
+                        chunk,
+                        additional_questions,
+                    )
+                )
+
                 questions.extend(additional_questions)
 
             all_questions.extend(questions)
 
+        # --------------------------------------------------------
+        # Global deterministic deduplication
+        # --------------------------------------------------------
+
         all_questions = self._deduplicate_questions(
+            all_questions
+        )
+
+        # --------------------------------------------------------
+        # Final semantic deduplication
+        # --------------------------------------------------------
+
+        all_questions = self._semantic_deduplicate_questions(
             all_questions
         )
 
@@ -205,7 +273,7 @@ class NVIDIAProvider(AIProvider):
 
         print(
             f"Final question bank contains "
-            f"{len(all_questions)} unique questions."
+            f"{len(all_questions)} unique validated questions."
         )
 
         return all_questions
@@ -228,6 +296,13 @@ class NVIDIAProvider(AIProvider):
                         "You are an expert academic analyst.\n\n"
                         "Read the study material and build an exhaustive "
                         "concept inventory.\n\n"
+                        "IMPORTANT:\n"
+                        "Use ONLY information explicitly present in the source.\n"
+                        "Do not infer missing facts.\n"
+                        "Do not resolve contradictions yourself.\n"
+                        "If the source contains inconsistent terminology, "
+                        "preserve the inconsistency rather than inventing "
+                        "a correction.\n\n"
                         "Identify every meaningful item that could reasonably "
                         "be tested in a university or competitive examination.\n\n"
                         "Include:\n"
@@ -246,9 +321,8 @@ class NVIDIAProvider(AIProvider):
                         "- formulas\n"
                         "- important examples\n"
                         "- practical applications\n"
-                        "- code/query behavior when relevant\n"
+                        "- code/query behavior when explicitly shown\n"
                         "- cause and effect relationships\n\n"
-                        "Do not invent anything that is absent from the source.\n"
                         "Do not combine unrelated concepts.\n"
                         "Return one concept per line using exactly:\n"
                         "CONCEPT: ...\n"
@@ -260,7 +334,7 @@ class NVIDIAProvider(AIProvider):
                     "content": content,
                 },
             ],
-            temperature=0.1,
+            temperature=0.0,
             max_tokens=5000,
         )
 
@@ -287,7 +361,7 @@ class NVIDIAProvider(AIProvider):
         return self._deduplicate_strings(concepts)
 
     # ============================================================
-    # GENERATE QUESTIONS FROM ALL CONCEPTS
+    # GENERATE QUESTIONS
     # ============================================================
 
     def _generate_questions_from_concepts(
@@ -323,14 +397,27 @@ class NVIDIAProvider(AIProvider):
                             "You are an expert university and "
                             "competitive-exam question writer.\n\n"
 
-                            "Generate an exhaustive set of distinct MCQs "
-                            "for EVERY concept provided.\n\n"
+                            "Generate a HIGH-QUALITY question set for "
+                            "the concepts provided.\n\n"
 
-                            "Every concept MUST be tested.\n"
-                            "Prefer multiple distinct questions for concepts "
-                            "that contain multiple testable facts.\n\n"
+                            "STRICT SOURCE-GROUNDING RULE:\n"
+                            "Every question, option, answer, and explanation "
+                            "must be directly supported by the source material.\n"
+                            "Do not use external knowledge.\n"
+                            "Do not infer unstated reasons.\n"
+                            "Do not invent SQL behavior.\n"
+                            "Do not correct inconsistencies in the source.\n"
+                            "If a concept is ambiguous or contradictory in "
+                            "the source, do not create a question that relies "
+                            "on resolving that ambiguity.\n\n"
 
-                            "Use varied question types:\n"
+                            "EVERY concept must be meaningfully covered.\n"
+                            "Generate multiple questions for a concept ONLY "
+                            "when the concept contains genuinely different "
+                            "testable facts.\n"
+                            "Do NOT create trivial rewordings.\n\n"
+
+                            "Prefer a balanced variety of:\n"
                             "- definition\n"
                             "- identification\n"
                             "- direct concept understanding\n"
@@ -341,15 +428,18 @@ class NVIDIAProvider(AIProvider):
                             "- exception\n"
                             "- cause/effect\n"
                             "- process/order\n"
-                            "- calculation/problem solving when applicable\n"
-                            "- code/query interpretation when applicable\n\n"
+                            "- calculation/problem solving when explicitly "
+                            "supported by the source\n"
+                            "- code/query interpretation when explicitly "
+                            "supported by the source\n\n"
 
-                            "Do not create trivial rewordings of the same "
-                            "question.\n"
-                            "Do not invent information.\n"
-                            "Questions must be answerable from the source.\n"
-                            "Use a mixture of easy, medium, and difficult "
-                            "questions.\n\n"
+                            "Avoid:\n"
+                            "- repeated questions testing the same fact\n"
+                            "- outside knowledge\n"
+                            "- hidden assumptions\n"
+                            "- duplicate options\n"
+                            "- ambiguous questions\n"
+                            "- questions with more than one correct answer\n\n"
 
                             "For every question use EXACTLY:\n\n"
                             "QUESTION: ...\n"
@@ -373,7 +463,7 @@ class NVIDIAProvider(AIProvider):
                         ),
                     },
                 ],
-                temperature=0.25,
+                temperature=0.15,
                 max_tokens=7000,
             )
 
@@ -392,6 +482,210 @@ class NVIDIAProvider(AIProvider):
             questions.extend(parsed)
 
         return questions
+
+    # ============================================================
+    # BASIC QUESTION VALIDATION
+    # ============================================================
+
+    def _basic_validate_questions(
+        self,
+        questions: list[dict],
+    ) -> list[dict]:
+
+        valid_questions = []
+
+        for question in questions:
+
+            question_text = question.get(
+                "question",
+                "",
+            ).strip()
+
+            options = [
+                question.get("option_a", "").strip(),
+                question.get("option_b", "").strip(),
+                question.get("option_c", "").strip(),
+                question.get("option_d", "").strip(),
+            ]
+
+            answer = question.get(
+                "correct_option",
+                "",
+            ).strip().upper()
+
+            explanation = question.get(
+                "explanation",
+                "",
+            ).strip()
+
+            # Question must exist.
+            if not question_text:
+                continue
+
+            # Exactly four non-empty options.
+            if len(options) != 4 or any(
+                not option for option in options
+            ):
+                continue
+
+            # Options cannot be duplicates.
+            normalized_options = [
+                self._normalize_text(option)
+                for option in options
+            ]
+
+            if len(set(normalized_options)) != 4:
+                print(
+                    "Rejected question because options are duplicated:"
+                    f" {question_text}"
+                )
+                continue
+
+            # Correct answer must be valid.
+            if answer not in {"A", "B", "C", "D"}:
+                continue
+
+            # Explanation should exist.
+            if not explanation:
+                continue
+
+            # Reject answer text that appears malformed.
+            answer_index = ord(answer) - ord("A")
+
+            if answer_index < 0 or answer_index >= 4:
+                continue
+
+            valid_questions.append(
+                {
+                    "question": question_text,
+                    "option_a": options[0],
+                    "option_b": options[1],
+                    "option_c": options[2],
+                    "option_d": options[3],
+                    "correct_option": answer,
+                    "explanation": explanation,
+                }
+            )
+
+        return valid_questions
+
+    # ============================================================
+    # AI SOURCE VALIDATION
+    # ============================================================
+
+    def _validate_questions_against_source(
+        self,
+        content: str,
+        questions: list[dict],
+    ) -> list[dict]:
+
+        if not questions:
+            return []
+
+        validated_questions: list[dict] = []
+
+        batch_size = 20
+
+        for start in range(
+            0,
+            len(questions),
+            batch_size,
+        ):
+            batch = questions[
+                start:start + batch_size
+            ]
+
+            question_text = "\n\n".join(
+                (
+                    f"QUESTION {index + 1}:\n"
+                    f"Question: {question['question']}\n"
+                    f"A: {question['option_a']}\n"
+                    f"B: {question['option_b']}\n"
+                    f"C: {question['option_c']}\n"
+                    f"D: {question['option_d']}\n"
+                    f"ANSWER: {question['correct_option']}\n"
+                    f"EXPLANATION: {question['explanation']}"
+                )
+                for index, question in enumerate(batch)
+            )
+
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a strict academic fact checker.\n\n"
+                            "Validate multiple-choice questions against "
+                            "the supplied source material.\n\n"
+                            "A question is VALID only if:\n"
+                            "1. The question is answerable from the source.\n"
+                            "2. The marked answer is supported by the source.\n"
+                            "3. The explanation is supported by the source.\n"
+                            "4. No option relies on information absent from "
+                            "the source in a way that affects correctness.\n"
+                            "5. The question does not resolve an unresolved "
+                            "source inconsistency.\n"
+                            "6. Exactly one option is correct based on the source.\n\n"
+                            "Reject questions that:\n"
+                            "- introduce outside knowledge\n"
+                            "- infer unstated reasons\n"
+                            "- contradict the source\n"
+                            "- depend on a source inconsistency\n"
+                            "- contain ambiguous answers\n"
+                            "- contain technically unsupported claims\n\n"
+                            "Return ONLY JSON in this form:\n"
+                            "{\n"
+                            '  "valid": [1, 2, 5],\n'
+                            '  "invalid": [3, 4],\n'
+                            '  "reasons": {\n'
+                            '      "3": "reason",\n'
+                            '      "4": "reason"\n'
+                            "  }\n"
+                            "}"
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": (
+                            f"SOURCE MATERIAL:\n\n{content}\n\n"
+                            f"QUESTIONS TO VALIDATE:\n\n{question_text}"
+                        ),
+                    },
+                ],
+                temperature=0.0,
+                max_tokens=3000,
+            )
+
+            result = response.choices[0].message.content
+
+            if not result:
+                # Fail safe: reject this validation batch rather than
+                # silently trusting unvalidated questions.
+                continue
+
+            parsed = self._parse_json_response(result)
+
+            if not parsed:
+                continue
+
+            valid_indexes = parsed.get(
+                "valid",
+                [],
+            )
+
+            for index in valid_indexes:
+                if not isinstance(index, int):
+                    continue
+
+                zero_based = index - 1
+
+                if 0 <= zero_based < len(batch):
+                    validated_questions.append(
+                        batch[zero_based]
+                    )
+
+        return validated_questions
 
     # ============================================================
     # COVERAGE CHECK
@@ -428,7 +722,8 @@ class NVIDIAProvider(AIProvider):
                         "covered by the existing questions.\n\n"
                         "A concept is covered only if at least one question "
                         "meaningfully tests that concept.\n"
-                        "Do not require exact wording.\n\n"
+                        "Do not require exact wording.\n"
+                        "Do not infer coverage from an unrelated question.\n\n"
                         "Return only missing concept numbers using exactly:\n"
                         "MISSING: 2, 5, 9\n\n"
                         "If every concept is adequately covered, return:\n"
@@ -480,7 +775,7 @@ class NVIDIAProvider(AIProvider):
         return sorted(set(missing))
 
     # ============================================================
-    # GENERATE QUESTIONS FOR MISSED CONCEPTS
+    # GENERATE QUESTIONS FOR MISSING CONCEPTS
     # ============================================================
 
     def _generate_missing_questions(
@@ -509,12 +804,15 @@ class NVIDIAProvider(AIProvider):
                     "role": "system",
                     "content": (
                         "You are completing an academic question bank.\n\n"
-                        "The following concepts were missed by the first "
-                        "question-generation pass.\n\n"
-                        "Generate additional distinct MCQs that specifically "
-                        "cover these concepts.\n\n"
-                        "Do not repeat existing questions.\n"
-                        "Do not invent information.\n\n"
+                        "Generate additional distinct MCQs only for the "
+                        "concepts that were missed.\n\n"
+                        "STRICT RULES:\n"
+                        "- Use ONLY the source material.\n"
+                        "- Do not add outside knowledge.\n"
+                        "- Do not resolve contradictions in the source.\n"
+                        "- Do not repeat existing concepts unnecessarily.\n"
+                        "- Every question must have one unambiguous answer.\n"
+                        "- Options must all be unique.\n\n"
                         "Use exactly:\n"
                         "QUESTION: ...\n"
                         "A: ...\n"
@@ -534,7 +832,7 @@ class NVIDIAProvider(AIProvider):
                     ),
                 },
             ],
-            temperature=0.2,
+            temperature=0.1,
             max_tokens=5000,
         )
 
@@ -614,6 +912,7 @@ class NVIDIAProvider(AIProvider):
                 question
                 and len(options) == 4
                 and answer in {"A", "B", "C", "D"}
+                and explanation
             ):
                 questions.append(
                     {
@@ -628,6 +927,163 @@ class NVIDIAProvider(AIProvider):
                 )
 
         return questions
+
+    # ============================================================
+    # JSON PARSER
+    # ============================================================
+
+    def _parse_json_response(
+        self,
+        text: str,
+    ) -> dict | None:
+
+        cleaned = text.strip()
+
+        # Remove markdown code fences if present.
+        cleaned = re.sub(
+            r"^```(?:json)?\s*",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+
+        cleaned = re.sub(
+            r"\s*```$",
+            "",
+            cleaned,
+        )
+
+        try:
+            parsed = json.loads(cleaned)
+
+            if not isinstance(parsed, dict):
+                return None
+
+            return parsed
+
+        except json.JSONDecodeError:
+            # Try to recover a JSON object from surrounding text.
+            match = re.search(
+                r"\{.*\}",
+                cleaned,
+                flags=re.DOTALL,
+            )
+
+            if not match:
+                return None
+
+            try:
+                parsed = json.loads(
+                    match.group(0)
+                )
+
+                if not isinstance(parsed, dict):
+                    return None
+
+                return parsed
+
+            except json.JSONDecodeError:
+                return None
+
+    # ============================================================
+    # EXACT + FUZZY QUESTION DEDUPLICATION
+    # ============================================================
+
+    def _deduplicate_questions(
+        self,
+        questions: list[dict],
+    ) -> list[dict]:
+
+        unique = []
+        seen = set()
+
+        for question in questions:
+
+            normalized = self._normalize_text(
+                question["question"]
+            )
+
+            if not normalized:
+                continue
+
+            if normalized in seen:
+                continue
+
+            seen.add(normalized)
+            unique.append(question)
+
+        return unique
+
+    # ============================================================
+    # SEMANTIC-LIKE DEDUPLICATION
+    # ============================================================
+
+    def _semantic_deduplicate_questions(
+        self,
+        questions: list[dict],
+    ) -> list[dict]:
+
+        unique: list[dict] = []
+
+        for question in questions:
+
+            current = self._normalize_text(
+                question["question"]
+            )
+
+            duplicate = False
+
+            for existing in unique:
+
+                previous = self._normalize_text(
+                    existing["question"]
+                )
+
+                similarity = SequenceMatcher(
+                    None,
+                    current,
+                    previous,
+                ).ratio()
+
+                if similarity >= 0.88:
+                    duplicate = True
+                    break
+
+                current_tokens = set(
+                    current.split()
+                )
+
+                previous_tokens = set(
+                    previous.split()
+                )
+
+                if not current_tokens or not previous_tokens:
+                    continue
+
+                intersection = (
+                    len(
+                        current_tokens
+                        & previous_tokens
+                    )
+                )
+
+                smaller = min(
+                    len(current_tokens),
+                    len(previous_tokens),
+                )
+
+                overlap = (
+                    intersection / smaller
+                )
+
+                if overlap >= 0.92:
+                    duplicate = True
+                    break
+
+            if not duplicate:
+                unique.append(question)
+
+        return unique
 
     # ============================================================
     # CONTENT CHUNKING
@@ -726,10 +1182,8 @@ class NVIDIAProvider(AIProvider):
 
         for value in values:
 
-            normalized = re.sub(
-                r"\s+",
-                " ",
-                value.strip().lower(),
+            normalized = self._normalize_text(
+                value
             )
 
             if not normalized or normalized in seen:
@@ -740,29 +1194,17 @@ class NVIDIAProvider(AIProvider):
 
         return unique
 
-    def _deduplicate_questions(
+    def _normalize_text(
         self,
-        questions: list[dict],
-    ) -> list[dict]:
+        value: str,
+    ) -> str:
 
-        unique = []
-        seen = set()
+        value = value.strip().lower()
 
-        for question in questions:
+        value = re.sub(
+            r"\s+",
+            " ",
+            value,
+        )
 
-            normalized = re.sub(
-                r"\s+",
-                " ",
-                question["question"].strip().lower(),
-            )
-
-            if not normalized:
-                continue
-
-            if normalized in seen:
-                continue
-
-            seen.add(normalized)
-            unique.append(question)
-
-        return unique
+        return value
