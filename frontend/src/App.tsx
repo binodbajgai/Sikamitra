@@ -12,8 +12,17 @@ import Dashboard from "./pages/Dashboard.tsx";
 import Materials from "./pages/Materials.tsx";
 import MaterialDetail from "./pages/MaterialDetail.tsx";
 
+import SubjectDetail from "./pages/materials/SubjectDetail.tsx";
+
+import MockTests from "./pages/mock-tests/MockTests.tsx";
+import MockTestTake from "./pages/mock-tests/MockTestTake.tsx";
+
 import AppLayout from "./layouts/AppLayout.tsx";
 
+
+/* =========================================================
+   PROTECTED ROUTE
+========================================================= */
 
 function ProtectedRoute({
   children,
@@ -22,9 +31,6 @@ function ProtectedRoute({
 }) {
   const { user, loading } = useAuth();
 
-  /*
-   * Restore session
-   */
   if (loading) {
     return (
       <div className="app-loading-screen">
@@ -33,15 +39,14 @@ function ProtectedRoute({
             S
           </div>
 
-          <p>Loading Sikamitra...</p>
+          <p>
+            Loading Sikamitra...
+          </p>
         </div>
       </div>
     );
   }
 
-  /*
-   * User is not authenticated
-   */
   if (!user) {
     return (
       <Navigate
@@ -55,12 +60,17 @@ function ProtectedRoute({
 }
 
 
+/* =========================================================
+   APP
+========================================================= */
+
 function App() {
   return (
     <Routes>
-      {/* =========================================
+
+      {/* =====================================================
           PUBLIC ROUTES
-      ========================================== */}
+      ===================================================== */}
 
       <Route
         path="/login"
@@ -73,9 +83,9 @@ function App() {
       />
 
 
-      {/* =========================================
+      {/* =====================================================
           PROTECTED APPLICATION
-      ========================================== */}
+      ===================================================== */}
 
       <Route
         element={
@@ -84,42 +94,59 @@ function App() {
           </ProtectedRoute>
         }
       >
+
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={<Dashboard />}
         />
+
+
+        {/* =================================================
+            STUDY MATERIALS
+        ================================================= */}
 
         <Route
           path="/materials"
           element={<Materials />}
         />
 
+        {/* Subject detail
+            IMPORTANT: this comes before
+            /materials/:materialId
+        */}
+        <Route
+          path="/materials/subject/:subjectId"
+          element={<SubjectDetail />}
+        />
+
+        {/* Individual material */}
         <Route
           path="/materials/:materialId"
           element={<MaterialDetail />}
         />
 
-        {/* Temporary route.
-            We will build the actual page later. */}
+
+        {/* =================================================
+            MOCK TESTS
+        ================================================= */}
+
         <Route
           path="/mock-tests"
-          element={
-            <div className="coming-soon-page">
-              <span>Mock Tests</span>
-              <h1>Coming soon</h1>
-              <p>
-                Your mock-test workspace will
-                be available here.
-              </p>
-            </div>
-          }
+          element={<MockTests />}
         />
+
+        <Route
+          path="/mock-tests/take"
+          element={<MockTestTake />}
+        />
+
       </Route>
 
 
-      {/* =========================================
-          ROOT ROUTE
-      ========================================== */}
+      {/* =====================================================
+          ROOT
+      ===================================================== */}
 
       <Route
         path="/"
@@ -132,9 +159,9 @@ function App() {
       />
 
 
-      {/* =========================================
+      {/* =====================================================
           UNKNOWN ROUTES
-      ========================================== */}
+      ===================================================== */}
 
       <Route
         path="*"
@@ -145,6 +172,7 @@ function App() {
           />
         }
       />
+
     </Routes>
   );
 }

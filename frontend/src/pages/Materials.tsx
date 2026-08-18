@@ -1,50 +1,206 @@
-import { useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Link } from "react-router-dom";
+
 import {
   deleteStudyMaterial,
   getStudyMaterials,
   uploadStudyMaterial,
   type StudyMaterial,
-} from "../api/studyMaterials";
+} from "../api/studyMaterials.ts";
+
+import type { Subject } from "../types/subjects.ts";
+
+import {
+  createSubject,
+  getMaterialSubjectAssignments,
+  getSubjects,
+  saveSubjects,
+} from "../utils/subjects.ts";
 
 function Materials() {
-  const [materials, setMaterials] = useState<StudyMaterial[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
+  const fileInputRef =
+    useRef<HTMLInputElement | null>(null);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [materials, setMaterials] =
+    useState<StudyMaterial[]>([]);
 
-  async function loadMaterials() {
-    try {
-      setLoading(true);
-      setError("");
+  const [subjects, setSubjects] =
+    useState<Subject[]>([]);
 
-      const data = await getStudyMaterials();
+  const [assignments, setAssignments] =
+    useState<Record<string, string>>({});
 
-      setMaterials(data);
-    } catch (error) {
-      console.error(error);
-      setError("Unable to load your study materials.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [loading, setLoading] =
+    useState(true);
+
+  const [uploading, setUploading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [showCreateSubject, setShowCreateSubject] =
+    useState(false);
+
+  const [subjectName, setSubjectName] =
+    useState("");
+
+  const [subjectDescription, setSubjectDescription] =
+    useState("");
+
+  const [search, setSearch] =
+    useState("");
+
+  const [showUnsorted, setShowUnsorted] =
+    useState(true);
+
 
   useEffect(() => {
-    loadMaterials();
+    setSubjects(getSubjects());
+    setAssignments(
+      getMaterialSubjectAssignments()
+    );
   }, []);
+
+
+  useEffect(() => {
+    async function loadMaterials() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data =
+          await getStudyMaterials();
+
+        setMaterials(data);
+      } catch (err) {
+        console.error(err);
+
+        setError(
+          "Unable to load your study materials."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadMaterials();
+  }, []);
+
+
+  const filteredMaterials =
+    useMemo(() => {
+      const value =
+        search.trim().toLowerCase();
+
+      if (!value) {
+        return materials;
+      }
+
+      return materials.filter(
+        (material) =>
+          [
+            material.title,
+            material.file_name,
+            material.source_type,
+          ]
+            .filter(Boolean)
+            .some((field) =>
+              String(field)
+                .toLowerCase()
+                .includes(value)
+            )
+      );
+    }, [materials, search]);
+
+
+  const unsortedMaterials =
+    filteredMaterials.filter(
+      (material) =>
+        !assignments[String(material.id)]
+    );
+
+
+  function handleCreateSubject() {
+    const name =
+      subjectName.trim();
+
+    if (!name) {
+      setError(
+        "Enter a subject name."
+      );
+      return;
+    }
+
+    const exists =
+      subjects.some(
+        (subject) =>
+          subject.name.toLowerCase() ===
+          name.toLowerCase()
+      );
+
+    if (exists) {
+      setError(
+        "A subject with this name already exists."
+      );
+      return;
+    }
+
+    const subject =
+      createSubject(
+        name,
+        subjectDescription
+      );
+
+    setSubjects((current) => [
+      ...current,
+      subject,
+    ]);
+
+    setSubjectName("");
+    setSubjectDescription("");
+    setShowCreateSubject(false);
+    setError("");
+  }
+
 
   function openFilePicker() {
     fileInputRef.current?.click();
   }
 
-  async function handleUpload(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const file = event.target.files?.[0];
 
+  async function handleFile(
+    file?: File
+  ) {
     if (!file) {
+      return;
+    }
+
+    const validExtensions = [
+      ".pdf",
+      ".doc",
+      ".docx",
+      ".txt",
+    ];
+
+    const lowerName =
+      file.name.toLowerCase();
+
+    const valid =
+      validExtensions.some(
+        (extension) =>
+          lowerName.endsWith(extension)
+      );
+
+    if (!valid) {
+      setError(
+        "Please upload a PDF, DOC, DOCX, or TXT file."
+      );
       return;
     }
 
@@ -52,25 +208,37 @@ function Materials() {
       setUploading(true);
       setError("");
 
-      const material = await uploadStudyMaterial(file);
+      const material =
+        await uploadStudyMaterial(file);
 
       setMaterials((current) => [
         material,
         ...current,
       ]);
-    } catch (error) {
-      console.error(error);
-      setError("Unable to upload this document.");
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        "Unable to upload this material."
+      );
     } finally {
       setUploading(false);
-      event.target.value = "";
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value =
+          "";
+      }
     }
   }
 
-  async function handleDelete(materialId: number) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this study material?"
-    );
+
+  async function handleDelete(
+    material: StudyMaterial
+  ) {
+    const confirmed =
+      window.confirm(
+        `Delete "${material.title}"? This cannot be undone.`
+      );
 
     if (!confirmed) {
       return;
@@ -79,178 +247,438 @@ function Materials() {
     try {
       setError("");
 
-      await deleteStudyMaterial(materialId);
+      await deleteStudyMaterial(
+        material.id
+      );
 
       setMaterials((current) =>
         current.filter(
-          (material) => material.id !== materialId
+          (item) =>
+            item.id !== material.id
         )
       );
-    } catch (error) {
-      console.error(error);
-      setError("Unable to delete this material.");
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        "Unable to delete this material."
+      );
     }
   }
 
+
+  function handleFileChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    void handleFile(
+      event.target.files?.[0]
+    );
+  }
+
+
+  function getSubjectMaterialCount(
+    subjectId: string
+  ) {
+    return materials.filter(
+      (material) =>
+        assignments[String(material.id)] ===
+        subjectId
+    ).length;
+  }
+
+
+  function getSubjectMaterials(
+    subjectId: string
+  ) {
+    return filteredMaterials.filter(
+      (material) =>
+        assignments[String(material.id)] ===
+        subjectId
+    );
+  }
+
+
+  function formatDate(date: string) {
+    const value = new Date(date);
+
+    if (
+      Number.isNaN(value.getTime())
+    ) {
+      return "";
+    }
+
+    return value.toLocaleDateString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }
+    );
+  }
+
+
   return (
-    <div className="materials-page">
-      <header className="materials-header">
-        <div className="materials-header-left">
-          <NavLink
-            to="/dashboard"
-            className="back-link"
-          >
-            ← Overview
-          </NavLink>
+    <div className="subjects-page">
+      <div className="subjects-container">
 
-          <span className="section-kicker">
-            Library
-          </span>
+        {/* HEADER */}
+        <header className="subjects-header">
+          <div>
+            <p className="subjects-kicker">
+              Your library
+            </p>
 
-          <h1>Study materials</h1>
+            <h1>Study subjects</h1>
 
-          <p>
-            Keep your notes, documents, and study resources
-            in one place.
-          </p>
-        </div>
-
-        <div className="materials-header-action">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.txt,.doc,.docx"
-            onChange={handleUpload}
-            disabled={uploading}
-            hidden
-          />
+            <p>
+              Organize your study material by
+              subject and use the same subject
+              later for mock tests.
+            </p>
+          </div>
 
           <button
             type="button"
-            className="upload-button"
-            onClick={openFilePicker}
-            disabled={uploading}
+            className="subjects-create-button"
+            onClick={() => {
+              setError("");
+              setShowCreateSubject(true);
+            }}
           >
-            {uploading
-              ? "Uploading..."
-              : "+ Upload document"}
+            <span>+</span>
+            New subject
           </button>
-        </div>
-      </header>
+        </header>
 
-      {error && (
-        <div className="materials-error">
-          {error}
-        </div>
-      )}
 
-      <main className="materials-content">
-        <div className="materials-section-header">
-          <div>
-            <span className="section-kicker">
-              Your library
-            </span>
+        {/* SEARCH */}
+        <div className="subjects-toolbar">
+          <div className="subjects-search">
+            <span>⌕</span>
 
-            <h2>
-              {materials.length === 0
-                ? "No materials yet"
-                : `${materials.length} ${
-                    materials.length === 1
-                      ? "material"
-                      : "materials"
-                  }`}
-            </h2>
+            <input
+              type="search"
+              placeholder="Search your materials..."
+              value={search}
+              onChange={(event) =>
+                setSearch(
+                  event.target.value
+                )
+              }
+            />
           </div>
+
+          <span className="subjects-count">
+            {subjects.length} subjects ·{" "}
+            {materials.length} materials
+          </span>
         </div>
 
-        {loading ? (
-          <div className="materials-empty">
-            <div className="empty-marker">...</div>
 
-            <h2>Loading your materials</h2>
-
-            <p>
-              We're retrieving your study library.
-            </p>
-          </div>
-        ) : materials.length === 0 ? (
-          <div className="materials-empty">
-            <div className="empty-marker">+</div>
-
-            <h2>Your library is empty</h2>
-
-            <p>
-              Upload your first document to start
-              building your study library.
-            </p>
-
-            <button
-              type="button"
-              className="empty-upload-button"
-              onClick={openFilePicker}
-            >
-              Upload your first document
-            </button>
-          </div>
-        ) : (
-          <div className="materials-list">
-            {materials.map((material) => (
-              <article
-                className="material-card"
-                key={material.id}
-              >
-                <div className="material-card-main">
-                  <div className="material-card-top">
-                    <span className="material-type">
-                      {material.source_type}
-                    </span>
-
-                    <span className="material-id">
-                      #{material.id}
-                    </span>
-                  </div>
-
-                  <h3>
-                    {material.title}
-                  </h3>
-
-                  {material.file_name && (
-                    <p className="material-file-name">
-                      {material.file_name}
-                    </p>
-                  )}
-
-                  <time>
-                    Updated{" "}
-                    {new Date(
-                      material.updated_at
-                    ).toLocaleDateString()}
-                  </time>
-                </div>
-
-                <div className="material-card-actions">
-                  <NavLink
-                    to={`/materials/${material.id}`}
-                    className="material-view"
-                  >
-                    View →
-                  </NavLink>
-
-                  <button
-                    type="button"
-                    className="material-delete"
-                    onClick={() =>
-                      handleDelete(material.id)
-                    }
-                  >
-                    Delete
-                  </button>
-                </div>
-              </article>
-            ))}
+        {/* ERROR */}
+        {error && (
+          <div className="subjects-error">
+            {error}
           </div>
         )}
-      </main>
+
+
+        {/* CREATE SUBJECT */}
+        {showCreateSubject && (
+          <section className="subject-create-panel">
+
+            <div className="subject-create-heading">
+              <div>
+                <p className="subjects-kicker">
+                  New subject
+                </p>
+
+                <h2>
+                  Create a study folder
+                </h2>
+
+                <p>
+                  Materials inside this subject can
+                  later be used together for mock tests.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="subject-close-button"
+                onClick={() =>
+                  setShowCreateSubject(
+                    false
+                  )
+                }
+              >
+                ×
+              </button>
+            </div>
+
+
+            <div className="subject-create-fields">
+
+              <label>
+                Subject name
+
+                <input
+                  type="text"
+                  value={subjectName}
+                  onChange={(event) =>
+                    setSubjectName(
+                      event.target.value
+                    )
+                  }
+                  placeholder="e.g. Python Programming"
+                />
+              </label>
+
+
+              <label>
+                Description
+                <span>Optional</span>
+
+                <input
+                  type="text"
+                  value={subjectDescription}
+                  onChange={(event) =>
+                    setSubjectDescription(
+                      event.target.value
+                    )
+                  }
+                  placeholder="e.g. OOP, functions and modules"
+                />
+              </label>
+
+            </div>
+
+
+            <div className="subject-create-actions">
+              <button
+                type="button"
+                className="subject-cancel-button"
+                onClick={() =>
+                  setShowCreateSubject(
+                    false
+                  )
+                }
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="subjects-create-button"
+                onClick={
+                  handleCreateSubject
+                }
+              >
+                Create subject
+              </button>
+            </div>
+
+          </section>
+        )}
+
+
+        {/* SUBJECTS */}
+        <section className="subjects-list">
+
+          <div className="subjects-section-heading">
+            <div>
+              <p className="subjects-kicker">
+                Organized library
+              </p>
+
+              <h2>
+                Your subjects
+              </h2>
+            </div>
+          </div>
+
+
+          {loading ? (
+            <div className="subject-loading">
+              Loading your library...
+            </div>
+          ) : subjects.length === 0 ? (
+            <div className="subjects-empty">
+              <div className="subjects-empty-mark">
+                +
+              </div>
+
+              <h3>
+                Create your first subject
+              </h3>
+
+              <p>
+                Create folders such as Python,
+                Databases, Mathematics, or AI and
+                keep each subject's material together.
+              </p>
+
+              <button
+                type="button"
+                className="subjects-create-button"
+                onClick={() =>
+                  setShowCreateSubject(
+                    true
+                  )
+                }
+              >
+                Create subject
+              </button>
+            </div>
+          ) : (
+            <div className="subject-grid">
+              {subjects.map((subject) => {
+                const count =
+                  getSubjectMaterialCount(
+                    subject.id
+                  );
+
+                return (
+                  <Link
+                    key={subject.id}
+                    to={`/materials/subject/${subject.id}`}
+                    className="subject-card"
+                  >
+                    <div className="subject-card-top">
+                      <div className="subject-folder-icon">
+                        □
+                      </div>
+
+                      <span>
+                        →
+                      </span>
+                    </div>
+
+                    <h3>
+                      {subject.name}
+                    </h3>
+
+                    <p>
+                      {subject.description ||
+                        "Study materials and practice for this subject."}
+                    </p>
+
+                    <div className="subject-card-footer">
+                      <strong>
+                        {count}
+                      </strong>
+
+                      <span>
+                        {count === 1
+                          ? "material"
+                          : "materials"}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+        </section>
+
+
+        {/* UNSORTED */}
+        {!loading &&
+          unsortedMaterials.length > 0 && (
+            <section className="unsorted-section">
+
+              <button
+                type="button"
+                className="unsorted-heading"
+                onClick={() =>
+                  setShowUnsorted(
+                    (current) =>
+                      !current
+                  )
+                }
+              >
+                <span>
+                  Unsorted materials
+                </span>
+
+                <span>
+                  {unsortedMaterials.length}
+                  {" "}
+                  {showUnsorted
+                    ? "⌃"
+                    : "⌄"}
+                </span>
+              </button>
+
+
+              {showUnsorted && (
+                <div className="materials-list">
+                  {unsortedMaterials.map(
+                    (material) => (
+                      <article
+                        key={material.id}
+                        className="material-row"
+                      >
+                        <div className="material-file-icon">
+                          {material.file_name
+                            ?.split(".")
+                            .pop()
+                            ?.toUpperCase() ||
+                            "DOC"}
+                        </div>
+
+                        <div className="material-row-info">
+                          <Link
+                            to={`/materials/${material.id}`}
+                            className="material-row-title"
+                          >
+                            {material.title}
+                          </Link>
+
+                          <p>
+                            {material.file_name ||
+                              material.source_type ||
+                              "Study material"}
+
+                            {" · Updated "}
+
+                            {formatDate(
+                              material.updated_at
+                            )}
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="material-delete-button"
+                          onClick={() =>
+                            void handleDelete(
+                              material
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
+                      </article>
+                    )
+                  )}
+                </div>
+              )}
+
+            </section>
+          )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          hidden
+          accept=".pdf,.doc,.docx,.txt"
+          onChange={handleFileChange}
+        />
+
+      </div>
     </div>
   );
 }

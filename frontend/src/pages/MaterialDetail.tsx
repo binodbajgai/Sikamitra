@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import {
   getStudyMaterial,
   type StudyMaterial,
-} from "../api/studyMaterials";
+} from "../api/studyMaterials.ts";
 
-import apiClient from "../api/client";
+import apiClient from "../api/client.ts";
 
 interface Summary {
   id: number;
@@ -54,6 +54,7 @@ function MaterialDetail() {
     useState<Question[]>([]);
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [generatingSummary, setGeneratingSummary] =
     useState(false);
@@ -63,14 +64,6 @@ function MaterialDetail() {
 
   const [generatingQuestions, setGeneratingQuestions] =
     useState(false);
-
-  const [error, setError] = useState("");
-
-  /*
-   * ============================================================
-   * LOAD MATERIAL + EXISTING AI RESULTS
-   * ============================================================
-   */
 
   async function loadMaterial() {
     if (!materialId) {
@@ -96,10 +89,6 @@ function MaterialDetail() {
 
       setMaterial(materialData);
 
-      /*
-       * Summary
-       */
-
       try {
         const response =
           await apiClient.get<Summary>(
@@ -111,10 +100,6 @@ function MaterialDetail() {
         setSummary(null);
       }
 
-      /*
-       * Important points
-       */
-
       try {
         const response =
           await apiClient.get<ImportantPoint[]>(
@@ -125,10 +110,6 @@ function MaterialDetail() {
       } catch {
         setImportantPoints([]);
       }
-
-      /*
-       * Questions
-       */
 
       try {
         const response =
@@ -152,14 +133,8 @@ function MaterialDetail() {
   }
 
   useEffect(() => {
-    loadMaterial();
+    void loadMaterial();
   }, [materialId]);
-
-  /*
-   * ============================================================
-   * SUMMARY
-   * ============================================================
-   */
 
   async function generateSummary() {
     if (!materialId) {
@@ -175,9 +150,7 @@ function MaterialDetail() {
         : `/ai/materials/${materialId}/summary`;
 
       const response =
-        await apiClient.post<Summary>(
-          endpoint
-        );
+        await apiClient.post<Summary>(endpoint);
 
       setSummary(response.data);
     } catch (err) {
@@ -190,12 +163,6 @@ function MaterialDetail() {
       setGeneratingSummary(false);
     }
   }
-
-  /*
-   * ============================================================
-   * IMPORTANT POINTS
-   * ============================================================
-   */
 
   async function generateImportantPoints() {
     if (!materialId) {
@@ -228,12 +195,6 @@ function MaterialDetail() {
     }
   }
 
-  /*
-   * ============================================================
-   * QUESTIONS
-   * ============================================================
-   */
-
   async function generateQuestions() {
     if (!materialId) {
       return;
@@ -265,276 +226,325 @@ function MaterialDetail() {
     }
   }
 
-  /*
-   * ============================================================
-   * LOADING
-   * ============================================================
-   */
+  function getExtension() {
+    const extension = material?.file_name
+      ?.split(".")
+      .pop()
+      ?.toUpperCase();
+
+    return extension || "DOC";
+  }
 
   if (loading) {
     return (
       <div className="material-detail-page">
-        <div className="material-detail-loading">
-          Loading material...
+        <div className="material-detail-state">
+          <div className="state-mark">S</div>
+          <p>Loading your material...</p>
         </div>
       </div>
     );
   }
-
-  /*
-   * ============================================================
-   * MATERIAL NOT FOUND
-   * ============================================================
-   */
 
   if (!material) {
     return (
       <div className="material-detail-page">
-        <NavLink
-          to="/materials"
-          className="back-link"
-        >
-          ← Library
-        </NavLink>
+        <div className="material-detail-state">
+          <div className="state-mark">!</div>
+          <h2>Material not found</h2>
+          <p>{error || "This material is unavailable."}</p>
 
-        <div className="material-detail-error">
-          {error || "Material not found."}
+          <Link
+            to="/materials"
+            className="material-back-button"
+          >
+            Back to materials
+          </Link>
         </div>
       </div>
     );
   }
 
-  /*
-   * ============================================================
-   * PAGE
-   * ============================================================
-   */
-
   return (
     <div className="material-detail-page">
-      <header className="material-detail-header">
-        <NavLink
-          to="/materials"
-          className="back-link"
-        >
-          ← Library
-        </NavLink>
+      <div className="material-detail-container">
 
-        <span className="section-kicker">
-          Study material
-        </span>
+        <header className="material-detail-header">
+          <Link
+            to="/materials"
+            className="material-back-link"
+          >
+            ← Study materials
+          </Link>
 
-        <h1>{material.title}</h1>
-
-        <p>
-          {material.file_name ||
-            "Uploaded study material"}
-        </p>
-      </header>
-
-      {error && (
-        <div className="materials-error">
-          {error}
-        </div>
-      )}
-
-      <main className="material-detail-content">
-
-        {/* ======================================================
-            SUMMARY
-        ====================================================== */}
-
-        <section className="ai-section">
-          <div className="ai-section-header">
+          <div className="material-detail-heading">
             <div>
-              <span className="section-kicker">
-                AI analysis
-              </span>
+              <div className="material-detail-meta">
+                <span>{getExtension()}</span>
+                <span>
+                  {material.source_type ||
+                    "Study material"}
+                </span>
+              </div>
 
-              <h2>Summary</h2>
-            </div>
+              <h1>{material.title}</h1>
 
-            <button
-              type="button"
-              className="ai-action"
-              onClick={generateSummary}
-              disabled={generatingSummary}
-            >
-              {generatingSummary
-                ? "Generating..."
-                : summary
-                  ? "Regenerate"
-                  : "Generate"}
-            </button>
-          </div>
-
-          {summary ? (
-            <div className="ai-content">
-              {summary.summary}
-            </div>
-          ) : (
-            <div className="ai-empty">
               <p>
-                No summary has been generated yet.
+                {material.file_name ||
+                  "Your AI-powered study workspace"}
               </p>
             </div>
-          )}
-        </section>
 
-        {/* ======================================================
-            IMPORTANT POINTS
-        ====================================================== */}
+            <div className="material-detail-count">
+              <strong>
+                {questions.length}
+              </strong>
 
-        <section className="ai-section">
-          <div className="ai-section-header">
-            <div>
-              <span className="section-kicker">
-                Key information
+              <span>
+                questions
               </span>
+            </div>
+          </div>
+        </header>
 
-              <h2>Important points</h2>
+        {error && (
+          <div className="material-detail-error">
+            {error}
+          </div>
+        )}
+
+        <main className="material-detail-content">
+
+          {/* Summary */}
+          <section className="study-section">
+            <div className="study-section-header">
+              <div>
+                <p className="study-section-kicker">
+                  Understand
+                </p>
+
+                <h2>Summary</h2>
+              </div>
+
+              <button
+                type="button"
+                className="study-action"
+                onClick={() =>
+                  void generateSummary()
+                }
+                disabled={generatingSummary}
+              >
+                {generatingSummary
+                  ? "Generating..."
+                  : summary
+                    ? "Regenerate"
+                    : "Generate"}
+              </button>
             </div>
 
-            <button
-              type="button"
-              className="ai-action"
-              onClick={generateImportantPoints}
-              disabled={generatingPoints}
-            >
-              {generatingPoints
-                ? "Generating..."
-                : importantPoints.length > 0
-                  ? "Regenerate"
-                  : "Generate"}
-            </button>
-          </div>
+            {summary ? (
+              <div className="summary-content">
+                {summary.summary}
+              </div>
+            ) : (
+              <div className="study-empty">
+                <div className="study-empty-mark">
+                  +
+                </div>
 
-          {importantPoints.length > 0 ? (
-            <div className="important-points">
-              {importantPoints.map(
-                (point, index) => (
-                  <div
-                    className="important-point"
-                    key={point.id}
-                  >
-                    <span>
-                      {String(index + 1).padStart(
-                        2,
-                        "0"
+                <h3>
+                  No summary yet
+                </h3>
+
+                <p>
+                  Generate a concise overview of this
+                  material to make revision easier.
+                </p>
+              </div>
+            )}
+          </section>
+
+
+          {/* Important points */}
+          <section className="study-section">
+            <div className="study-section-header">
+              <div>
+                <p className="study-section-kicker">
+                  Remember
+                </p>
+
+                <h2>Important points</h2>
+              </div>
+
+              <button
+                type="button"
+                className="study-action"
+                onClick={() =>
+                  void generateImportantPoints()
+                }
+                disabled={generatingPoints}
+              >
+                {generatingPoints
+                  ? "Generating..."
+                  : importantPoints.length > 0
+                    ? "Regenerate"
+                    : "Generate"}
+              </button>
+            </div>
+
+            {importantPoints.length > 0 ? (
+              <div className="important-point-list">
+                {importantPoints.map(
+                  (point, index) => (
+                    <article
+                      key={point.id}
+                      className="important-point-row"
+                    >
+                      <span>
+                        {String(
+                          point.position ||
+                            index + 1
+                        ).padStart(2, "0")}
+                      </span>
+
+                      <p>{point.point}</p>
+                    </article>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="study-empty">
+                <div className="study-empty-mark">
+                  +
+                </div>
+
+                <h3>
+                  No important points yet
+                </h3>
+
+                <p>
+                  Generate the key concepts you should
+                  remember from this material.
+                </p>
+              </div>
+            )}
+          </section>
+
+
+          {/* Questions */}
+          <section className="study-section">
+            <div className="study-section-header">
+              <div>
+                <p className="study-section-kicker">
+                  Practice
+                </p>
+
+                <h2>Question bank</h2>
+              </div>
+
+              <button
+                type="button"
+                className="study-action"
+                onClick={() =>
+                  void generateQuestions()
+                }
+                disabled={generatingQuestions}
+              >
+                {generatingQuestions
+                  ? "Generating..."
+                  : questions.length > 0
+                    ? "Regenerate"
+                    : "Generate"}
+              </button>
+            </div>
+
+            {questions.length > 0 ? (
+              <div className="question-bank">
+                {questions.map(
+                  (question, index) => (
+                    <article
+                      key={question.id}
+                      className="question-item"
+                    >
+                      <div className="question-item-header">
+                        <span>
+                          Question{" "}
+                          {String(index + 1).padStart(
+                            2,
+                            "0"
+                          )}
+                        </span>
+                      </div>
+
+                      <h3>
+                        {question.question}
+                      </h3>
+
+                      <div className="question-options-grid">
+                        <div>
+                          <b>A</b>
+                          <span>
+                            {question.option_a}
+                          </span>
+                        </div>
+
+                        <div>
+                          <b>B</b>
+                          <span>
+                            {question.option_b}
+                          </span>
+                        </div>
+
+                        <div>
+                          <b>C</b>
+                          <span>
+                            {question.option_c}
+                          </span>
+                        </div>
+
+                        <div>
+                          <b>D</b>
+                          <span>
+                            {question.option_d}
+                          </span>
+                        </div>
+                      </div>
+
+                      {question.explanation && (
+                        <div className="question-explanation">
+                          <strong>
+                            Explanation
+                          </strong>
+
+                          <p>
+                            {question.explanation}
+                          </p>
+                        </div>
                       )}
-                    </span>
+                    </article>
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="study-empty">
+                <div className="study-empty-mark">
+                  ?
+                </div>
 
-                    <p>
-                      {point.point}
-                    </p>
-                  </div>
-                )
-              )}
-            </div>
-          ) : (
-            <div className="ai-empty">
-              <p>
-                No important points have been
-                generated yet.
-              </p>
-            </div>
-          )}
-        </section>
+                <h3>
+                  No questions yet
+                </h3>
 
-        {/* ======================================================
-            QUESTIONS
-        ====================================================== */}
+                <p>
+                  Generate a question bank from this
+                  material for active practice.
+                </p>
+              </div>
+            )}
+          </section>
 
-        <section className="ai-section">
-          <div className="ai-section-header">
-            <div>
-              <span className="section-kicker">
-                Practice
-              </span>
-
-              <h2>Questions</h2>
-            </div>
-
-            <button
-              type="button"
-              className="ai-action"
-              onClick={generateQuestions}
-              disabled={generatingQuestions}
-            >
-              {generatingQuestions
-                ? "Generating..."
-                : questions.length > 0
-                  ? "Regenerate"
-                  : "Generate"}
-            </button>
-          </div>
-
-          {questions.length > 0 ? (
-            <div className="questions-list">
-              {questions.map(
-                (question, index) => (
-                  <article
-                    className="question-card"
-                    key={question.id}
-                  >
-                    <span className="question-number">
-                      Question {index + 1}
-                    </span>
-
-                    <h3>
-                      {question.question}
-                    </h3>
-
-                    <div className="question-options">
-
-                      <div>
-                        <strong>A</strong>
-
-                        <span>
-                          {question.option_a}
-                        </span>
-                      </div>
-
-                      <div>
-                        <strong>B</strong>
-
-                        <span>
-                          {question.option_b}
-                        </span>
-                      </div>
-
-                      <div>
-                        <strong>C</strong>
-
-                        <span>
-                          {question.option_c}
-                        </span>
-                      </div>
-
-                      <div>
-                        <strong>D</strong>
-
-                        <span>
-                          {question.option_d}
-                        </span>
-                      </div>
-
-                    </div>
-                  </article>
-                )
-              )}
-            </div>
-          ) : (
-            <div className="ai-empty">
-              <p>
-                Generate questions from this
-                material for practice.
-              </p>
-            </div>
-          )}
-        </section>
-
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
