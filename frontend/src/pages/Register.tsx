@@ -1,11 +1,9 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import AuthLayout from "../layouts/AuthLayout";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext.tsx";
 
-export default function Register() {
+function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
 
@@ -13,6 +11,8 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [university, setUniversity] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] =
+    useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,108 +23,231 @@ export default function Register() {
     event.preventDefault();
 
     setError("");
-    setLoading(true);
+
+    if (!fullName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError(
+        "Password must contain at least 8 characters."
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
     try {
+      setLoading(true);
+
       await register({
-        full_name: fullName,
-        email,
+        full_name: fullName.trim(),
+        email: email.trim(),
         password,
-        university: university || undefined,
+        university:
+          university.trim() || undefined,
       });
 
-      navigate("/");
-    } catch {
-      setError(
-        "Unable to create your account. Please check your details."
-      );
+      navigate("/dashboard", {
+        replace: true,
+      });
+    } catch (err: any) {
+      console.error(err);
+
+      const detail =
+        err?.response?.data?.detail;
+
+      if (typeof detail === "string") {
+        setError(detail);
+      } else if (
+        Array.isArray(detail) &&
+        detail.length > 0
+      ) {
+        setError(
+          detail
+            .map(
+              (item: any) =>
+                item?.msg || "Invalid input."
+            )
+            .join(" ")
+        );
+      } else {
+        setError(
+          "Unable to create your account. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }
   }
 
+  function handleGoogleSignup() {
+    setError(
+      "Google Sign-In will be available once Google authentication is connected."
+    );
+  }
+
   return (
-    <AuthLayout>
-      <div className="auth-content">
-        <p className="auth-eyebrow">Create your account</p>
+    <main className="auth-page">
+      <div className="auth-panel">
 
-        <h1>Build a better study routine.</h1>
+        <div className="auth-brand">
+          <div className="auth-brand-mark">
+            S
+          </div>
 
-        <p className="auth-description">
-          Create your Sikamitra account and start preparing
-          with structured mock tests.
-        </p>
+          <span>Sikamitra</span>
+        </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            Full name
-            <input
-              type="text"
-              value={fullName}
-              onChange={(event) =>
-                setFullName(event.target.value)
-              }
-              placeholder="Your full name"
-              required
-            />
-          </label>
+        <section className="auth-content">
+          <p className="auth-eyebrow">
+            Get started
+          </p>
 
-          <label>
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
-              placeholder="you@example.com"
-              required
-            />
-          </label>
+          <h1>Create your account</h1>
 
-          <label>
-            University
-            <input
-              type="text"
-              value={university}
-              onChange={(event) =>
-                setUniversity(event.target.value)
-              }
-              placeholder="Your university"
-            />
-          </label>
-
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-              placeholder="Create a password"
-              required
-              minLength={8}
-            />
-          </label>
-
-          {error && (
-            <p className="auth-error">{error}</p>
-          )}
+          <p className="auth-description">
+            Build your study workspace and keep your
+            materials, summaries, questions, and tests
+            in one place.
+          </p>
 
           <button
-            type="submit"
+            type="button"
+            className="google-button"
+            onClick={handleGoogleSignup}
             disabled={loading}
           >
-            {loading ? "Creating account..." : "Create account"}
-          </button>
-        </form>
+            <span className="google-logo">
+              G
+            </span>
 
-        <p className="auth-switch">
-          Already have an account?{" "}
-          <Link to="/auth/login">Sign in</Link>
-        </p>
+            Continue with Google
+          </button>
+
+          <div className="auth-divider">
+            <span>or continue with email</span>
+          </div>
+
+          <form
+            className="auth-form"
+            onSubmit={handleSubmit}
+          >
+            <label>
+              Full name
+
+              <input
+                type="text"
+                value={fullName}
+                onChange={(event) =>
+                  setFullName(event.target.value)
+                }
+                placeholder="Your full name"
+                autoComplete="name"
+                disabled={loading}
+              />
+            </label>
+
+            <label>
+              Email address
+
+              <input
+                type="email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+                placeholder="you@example.com"
+                autoComplete="email"
+                disabled={loading}
+              />
+            </label>
+
+            <label>
+              University
+              <span className="field-optional">
+                Optional
+              </span>
+
+              <input
+                type="text"
+                value={university}
+                onChange={(event) =>
+                  setUniversity(event.target.value)
+                }
+                placeholder="Your university"
+                autoComplete="organization"
+                disabled={loading}
+              />
+            </label>
+
+            <label>
+              Password
+
+              <input
+                type="password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                placeholder="At least 8 characters"
+                autoComplete="new-password"
+                disabled={loading}
+              />
+            </label>
+
+            <label>
+              Confirm password
+
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(event) =>
+                  setConfirmPassword(
+                    event.target.value
+                  )
+                }
+                placeholder="Re-enter your password"
+                autoComplete="new-password"
+                disabled={loading}
+              />
+            </label>
+
+            {error && (
+              <p className="auth-error">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Creating account..."
+                : "Create account"}
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Already have an account?{" "}
+            <Link to="/login">
+              Sign in
+            </Link>
+          </p>
+        </section>
       </div>
-    </AuthLayout>
+    </main>
   );
 }
+
+export default Register;
