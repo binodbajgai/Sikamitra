@@ -1,30 +1,45 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
 
-import {
-  getStudyMaterials,
-  type StudyMaterial,
-} from "../../api/studyMaterials.ts";
+import type { Subject } from "../../types/subjects.ts";
 
-type Difficulty = "Easy" | "Medium" | "Hard";
+import {
+  getMaterialSubjectAssignments,
+  getSubjects,
+} from "../../utils/subjects.ts";
+
+type Difficulty =
+  | "Easy"
+  | "Medium"
+  | "Hard";
 
 function MockTests() {
   const navigate = useNavigate();
 
-  const [materials, setMaterials] = useState<
-    StudyMaterial[]
-  >([]);
+  const [subjects, setSubjects] =
+    useState<Subject[]>([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [assignments, setAssignments] =
+    useState<Record<string, string>>({});
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   const [showCreate, setShowCreate] =
     useState(false);
 
-  const [selectedMaterial, setSelectedMaterial] =
+  const [selectedSubject, setSelectedSubject] =
     useState("");
 
   const [questionCount, setQuestionCount] =
@@ -33,54 +48,69 @@ function MockTests() {
   const [difficulty, setDifficulty] =
     useState<Difficulty>("Medium");
 
+  /*
+   * Load locally stored subjects and
+   * material → subject assignments.
+   */
   useEffect(() => {
-    let mounted = true;
+    try {
+      setSubjects(getSubjects());
 
-    async function loadMaterials() {
-      try {
-        setLoading(true);
-        setError("");
+      setAssignments(
+        getMaterialSubjectAssignments()
+      );
+    } catch (err) {
+      console.error(err);
 
-        const data = await getStudyMaterials();
-
-        if (mounted) {
-          setMaterials(data);
-        }
-      } catch (err) {
-        console.error(err);
-
-        if (mounted) {
-          setError(
-            "Unable to load your study materials."
-          );
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
+      setError(
+        "Unable to load your subjects."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    void loadMaterials();
-
-    return () => {
-      mounted = false;
-    };
   }, []);
 
-  const selectedMaterialName = useMemo(() => {
-    return (
-      materials.find(
-        (material) =>
-          String(material.id) === selectedMaterial
-      )?.title || ""
-    );
-  }, [materials, selectedMaterial]);
+  /*
+   * Currently this counts how many materials
+   * belong to the selected subject.
+   *
+   * Later the same subject will provide the
+   * question bank for the mock test.
+   */
+  const selectedSubjectMaterialCount =
+    useMemo(() => {
+      if (!selectedSubject) {
+        return 0;
+      }
+
+      return Object.values(
+        assignments
+      ).filter(
+        (subjectId) =>
+          subjectId === selectedSubject
+      ).length;
+    }, [
+      assignments,
+      selectedSubject,
+    ]);
+
+  const selectedSubjectName =
+    useMemo(() => {
+      return (
+        subjects.find(
+          (subject) =>
+            subject.id === selectedSubject
+        )?.name || ""
+      );
+    }, [
+      subjects,
+      selectedSubject,
+    ]);
 
   function handleCreateTest() {
-    if (!selectedMaterial) {
+    if (!selectedSubject) {
       setError(
-        "Choose a study material before creating a test."
+        "Choose a subject before creating a test."
       );
 
       return;
@@ -88,6 +118,12 @@ function MockTests() {
 
     setError("");
 
+    /*
+     * Frontend-only navigation for now.
+     *
+     * Later we will pass the actual backend
+     * mock-test ID here.
+     */
     navigate("/mock-tests/take");
   }
 
@@ -95,19 +131,25 @@ function MockTests() {
     <div className="mock-tests-page">
       <div className="mock-tests-container">
 
-        {/* Header */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
+
         <header className="mock-tests-header">
           <div>
             <p className="mock-tests-kicker">
               Practice
             </p>
 
-            <h1>Mock tests</h1>
+            <h1>
+              Mock tests
+            </h1>
 
             <p className="mock-tests-description">
-              Turn your study material into focused
-              practice sessions and test what you
-              actually remember.
+              Practice an entire subject instead of
+              preparing from individual files. Your
+              subject will become the source for your
+              future question bank.
             </p>
           </div>
 
@@ -125,37 +167,61 @@ function MockTests() {
         </header>
 
 
-        {/* Overview */}
+        {/* =================================================
+            OVERVIEW
+        ================================================= */}
+
         <section className="mock-tests-overview">
+
           <div className="mock-tests-overview-item">
-            <span>Available materials</span>
+            <span>
+              Available subjects
+            </span>
 
             <strong>
               {loading
                 ? "—"
-                : materials.length}
+                : subjects.length}
             </strong>
           </div>
 
-          <div className="mock-tests-overview-item">
-            <span>Recommended length</span>
-
-            <strong>20</strong>
-
-            <small>questions</small>
-          </div>
 
           <div className="mock-tests-overview-item">
-            <span>Practice mode</span>
+            <span>
+              Recommended length
+            </span>
 
-            <strong>Focused</strong>
+            <strong>
+              20
+            </strong>
 
-            <small>active recall</small>
+            <small>
+              questions
+            </small>
           </div>
+
+
+          <div className="mock-tests-overview-item">
+            <span>
+              Practice mode
+            </span>
+
+            <strong>
+              Subject
+            </strong>
+
+            <small>
+              focused revision
+            </small>
+          </div>
+
         </section>
 
 
-        {/* Error */}
+        {/* =================================================
+            ERROR
+        ================================================= */}
+
         {error && (
           <div className="mock-tests-error">
             {error}
@@ -163,11 +229,15 @@ function MockTests() {
         )}
 
 
-        {/* Create panel */}
+        {/* =================================================
+            CREATE TEST
+        ================================================= */}
+
         {showCreate && (
           <section className="mock-test-create-panel">
 
             <div className="mock-test-create-header">
+
               <div>
                 <p className="mock-tests-section-kicker">
                   New test
@@ -178,11 +248,11 @@ function MockTests() {
                 </h2>
 
                 <p>
-                  Choose what you want to practice
-                  and how challenging the test should
-                  feel.
+                  Choose a subject and decide how
+                  many questions you want to practice.
                 </p>
               </div>
+
 
               <button
                 type="button"
@@ -194,19 +264,26 @@ function MockTests() {
               >
                 ×
               </button>
+
             </div>
 
 
             <div className="mock-test-form">
 
-              {/* Material */}
+              {/* =================================================
+                  SUBJECT
+              ================================================= */}
+
               <label className="mock-test-field">
-                <span>Study material</span>
+
+                <span>
+                  Subject
+                </span>
 
                 <select
-                  value={selectedMaterial}
+                  value={selectedSubject}
                   onChange={(event) => {
-                    setSelectedMaterial(
+                    setSelectedSubject(
                       event.target.value
                     );
 
@@ -216,30 +293,44 @@ function MockTests() {
                 >
                   <option value="">
                     {loading
-                      ? "Loading materials..."
-                      : "Choose a material"}
+                      ? "Loading subjects..."
+                      : "Choose a subject"}
                   </option>
 
-                  {materials.map((material) => (
-                    <option
-                      key={material.id}
-                      value={material.id}
-                    >
-                      {material.title}
-                    </option>
-                  ))}
+                  {subjects.map(
+                    (subject) => (
+                      <option
+                        key={subject.id}
+                        value={subject.id}
+                      >
+                        {subject.name}
+                      </option>
+                    )
+                  )}
                 </select>
 
                 <small>
-                  {selectedMaterialName ||
-                    "Questions will be generated from this material."}
+                  {selectedSubject
+                    ? `${selectedSubjectMaterialCount} material${
+                        selectedSubjectMaterialCount === 1
+                          ? ""
+                          : "s"
+                      } in this subject`
+                    : "Questions will eventually be selected from this subject's combined question bank."}
                 </small>
+
               </label>
 
 
-              {/* Question count */}
+              {/* =================================================
+                  QUESTION COUNT
+              ================================================= */}
+
               <label className="mock-test-field">
-                <span>Questions</span>
+
+                <span>
+                  Questions
+                </span>
 
                 <select
                   value={questionCount}
@@ -271,76 +362,105 @@ function MockTests() {
                 </select>
 
                 <small>
-                  A shorter test is useful for quick
-                  revision.
+                  Choose a shorter session for
+                  quick revision.
                 </small>
+
               </label>
 
 
-              {/* Difficulty */}
+              {/* =================================================
+                  DIFFICULTY
+              ================================================= */}
+
               <div className="mock-test-field">
-                <span>Difficulty</span>
+
+                <span>
+                  Difficulty
+                </span>
 
                 <div className="difficulty-options">
+
                   {(
                     [
                       "Easy",
                       "Medium",
                       "Hard",
                     ] as Difficulty[]
-                  ).map((level) => (
-                    <button
-                      key={level}
-                      type="button"
-                      className={
-                        difficulty === level
-                          ? "difficulty-option active"
-                          : "difficulty-option"
-                      }
-                      onClick={() =>
-                        setDifficulty(level)
-                      }
-                    >
-                      {level}
-                    </button>
-                  ))}
+                  ).map(
+                    (level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        className={
+                          difficulty === level
+                            ? "difficulty-option active"
+                            : "difficulty-option"
+                        }
+                        onClick={() =>
+                          setDifficulty(
+                            level
+                          )
+                        }
+                      >
+                        {level}
+                      </button>
+                    )
+                  )}
+
                 </div>
 
                 <small>
-                  Choose the level that matches
+                  Choose the difficulty that matches
                   your revision goal.
                 </small>
+
               </div>
+
             </div>
 
 
-            {/* Footer */}
+            {/* =================================================
+                FOOTER
+            ================================================= */}
+
             <div className="mock-test-create-footer">
+
               <span>
-                {selectedMaterialName
-                  ? `${questionCount} questions · ${difficulty}`
-                  : "Select a material to continue"}
+                {selectedSubjectName
+                  ? `${selectedSubjectName} · ${questionCount} questions · ${difficulty}`
+                  : "Select a subject to continue"}
               </span>
+
 
               <button
                 type="button"
                 className="mock-tests-primary-button"
                 disabled={
                   loading ||
-                  !selectedMaterial
+                  !selectedSubject
                 }
-                onClick={handleCreateTest}
+                onClick={
+                  handleCreateTest
+                }
               >
                 Start test
-                <span>→</span>
+
+                <span>
+                  →
+                </span>
               </button>
+
             </div>
 
           </section>
         )}
 
 
-        {/* Intro */}
+        {/* =================================================
+            FIRST TEST PROMPT
+        ================================================= */}
+
         {!showCreate && (
           <section className="mock-tests-intro-card">
 
@@ -348,23 +468,24 @@ function MockTests() {
               ✓
             </div>
 
+
             <div>
               <p className="mock-tests-section-kicker">
                 Start practicing
               </p>
 
               <h2>
-                Build a test from what you're
-                studying.
+                Test yourself on an entire subject.
               </h2>
 
               <p>
-                Select one of your uploaded materials,
-                choose a question count, and set the
-                difficulty. Your test workspace will
-                appear here.
+                Create a subject, add your study
+                material to it, and eventually use
+                the combined question bank for
+                practice.
               </p>
             </div>
+
 
             <button
               type="button"
@@ -374,25 +495,33 @@ function MockTests() {
                 setShowCreate(true);
               }}
             >
-              Create your first test
+              Create a test
             </button>
 
           </section>
         )}
 
 
-        {/* Test history */}
+        {/* =================================================
+            TEST HISTORY
+        ================================================= */}
+
         <section className="mock-tests-library">
 
           <div className="mock-tests-section-header">
+
             <div>
               <p className="mock-tests-section-kicker">
                 Your practice
               </p>
 
-              <h2>Test history</h2>
+              <h2>
+                Test history
+              </h2>
             </div>
+
           </div>
+
 
           <div className="mock-tests-empty">
 
@@ -405,15 +534,15 @@ function MockTests() {
             </h3>
 
             <p>
-              Once you complete a mock test, your
-              attempts and scores will appear here.
+              Completed tests and your scores will
+              appear here.
             </p>
 
             <Link
               to="/materials"
               className="mock-tests-text-link"
             >
-              Browse study materials →
+              Manage subjects →
             </Link>
 
           </div>

@@ -1,17 +1,14 @@
 :root {
   font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+    Cambria,
+    Georgia,
+    "Times New Roman",
+    serif;
 
-  color: #17201d;
-
-  background: #f4f1e9;
+  color: var(--color-text-primary);
 
   font-synthesis: none;
+  color-scheme: light;
 
   text-rendering: optimizeLegibility;
 
@@ -42,7 +39,10 @@ body {
 
   margin: 0;
 
-  background: #f4f1e9;
+  background:
+    radial-gradient(circle at top right, var(--color-overlay-strong), transparent 28%),
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg) 100%);
+  color: var(--color-text-primary);
 }
 
 
@@ -61,6 +61,10 @@ button {
 
 a {
   color: inherit;
+}
+
+::selection {
+  background: var(--color-selection);
 }
 
 

@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 
+import "./styles/theme.css";
 import "./index.css";
 import "./App.css";
 

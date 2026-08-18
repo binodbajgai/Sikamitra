@@ -1,0 +1,32 @@
+:root {
+  --color-bg: #faf6ec;
+  --color-surface: #f2ebda;
+  --color-surface-alt: #e8dcc8;
+  --color-surface-elevated: #fffdf8;
+  --color-sidebar: #3a3529;
+  --color-dark: #5f5547;
+  --color-dark-soft: #33352e;
+  --color-accent: #c9a876;
+  --color-accent-soft: #e6d5b2;
+  --color-accent-strong: #9a7b52;
+  --color-text-primary: #33302d;
+  --color-text-secondary: #70685d;
+  --color-text-muted: #8a8377;
+  --color-text-on-dark: #f2ebda;
+  --color-text-on-dark-muted: #b8b2a5;
+  --color-icon-on-surface: #2e2b26;
+  --color-button-secondary-text: #2e2b26;
+  --color-border: #e4dbc8;
+  --color-border-strong: #cdb99a;
+  --color-shadow: rgba(58, 53, 41, 0.08);
+  --color-shadow-strong: rgba(58, 53, 41, 0.14);
+  --color-overlay-soft: rgba(255, 255, 255, 0.34);
+  --color-overlay-strong: rgba(255, 255, 255, 0.55);
+  --color-selection: rgba(201, 168, 118, 0.28);
+  --color-focus-ring: rgba(201, 168, 118, 0.18);
+  --color-danger: #9f473c;
+  --color-danger-bg: #fff5f2;
+  --color-success: #526158;
+  --color-info: #5b6a61;
+  --color-brand-google: #2b2a28;
+}

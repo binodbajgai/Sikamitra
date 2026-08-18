@@ -19,7 +19,6 @@ import {
   createSubject,
   getMaterialSubjectAssignments,
   getSubjects,
-  saveSubjects,
 } from "../utils/subjects.ts";
 
 function Materials() {
@@ -37,9 +36,6 @@ function Materials() {
 
   const [loading, setLoading] =
     useState(true);
-
-  const [uploading, setUploading] =
-    useState(false);
 
   const [error, setError] =
     useState("");
@@ -169,11 +165,6 @@ function Materials() {
   }
 
 
-  function openFilePicker() {
-    fileInputRef.current?.click();
-  }
-
-
   async function handleFile(
     file?: File
   ) {
@@ -205,7 +196,6 @@ function Materials() {
     }
 
     try {
-      setUploading(true);
       setError("");
 
       const material =
@@ -222,8 +212,6 @@ function Materials() {
         "Unable to upload this material."
       );
     } finally {
-      setUploading(false);
-
       if (fileInputRef.current) {
         fileInputRef.current.value =
           "";
@@ -284,17 +272,6 @@ function Materials() {
         assignments[String(material.id)] ===
         subjectId
     ).length;
-  }
-
-
-  function getSubjectMaterials(
-    subjectId: string
-  ) {
-    return filteredMaterials.filter(
-      (material) =>
-        assignments[String(material.id)] ===
-        subjectId
-    );
   }
 
 

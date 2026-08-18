@@ -39,7 +39,7 @@ function Topbar() {
     }
 
     if (location.pathname === "/materials") {
-      return "Manage your study library";
+      return "";
     }
 
     if (
@@ -76,7 +76,7 @@ function Topbar() {
   return (
     <header className="topbar">
       <div className="topbar-page-info">
-        <p>{description}</p>
+        {description && <p>{description}</p>}
         <h2>{title}</h2>
       </div>
 
