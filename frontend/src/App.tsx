@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
@@ -13,6 +14,7 @@ import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import AppShell from "./components/AppShell";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
+import { applyUserPreferences, getUserPreferences } from "./utils/preferences";
 
 function ProtectedRoute({
   children,
@@ -38,6 +40,10 @@ function ProtectedRoute({
 }
 
 function App() {
+  useEffect(() => {
+    applyUserPreferences(getUserPreferences());
+  }, []);
+
   return (
     <Routes>
 

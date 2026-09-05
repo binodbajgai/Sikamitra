@@ -2,6 +2,12 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadProfileImage } from "../api/auth";
+import {
+  defaultPreferences,
+  getUserPreferences,
+  saveUserPreferences,
+  type ThemePreference,
+} from "../utils/preferences";
 
 function Profile() {
   const navigate = useNavigate();
@@ -12,10 +18,17 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [preferences, setPreferences] = useState(getUserPreferences);
 
   function handleLogout() {
     logout();
     navigate("/login", { replace: true });
+  }
+
+  function updatePreferences(next: Partial<typeof defaultPreferences>) {
+    const updated = { ...preferences, ...next };
+    setPreferences(updated);
+    saveUserPreferences(updated);
   }
 
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
@@ -150,6 +163,62 @@ function Profile() {
           <button type="button" className="profile-logout-button" onClick={handleLogout}>
             Sign out
           </button>
+        </section>
+
+        <section className="profile-card settings-card">
+          <div className="settings-heading">
+            <div>
+              <p className="profile-kicker">Accessibility</p>
+              <h2>Display settings</h2>
+              <p>Adjust Sikamitra to make studying more comfortable.</p>
+            </div>
+          </div>
+
+          <div className="settings-list">
+            <label className="settings-row">
+              <span>
+                <strong>Theme</strong>
+                <small>Choose the appearance used across the app.</small>
+              </span>
+              <select
+                value={preferences.theme}
+                onChange={(event) =>
+                  updatePreferences({ theme: event.target.value as ThemePreference })
+                }
+              >
+                <option value="light">Light</option>
+                <option value="dim">Dim</option>
+              </select>
+            </label>
+
+            <label className="settings-row">
+              <span>
+                <strong>Larger text</strong>
+                <small>Increase readable text across the workspace.</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.largerText}
+                onChange={(event) =>
+                  updatePreferences({ largerText: event.target.checked })
+                }
+              />
+            </label>
+
+            <label className="settings-row">
+              <span>
+                <strong>Reduce motion</strong>
+                <small>Minimize animations and movement.</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.reduceMotion}
+                onChange={(event) =>
+                  updatePreferences({ reduceMotion: event.target.checked })
+                }
+              />
+            </label>
+          </div>
         </section>
       </div>
     </div>
