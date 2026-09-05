@@ -5581,6 +5581,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+  padding: 0 16px 0 78px;
   margin-bottom: 18px;
 }
 
@@ -6972,6 +6973,8 @@ body {
 
   .unsorted-section-header {
     align-items: center;
+    padding-right: 12px;
+    padding-left: 64px;
   }
 
   .unsorted-section-header h2 {
