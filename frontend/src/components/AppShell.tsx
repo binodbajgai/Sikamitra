@@ -141,8 +141,8 @@ function AppShell({
                     role="menuitem"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
-                    <strong>Edit profile</strong>
-                    <span>Update your details</span>
+                    <strong>Settings</strong>
+                    <span>Manage your account</span>
                   </NavLink>
 
                   <button
@@ -151,7 +151,7 @@ function AppShell({
                     role="menuitem"
                     onClick={handleLogout}
                   >
-                    <strong>Sign out</strong>
+                    <strong>Log out</strong>
                     <span>End this session</span>
                   </button>
                 </div>
