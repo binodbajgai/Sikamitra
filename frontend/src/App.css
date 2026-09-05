@@ -7401,6 +7401,32 @@ body {
     cursor: not-allowed;
   }
 
+  /* =========================================================
+     LIBRARY SURFACE CORNERS
+  ========================================================= */
+
+  .subjects-page .materials-upload-zone,
+  .subjects-page .materials-library,
+  .subjects-page .subject-create-panel,
+  .subjects-page .subject-card,
+  .subjects-page .subjects-search,
+  .subjects-page .material-row,
+  .subjects-page .unsorted-section {
+    border-radius: 14px;
+  }
+
+  .subjects-page .material-row,
+  .subjects-page .subject-card {
+    overflow: hidden;
+  }
+
+  .subjects-page .subjects-header .subjects-create-button,
+  .subjects-page .subjects-header .subjects-create-button:hover {
+    background: transparent;
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+  }
+
 @media (max-width: 420px) {
   .brand-text,
   .notification-button,
