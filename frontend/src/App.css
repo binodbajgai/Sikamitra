@@ -7021,3 +7021,85 @@ body {
     font-size: 11px;
   }
 }
+
+/* =========================================================
+   UNSORTED MATERIAL TILES
+========================================================= */
+
+.unsorted-section .materials-list {
+  display: grid;
+  gap: 10px;
+  border-top: 0;
+}
+
+.unsorted-section .material-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 15px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-elevated);
+  box-shadow: 0 5px 16px var(--color-shadow);
+  animation: unsorted-tile-in 360ms ease both;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.unsorted-section .material-row:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.unsorted-section .material-row:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.unsorted-section .material-row:nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.unsorted-section .material-row:nth-child(n + 5) {
+  animation-delay: 180ms;
+}
+
+.unsorted-section .material-row:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: 0 9px 22px var(--color-shadow-strong);
+  transform: translateY(-2px);
+}
+
+.unsorted-section .material-file-icon {
+  align-self: center;
+}
+
+.unsorted-section .material-row-info p {
+  line-height: 1.35;
+}
+
+@keyframes unsorted-tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unsorted-section .material-row {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .unsorted-section .material-row {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    padding: 13px 12px;
+  }
+}
