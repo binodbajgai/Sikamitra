@@ -1,7 +1,47 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { getMockTestAttemptHistory, getMockTests } from "../api/mockTests";
+import { getStudyMaterials, type StudyMaterial } from "../api/studyMaterials";
+import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
-  const firstName = "Student";
+  const { user } = useAuth();
+  const firstName = user?.full_name?.split(" ")[0] || "Student";
+  const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+  const [mockTestCount, setMockTestCount] = useState(0);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [loadingActivity, setLoadingActivity] = useState(true);
+  const [activityError, setActivityError] = useState("");
+
+  useEffect(() => {
+    async function loadActivity() {
+      try {
+        setLoadingActivity(true);
+        setActivityError("");
+        const [materialsData, tests] = await Promise.all([
+          getStudyMaterials(),
+          getMockTests(),
+        ]);
+        const histories = await Promise.all(
+          tests.map((test) => getMockTestAttemptHistory(test.id))
+        );
+        setMaterials(materialsData);
+        setMockTestCount(tests.length);
+        setAttemptCount(
+          histories.flat().filter((attempt) => attempt.submitted_at).length
+        );
+      } catch (error) {
+        console.error(error);
+        setActivityError("Unable to load your study activity.");
+      } finally {
+        setLoadingActivity(false);
+      }
+    }
+
+    void loadActivity();
+  }, []);
+
+  const recentMaterials = materials.slice(0, 3);
 
   return (
     <div className="dashboard-page">
@@ -164,7 +204,7 @@ function Dashboard() {
             <div className="overview-card">
 
               <span className="overview-number">
-                —
+                {loadingActivity ? "..." : materials.length}
               </span>
 
               <div>
@@ -183,7 +223,7 @@ function Dashboard() {
             <div className="overview-card">
 
               <span className="overview-number">
-                —
+                {loadingActivity ? "..." : mockTestCount}
               </span>
 
               <div>
@@ -202,7 +242,7 @@ function Dashboard() {
             <div className="overview-card">
 
               <span className="overview-number">
-                —
+                {loadingActivity ? "..." : attemptCount}
               </span>
 
               <div>
@@ -247,6 +287,28 @@ function Dashboard() {
           </div>
 
 
+          {activityError && (
+            <p className="dashboard-activity-error">{activityError}</p>
+          )}
+
+          {recentMaterials.length > 0 ? (
+            <div className="recent-material-list">
+              {recentMaterials.map((material) => (
+                <NavLink
+                  to={`/study-materials/${material.id}`}
+                  className="recent-material-item"
+                  key={material.id}
+                >
+                  <span className="recent-material-icon">{material.source_type}</span>
+                  <span className="recent-material-info">
+                    <strong>{material.title}</strong>
+                    <small>{material.subject_name || "Unsorted material"}</small>
+                  </span>
+                  <span className="recent-material-arrow">→</span>
+                </NavLink>
+              ))}
+            </div>
+          ) : (
           <div className="recent-empty">
 
             <div className="recent-empty-mark">
@@ -275,6 +337,7 @@ function Dashboard() {
             </NavLink>
 
           </div>
+          )}
 
         </section>
 

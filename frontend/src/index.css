@@ -721,6 +721,71 @@ img {
   line-height: 1.6;
 }
 
+.recent-material-list {
+  display: grid;
+  gap: 10px;
+}
+
+.recent-material-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid #dedbd2;
+  border-radius: 12px;
+  background: #fffdf8;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.recent-material-item:hover {
+  border-color: #bdbab2;
+  transform: translateX(2px);
+}
+
+.recent-material-icon {
+  min-width: 44px;
+  padding: 8px 6px;
+  border-radius: 7px;
+  background: #e5ebe6;
+  color: #52665c;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.recent-material-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recent-material-info strong {
+  overflow: hidden;
+  color: #17201d;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-material-info small {
+  color: #8a928d;
+  font-size: 11px;
+}
+
+.recent-material-arrow {
+  margin-left: auto;
+  color: #68746f;
+  font-size: 18px;
+}
+
+.dashboard-activity-error {
+  margin: 0 0 14px;
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
 .text-button {
   margin-left: auto;
 
