@@ -5577,16 +5577,17 @@
 }   
 
 .unsorted-section-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 0 16px 0 70px;
+  gap: 14px;
+  padding: 0 16px;
   margin-bottom: 18px;
 }
 
 .unsorted-section-header > div:first-child {
   min-width: 0;
+  grid-column: 2;
 }
 
 .unsorted-section-header .subjects-kicker {
@@ -5603,6 +5604,7 @@
 }
    
 .unsorted-heading {   
+  grid-column: 3;
   display: flex;   
   align-items: center;
   gap: 8px;
@@ -6972,9 +6974,11 @@ body {
   }
 
   .unsorted-section-header {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
     align-items: center;
+    gap: 10px;
     padding-right: 12px;
-    padding-left: 60px;
+    padding-left: 12px;
   }
 
   .unsorted-section-header h2 {
