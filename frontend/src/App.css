@@ -7471,6 +7471,149 @@ body {
     transform: translateY(0);
   }
 
+  /* =========================================================
+     SHARED OVERVIEW PALETTE
+  ========================================================= */
+
+  .app-shell,
+  .top-navbar,
+  .dashboard-page,
+  .materials-page,
+  .mock-tests-page,
+  .mock-test-page,
+  .subjects-page,
+  .subject-detail-page,
+  .material-detail-page,
+  .progress-page,
+  .profile-page {
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+  }
+
+  .top-navbar {
+    border-bottom-color: var(--color-border);
+    background: var(--color-overlay-strong);
+  }
+
+  .brand,
+  .brand-name,
+  .dashboard-page h1,
+  .dashboard-page h2,
+  .dashboard-page h3,
+  .materials-page h1,
+  .materials-page h2,
+  .materials-page h3,
+  .mock-tests-page h1,
+  .mock-tests-page h2,
+  .mock-tests-page h3,
+  .mock-test-page h1,
+  .mock-test-page h2,
+  .mock-test-page h3,
+  .subjects-page h1,
+  .subjects-page h2,
+  .subjects-page h3,
+  .subject-detail-page h1,
+  .subject-detail-page h2,
+  .subject-detail-page h3,
+  .material-detail-page h1,
+  .material-detail-page h2,
+  .material-detail-page h3,
+  .progress-page h1,
+  .progress-page h2,
+  .profile-page h1,
+  .profile-page h2 {
+    color: var(--color-text-primary);
+  }
+
+  .brand-tagline,
+  .dashboard-page p,
+  .materials-page p,
+  .mock-tests-page p,
+  .mock-test-page p,
+  .subjects-page p,
+  .subject-detail-page p,
+  .material-detail-page p,
+  .progress-page p,
+  .profile-page p {
+    color: var(--color-text-secondary);
+  }
+
+  .dashboard-section,
+  .action-card,
+  .overview-card,
+  .materials-upload-zone,
+  .materials-library,
+  .materials-empty,
+  .subject-card,
+  .subject-create-panel,
+  .subject-detail-empty,
+  .material-detail-state,
+  .study-section,
+  .mock-tests-overview,
+  .mock-tests-intro-card,
+  .mock-test-create-panel,
+  .mock-tests-empty,
+  .mock-tests-library-row,
+  .mock-test-question-card,
+  .mock-test-score-card,
+  .mock-test-result-message,
+  .progress-metric-card,
+  .progress-history,
+  .profile-card,
+  .recent-material-item,
+  .unsorted-section .material-row {
+    border-color: var(--color-border);
+    background: var(--color-surface);
+    box-shadow: 0 8px 24px var(--color-shadow);
+  }
+
+  .action-card:hover,
+  .subject-card:hover,
+  .mock-tests-library-row:hover,
+  .recent-material-item:hover,
+  .unsorted-section .material-row:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-elevated);
+    box-shadow: 0 12px 28px var(--color-shadow-strong);
+  }
+
+  .section-label,
+  .page-kicker,
+  .materials-kicker,
+  .materials-section-kicker,
+  .mock-tests-kicker,
+  .mock-tests-section-kicker,
+  .subjects-kicker,
+  .study-section-kicker,
+  .progress-kicker,
+  .profile-kicker {
+    color: var(--color-accent-strong);
+  }
+
+  .action-icon,
+  .dashboard-material-icon,
+  .dashboard-empty-mark,
+  .material-file-icon,
+  .subject-folder-icon,
+  .recent-material-icon,
+  .unsorted-section-icon {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+    border-color: var(--color-accent-soft);
+  }
+
+  .materials-search,
+  .subjects-search,
+  .materials-title-input,
+  .materials-textarea,
+  .subject-create-fields input,
+  .mock-test-field select,
+  .profile-edit-form input {
+    border-color: var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+  }
+
   .subjects-create-button:hover,
   .mock-tests-primary-button:hover,
   .profile-image-button:hover,
