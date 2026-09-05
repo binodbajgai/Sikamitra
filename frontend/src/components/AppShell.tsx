@@ -85,12 +85,9 @@ function AppShell({
           <div className="navbar-actions">
             <div className="user-menu">
 
-              <button
-                type="button"
+              <NavLink
+                to="/profile"
                 className="user-account-link"
-                aria-expanded={isProfileMenuOpen}
-                aria-haspopup="menu"
-                onClick={() => setIsProfileMenuOpen((current) => !current)}
               >
                 <div className="user-avatar">
                 {user?.profile_image ? (
@@ -109,7 +106,7 @@ function AppShell({
                     Account
                   </span>
                 </div>
-              </button>
+              </NavLink>
 
               {isProfileMenuOpen && (
                 <div className="profile-menu" role="menu">
@@ -145,13 +142,17 @@ function AppShell({
                 </div>
               )}
 
-              <span
+              <button
+                type="button"
                 className="user-menu-button"
-                aria-hidden="true"
+                aria-expanded={isProfileMenuOpen}
+                aria-haspopup="menu"
+                aria-label="Open account menu"
+                onClick={() => setIsProfileMenuOpen((current) => !current)}
                 title={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
               >
                 ···
-              </span>
+              </button>
 
             </div>
 
