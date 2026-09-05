@@ -7450,6 +7450,27 @@ body {
     color: var(--color-text-primary);
   }
 
+  .subjects-create-button:hover:not(:disabled),
+  .mock-tests-primary-button:hover:not(:disabled),
+  .profile-image-button:hover:not(:disabled),
+  .subject-cancel-button:hover:not(:disabled),
+  .material-open-button:hover,
+  .material-delete-button:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: 0 5px 14px var(--color-shadow-strong);
+    transform: translateY(-1px);
+  }
+
+  .subjects-create-button:active:not(:disabled),
+  .mock-tests-primary-button:active:not(:disabled),
+  .profile-image-button:active:not(:disabled),
+  .subject-cancel-button:active:not(:disabled),
+  .material-open-button:active,
+  .material-delete-button:active {
+    box-shadow: none;
+    transform: translateY(0);
+  }
+
   .subjects-create-button:hover,
   .mock-tests-primary-button:hover,
   .profile-image-button:hover,
