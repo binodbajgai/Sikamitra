@@ -7442,6 +7442,14 @@ body {
     background: transparent;
   }
 
+  .subjects-create-button,
+  .mock-tests-primary-button,
+  .profile-image-button,
+  .subject-cancel-button,
+  .material-open-button {
+    color: var(--color-text-primary);
+  }
+
   .subjects-create-button:hover,
   .mock-tests-primary-button:hover,
   .profile-image-button:hover,
