@@ -7456,6 +7456,33 @@ body {
     color: var(--color-danger);
   }
 
+  .subjects-create-button:hover:not(:disabled),
+  .subjects-create-button:focus,
+  .subjects-create-button:focus-visible,
+  .subjects-create-button:active,
+  .mock-tests-primary-button:hover:not(:disabled),
+  .mock-tests-primary-button:focus,
+  .mock-tests-primary-button:focus-visible,
+  .mock-tests-primary-button:active,
+  .profile-image-button:hover:not(:disabled),
+  .profile-image-button:focus,
+  .profile-image-button:focus-visible,
+  .profile-image-button:active,
+  .subject-cancel-button:hover:not(:disabled),
+  .subject-cancel-button:focus,
+  .subject-cancel-button:focus-visible,
+  .subject-cancel-button:active,
+  .material-open-button:hover,
+  .material-open-button:focus,
+  .material-open-button:focus-visible,
+  .material-open-button:active,
+  .material-delete-button:hover,
+  .material-delete-button:focus,
+  .material-delete-button:focus-visible,
+  .material-delete-button:active {
+    background: transparent !important;
+  }
+
 @media (max-width: 420px) {
   .brand-text,
   .notification-button,
