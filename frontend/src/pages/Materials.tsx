@@ -568,30 +568,29 @@ function Materials() {
           unsortedMaterials.length > 0 && (
             <section className="unsorted-section">
 
-              <button
-                type="button"
-                className="unsorted-heading"
-                aria-expanded={showUnsorted}
-                onClick={() =>
-                  setShowUnsorted(
-                    (current) =>
-                      !current
-                  )
-                }
-              >
-                <span className="unsorted-heading-label">
-                  <span className="unsorted-heading-mark">!</span>
-                  Unsorted materials
-                </span>
+              <div className="unsorted-section-header">
+                <div>
+                  <p className="subjects-kicker">Needs organizing</p>
+                  <h2>Unsorted materials</h2>
+                </div>
 
-                <span className="unsorted-heading-count">
-                  {unsortedMaterials.length}
-                  {" "}
-                  {showUnsorted
-                    ? "⌃"
-                    : "⌄"}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  className="unsorted-heading"
+                  aria-expanded={showUnsorted}
+                  onClick={() =>
+                    setShowUnsorted(
+                      (current) =>
+                        !current
+                    )
+                  }
+                >
+                  <span className="unsorted-heading-mark">!</span>
+                  <span className="unsorted-heading-count">
+                    {unsortedMaterials.length} {showUnsorted ? "⌃" : "⌄"}
+                  </span>
+                </button>
+              </div>
 
 
               {showUnsorted && (

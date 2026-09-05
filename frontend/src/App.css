@@ -5573,22 +5573,28 @@
    
 .unsorted-section {   
   margin-top: 24px;   
-   
-  padding: 21px;   
-   
-  border: 1px solid var(--color-border);   
-  border-radius: 13px;   
-   
-  background: var(--color-surface-elevated);   
-
-  box-shadow: 0 8px 24px var(--color-shadow);
+  padding: 20px 0 0;
 }   
+
+.unsorted-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.unsorted-section-header h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 24px;
+  letter-spacing: -0.025em;
+}
    
 .unsorted-heading {   
-  width: 100%;   
-   
   display: flex;   
-  justify-content: space-between;   
+  align-items: center;
+  gap: 8px;
    
   padding: 0;   
    
@@ -5596,7 +5602,7 @@
    
   background: transparent;   
    
-  color: var(--color-dark);   
+  color: var(--color-text-secondary);
    
   font-family: inherit;   
    
@@ -5631,7 +5637,7 @@
 }
 
 .unsorted-section .materials-list {
-  margin-top: 16px;
+  border-top: 1px solid var(--color-border);
 }
 
 .unsorted-section .material-row {
@@ -6950,7 +6956,15 @@ body {
   }
 
   .unsorted-section {
-    padding: 16px 12px;
+    padding: 20px 0 0;
+  }
+
+  .unsorted-section-header {
+    align-items: flex-start;
+  }
+
+  .unsorted-section-header h2 {
+    font-size: 21px;
   }
 
   .unsorted-section .material-row {
