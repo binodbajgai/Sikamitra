@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext.tsx";
 import { startGoogleAuth } from "../api/auth";
+import AuthLayout from "../layouts/AuthLayout";
 
 function Register() {
   const navigate = useNavigate();
@@ -96,17 +97,7 @@ function Register() {
   }
 
   return (
-    <main className="auth-page">
-      <div className="auth-panel">
-
-        <div className="auth-brand">
-          <div className="auth-brand-mark">
-            S
-          </div>
-
-          <span>Sikamitra</span>
-        </div>
-
+    <AuthLayout>
         <section className="auth-content">
           <p className="auth-eyebrow">
             Get started
@@ -244,8 +235,7 @@ function Register() {
             </Link>
           </p>
         </section>
-      </div>
-    </main>
+    </AuthLayout>
   );
 }
 
