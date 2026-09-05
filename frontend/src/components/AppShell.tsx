@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -8,6 +9,7 @@ function AppShell({
 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   function handleLogout() {
     logout();
@@ -95,7 +97,13 @@ function AppShell({
 
             <div className="user-menu">
 
-              <NavLink to="/profile" className="user-account-link">
+              <button
+                type="button"
+                className="user-account-link"
+                aria-expanded={isProfileMenuOpen}
+                aria-haspopup="menu"
+                onClick={() => setIsProfileMenuOpen((current) => !current)}
+              >
                 <div className="user-avatar">
                 {user?.profile_image ? (
                   <img src={user.profile_image} alt="" />
@@ -113,16 +121,45 @@ function AppShell({
                     Account
                   </span>
                 </div>
-              </NavLink>
-
-              <button
-                type="button"
-                className="user-menu-button"
-                onClick={handleLogout}
-                title="Log out"
-              >
-                ↗
               </button>
+
+              {isProfileMenuOpen && (
+                <div className="profile-menu" role="menu">
+                  <NavLink
+                    to="/profile"
+                    className="profile-menu-item"
+                    role="menuitem"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                  >
+                    <strong>Profile</strong>
+                    <span>View your account</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/profile"
+                    className="profile-menu-item"
+                    role="menuitem"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                  >
+                    <strong>Edit profile</strong>
+                    <span>Update your details</span>
+                  </NavLink>
+
+                  <button
+                    type="button"
+                    className="profile-menu-item profile-menu-logout"
+                    role="menuitem"
+                    onClick={handleLogout}
+                  >
+                    <strong>Sign out</strong>
+                    <span>End this session</span>
+                  </button>
+                </div>
+              )}
+
+              <span className="user-menu-button" aria-hidden="true">
+                {isProfileMenuOpen ? "⌃" : "⌄"}
+              </span>
 
             </div>
 

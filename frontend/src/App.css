@@ -7051,6 +7051,80 @@ body {
   color: var(--color-accent-strong);
 }
 
+.user-menu {
+  position: relative;
+}
+
+.user-account-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.user-account-link:hover,
+.user-account-link:focus-visible {
+  background: transparent;
+}
+
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 120;
+  width: 220px;
+  padding: 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-elevated);
+  box-shadow: 0 14px 30px var(--color-shadow-strong);
+}
+
+.profile-menu-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+
+.profile-menu-item:hover,
+.profile-menu-item:focus-visible {
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.profile-menu-item strong {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.profile-menu-item span {
+  color: var(--color-text-secondary);
+  font-size: 10px;
+}
+
+.profile-menu-logout {
+  margin-top: 4px;
+  border-top: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-danger);
+}
+
+.profile-menu-logout:hover,
+.profile-menu-logout:focus-visible {
+  color: var(--color-danger);
+}
+
 .materials-page,
 .mock-tests-page,
 .mock-test-page,
