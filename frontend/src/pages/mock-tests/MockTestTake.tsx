@@ -105,6 +105,15 @@ function MockTestTake() {
       return;
     }
 
+    if (answeredCount !== questions.length) {
+      setError(
+        `Please answer all questions before submitting. ${
+          questions.length - answeredCount
+        } remaining.`
+      );
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError("");
@@ -123,9 +132,19 @@ function MockTestTake() {
       const reviewData = await getMockTestAttemptReview(attemptId);
       setReview(reviewData);
       setSubmitted(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Failed to submit test attempt. Please check your network connection.");
+
+      const detail = err?.response?.data?.detail;
+      const message = Array.isArray(detail)
+        ? detail.map((item: any) => item?.msg).filter(Boolean).join(" ")
+        : detail;
+
+      setError(
+        typeof message === "string" && message.length > 0
+          ? message
+          : "Failed to submit test attempt. Please check your network connection."
+      );
     } finally {
       setSubmitting(false);
     }
