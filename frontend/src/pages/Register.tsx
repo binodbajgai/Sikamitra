@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext.tsx";
+import { startGoogleAuth } from "../api/auth";
 
 function Register() {
   const navigate = useNavigate();
@@ -91,9 +92,7 @@ function Register() {
   }
 
   function handleGoogleSignup() {
-    setError(
-      "Google Sign-In will be available once Google authentication is connected."
-    );
+    startGoogleAuth();
   }
 
   return (

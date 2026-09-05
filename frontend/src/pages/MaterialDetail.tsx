@@ -7,6 +7,10 @@ import {
 } from "../api/studyMaterials.ts";
 
 import apiClient from "../api/client.ts";
+import {
+  getDisplayFileName,
+  getFileExtensionLabel,
+} from "../utils/fileDisplay.ts";
 
 interface Summary {
   id: number;
@@ -227,12 +231,7 @@ function MaterialDetail() {
   }
 
   function getExtension() {
-    const extension = material?.file_name
-      ?.split(".")
-      .pop()
-      ?.toUpperCase();
-
-    return extension || "DOC";
+    return getFileExtensionLabel(material?.file_name);
   }
 
   if (loading) {
@@ -255,7 +254,7 @@ function MaterialDetail() {
           <p>{error || "This material is unavailable."}</p>
 
           <Link
-            to="/materials"
+            to="/study-materials"
             className="material-back-button"
           >
             Back to materials
@@ -271,7 +270,7 @@ function MaterialDetail() {
 
         <header className="material-detail-header">
           <Link
-            to="/materials"
+            to="/study-materials"
             className="material-back-link"
           >
             ← Study materials
@@ -287,10 +286,10 @@ function MaterialDetail() {
                 </span>
               </div>
 
-              <h1>{material.title}</h1>
+              <h1>{getDisplayFileName(material.title)}</h1>
 
               <p>
-                {material.file_name ||
+                {getDisplayFileName(material.file_name) ||
                   "Your AI-powered study workspace"}
               </p>
             </div>

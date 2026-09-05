@@ -1,4 +1,12 @@
+import hashlib
+import hmac
+import json
+import secrets
+import urllib.parse
+import urllib.request
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_user
 
@@ -14,12 +22,129 @@ from app.services.auth_service import (
     login_user,
     register_user,
 )
+from app.core.config import settings
+from app.core.security import create_access_token, hash_password
+from app.repositories.user_repository import create_user, get_user_by_email
 
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
 )
+
+
+def _google_state_signature(nonce: str) -> str:
+    return hmac.new(
+        settings.secret_key.encode(),
+        nonce.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _google_request(
+    url: str,
+    data: dict[str, str] | None = None,
+):
+    encoded_data = (
+        urllib.parse.urlencode(data).encode()
+        if data is not None
+        else None
+    )
+    request = urllib.request.Request(
+        url,
+        data=encoded_data,
+        headers={"Accept": "application/json"},
+    )
+    with urllib.request.urlopen(request, timeout=15) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+@router.get("/google/login")
+def google_login():
+    if not settings.google_client_id or not settings.google_client_secret:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google authentication is not configured.",
+        )
+
+    nonce = secrets.token_urlsafe(32)
+    state = f"{nonce}.{_google_state_signature(nonce)}"
+    query = urllib.parse.urlencode(
+        {
+            "client_id": settings.google_client_id,
+            "redirect_uri": settings.google_redirect_uri,
+            "response_type": "code",
+            "scope": "openid email profile",
+            "state": state,
+            "access_type": "online",
+            "prompt": "select_account",
+        }
+    )
+    return RedirectResponse(
+        f"https://accounts.google.com/o/oauth2/v2/auth?{query}"
+    )
+
+
+@router.get("/google/callback")
+def google_callback(
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    db: Session = Depends(get_db),
+):
+    callback_url = f"{settings.frontend_url}/auth/google/callback"
+
+    if error or not code or not state:
+        return RedirectResponse(f"{callback_url}?error=google_auth_failed")
+
+    try:
+        nonce, signature = state.rsplit(".", 1)
+        if not hmac.compare_digest(signature, _google_state_signature(nonce)):
+            raise ValueError("Invalid OAuth state")
+
+        token_data = _google_request(
+            "https://oauth2.googleapis.com/token",
+            {
+                "code": code,
+                "client_id": settings.google_client_id,
+                "client_secret": settings.google_client_secret,
+                "redirect_uri": settings.google_redirect_uri,
+                "grant_type": "authorization_code",
+            },
+        )
+        access_token = token_data.get("access_token")
+        if not access_token:
+            raise ValueError("Google did not return an access token")
+
+        user_request = urllib.request.Request(
+            "https://openidconnect.googleapis.com/v1/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        with urllib.request.urlopen(user_request, timeout=15) as response:
+            google_user = json.loads(response.read().decode("utf-8"))
+
+        email = google_user.get("email")
+        if not email or not google_user.get("email_verified"):
+            raise ValueError("Google account email is not verified")
+
+        user = get_user_by_email(db, email)
+        if user is None:
+            user = create_user(
+                db=db,
+                full_name=google_user.get("name") or email.split("@", 1)[0],
+                email=email,
+                password_hash=hash_password(secrets.token_urlsafe(32)),
+            )
+
+        if not user.is_active:
+            raise ValueError("User account is inactive")
+
+        app_token = create_access_token(user.id)
+        return RedirectResponse(
+            f"{callback_url}#access_token={urllib.parse.quote(app_token)}"
+        )
+    except Exception:
+        return RedirectResponse(f"{callback_url}?error=google_auth_failed")
 
 
 @router.post(

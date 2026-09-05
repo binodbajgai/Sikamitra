@@ -2,6 +2,7 @@ from fastapi import (
     APIRouter,
     Depends,
     File,
+    Form,
     HTTPException,
     UploadFile,
     status,
@@ -130,7 +131,7 @@ def delete(
 )
 async def upload_document(
     file: UploadFile = File(...),
-    subject_id: int | None = None,
+    subject_id: int | None = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

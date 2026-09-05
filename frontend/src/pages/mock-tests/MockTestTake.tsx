@@ -1,131 +1,94 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-
-interface MockQuestion {
-  id: number;
-  question: string;
-  options: {
-    key: string;
-    text: string;
-  }[];
-  correctOption: string;
-  explanation: string;
-}
-
-const MOCK_QUESTIONS: MockQuestion[] = [
-  {
-    id: 1,
-    question:
-      "Which principle of object-oriented programming hides the internal implementation details of an object?",
-    options: [
-      { key: "A", text: "Inheritance" },
-      { key: "B", text: "Encapsulation" },
-      { key: "C", text: "Polymorphism" },
-      { key: "D", text: "Abstraction" },
-    ],
-    correctOption: "B",
-    explanation:
-      "Encapsulation restricts direct access to an object's internal state and exposes controlled ways to interact with it.",
-  },
-  {
-    id: 2,
-    question:
-      "Which Python keyword is used to define a class?",
-    options: [
-      { key: "A", text: "object" },
-      { key: "B", text: "define" },
-      { key: "C", text: "class" },
-      { key: "D", text: "struct" },
-    ],
-    correctOption: "C",
-    explanation:
-      "Python uses the class keyword to define a class.",
-  },
-  {
-    id: 3,
-    question:
-      "What allows a child class to acquire properties and methods from a parent class?",
-    options: [
-      { key: "A", text: "Inheritance" },
-      { key: "B", text: "Encapsulation" },
-      { key: "C", text: "Composition" },
-      { key: "D", text: "Overloading" },
-    ],
-    correctOption: "A",
-    explanation:
-      "Inheritance allows a derived class to reuse attributes and behavior from a base class.",
-  },
-  {
-    id: 4,
-    question:
-      "Which method is automatically called when a Python object is initialized?",
-    options: [
-      { key: "A", text: "__main__" },
-      { key: "B", text: "__start__" },
-      { key: "C", text: "__newclass__" },
-      { key: "D", text: "__init__" },
-    ],
-    correctOption: "D",
-    explanation:
-      "The __init__ method initializes an instance after it is created.",
-  },
-  {
-    id: 5,
-    question:
-      "Which concept allows the same interface to behave differently depending on the object?",
-    options: [
-      { key: "A", text: "Inheritance" },
-      { key: "B", text: "Polymorphism" },
-      { key: "C", text: "Encapsulation" },
-      { key: "D", text: "Instantiation" },
-    ],
-    correctOption: "B",
-    explanation:
-      "Polymorphism allows the same interface or operation to have different implementations depending on the object.",
-  },
-];
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import {
+  getMockTestQuestions,
+  getMockTestAttemptReview,
+  submitMockTestAttempt,
+  type MockTestQuestion,
+  type MockTestReview,
+} from "../../api/mockTests";
 
 function MockTestTake() {
+  const [searchParams] = useSearchParams();
+  const attemptIdParam = searchParams.get("attemptId");
+  const testIdParam = searchParams.get("testId");
+
+  const attemptId = attemptIdParam ? Number(attemptIdParam) : null;
+  const testId = testIdParam ? Number(testIdParam) : null;
+
+  const [questions, setQuestions] = useState<MockTestQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
 
-  const [answers, setAnswers] = useState<
-    Record<number, string>
-  >({});
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
+  const [review, setReview] = useState<MockTestReview | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const currentQuestion = MOCK_QUESTIONS[currentIndex];
+  useEffect(() => {
+    async function loadTestQuestions() {
+      if (!testId && !attemptId) {
+        setError("No test session specified. Please select a mock test.");
+        setLoading(false);
+        return;
+      }
 
+      try {
+        setLoading(true);
+        setError("");
+
+        if (testId) {
+          const qList = await getMockTestQuestions(testId);
+          setQuestions(qList);
+        } else if (attemptId) {
+          const reviewData = await getMockTestAttemptReview(attemptId);
+          if (reviewData.questions && reviewData.questions.length > 0) {
+            setQuestions(
+              reviewData.questions.map((q) => ({
+                question_id: q.question_id,
+                question_order: q.question_order,
+                question: q.question,
+                option_a: q.option_a,
+                option_b: q.option_b,
+                option_c: q.option_c,
+                option_d: q.option_d,
+              }))
+            );
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load test questions from backend.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadTestQuestions();
+  }, [testId, attemptId]);
+
+  const currentQuestion = questions[currentIndex];
   const answeredCount = Object.keys(answers).length;
+  const progress =
+    questions.length > 0
+      ? Math.round(((currentIndex + 1) / questions.length) * 100)
+      : 0;
 
-  const progress = Math.round(
-    ((currentIndex + 1) / MOCK_QUESTIONS.length) * 100
-  );
-
-  const score = useMemo(() => {
-    return MOCK_QUESTIONS.reduce((total, question) => {
-      return (
-        total +
-        (answers[question.id] === question.correctOption
-          ? 1
-          : 0)
-      );
-    }, 0);
-  }, [answers]);
-
-  function selectAnswer(option: string) {
-    if (submitted) {
+  function selectAnswer(optionKey: string) {
+    if (submitted || !currentQuestion) {
       return;
     }
 
     setAnswers((current) => ({
       ...current,
-      [currentQuestion.id]: option,
+      [currentQuestion.question_id]: optionKey.toUpperCase(),
     }));
   }
 
   function goNext() {
-    if (currentIndex < MOCK_QUESTIONS.length - 1) {
+    if (currentIndex < questions.length - 1) {
       setCurrentIndex((current) => current + 1);
     }
   }
@@ -136,53 +99,86 @@ function MockTestTake() {
     }
   }
 
-  function submitTest() {
-    setSubmitted(true);
-  }
-
-  function restartTest() {
-    setAnswers({});
-    setCurrentIndex(0);
-    setSubmitted(false);
-  }
-
-  function getOptionText(
-    question: MockQuestion,
-    optionKey?: string
-  ) {
-    if (!optionKey) {
-      return "Not answered";
+  async function handleSubmitTest() {
+    if (!attemptId) {
+      setSubmitted(true);
+      return;
     }
 
+    try {
+      setSubmitting(true);
+      setError("");
+
+      const answerPayload = Object.entries(answers).map(
+        ([qIdStr, selected_option]) => ({
+          question_id: Number(qIdStr),
+          selected_option,
+        })
+      );
+
+      await submitMockTestAttempt(attemptId, {
+        answers: answerPayload,
+      });
+
+      const reviewData = await getMockTestAttemptReview(attemptId);
+      setReview(reviewData);
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to submit test attempt. Please check your network connection.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function getOptionText(question: MockTestQuestion | undefined, optionKey?: string) {
+    if (!question || !optionKey) return "Not answered";
+    const key = optionKey.toUpperCase();
+    if (key === "A") return question.option_a;
+    if (key === "B") return question.option_b;
+    if (key === "C") return question.option_c;
+    if (key === "D") return question.option_d;
+    return optionKey;
+  }
+
+  if (loading) {
     return (
-      question.options.find(
-        (option) => option.key === optionKey
-      )?.text || optionKey
+      <div className="mock-test-page">
+        <div className="mock-test-container" style={{ textAlign: "center", padding: "4rem 1rem" }}>
+          <h2>Loading mock test...</h2>
+        </div>
+      </div>
     );
   }
 
-  if (submitted) {
-    const percentage = Math.round(
-      (score / MOCK_QUESTIONS.length) * 100
+  if (error && questions.length === 0) {
+    return (
+      <div className="mock-test-page">
+        <div className="mock-test-container" style={{ textAlign: "center", padding: "4rem 1rem" }}>
+          <h2>Unable to start test</h2>
+          <p style={{ color: "var(--color-text-secondary, #6b7280)", margin: "1rem 0 2rem 0" }}>{error}</p>
+          <Link to="/mock-tests" className="mock-tests-primary-button">
+            Back to mock tests
+          </Link>
+        </div>
+      </div>
     );
+  }
 
+  if (submitted && review) {
+    const percentage = review.score;
     const unansweredCount =
-      MOCK_QUESTIONS.length - answeredCount;
+      review.total_questions - (review.correct_answers + review.wrong_answers);
 
     return (
       <div className="mock-test-page">
         <div className="mock-test-result-container">
           <div className="mock-test-result-header">
-            <p className="mock-test-kicker">
-              Test completed
-            </p>
-
+            <p className="mock-test-kicker">Test completed</p>
             <h1>Here's how you did.</h1>
-
             <p>
-              Review your answers below and see where
-              you got things right or where you should
-              revise.
+              Review your answers below and see where you got things right or
+              where you should revise.
             </p>
           </div>
 
@@ -195,14 +191,12 @@ function MockTestTake() {
             <div className="mock-test-score-details">
               <div>
                 <span>Correct</span>
-                <strong>{score}</strong>
+                <strong>{review.correct_answers}</strong>
               </div>
 
               <div>
                 <span>Incorrect</span>
-                <strong>
-                  {MOCK_QUESTIONS.length - score}
-                </strong>
+                <strong>{review.wrong_answers}</strong>
               </div>
 
               <div>
@@ -213,74 +207,58 @@ function MockTestTake() {
           </section>
 
           <section className="mock-test-result-message">
-            <p className="mock-test-section-kicker">
-              Performance
-            </p>
-
+            <p className="mock-test-section-kicker">Performance</p>
             <h2>
               {percentage >= 80
                 ? "Strong understanding"
                 : percentage >= 60
-                  ? "Good foundation"
-                  : "More revision recommended"}
+                ? "Good foundation"
+                : "More revision recommended"}
             </h2>
-
             <p>
-              Pay particular attention to the questions
-              marked incorrect or unanswered.
+              Pay particular attention to the questions marked incorrect or
+              unanswered.
             </p>
           </section>
 
-          {/* Answer review */}
           <section className="mock-test-review-section">
             <div className="mock-test-review-header">
               <div>
-                <p className="mock-test-section-kicker">
-                  Review
-                </p>
-
+                <p className="mock-test-section-kicker">Review</p>
                 <h2>Answer review</h2>
               </div>
-
               <span>
-                {score} / {MOCK_QUESTIONS.length} correct
+                {review.correct_answers} / {review.total_questions} correct
               </span>
             </div>
 
             <div className="mock-test-review-list">
-              {MOCK_QUESTIONS.map((question, index) => {
-                const userAnswer =
-                  answers[question.id];
-
-                const isCorrect =
-                  userAnswer === question.correctOption;
-
-                const isUnanswered = !userAnswer;
+              {review.questions.map((question, index) => {
+                const isCorrect = question.is_correct;
+                const isUnanswered = !question.selected_option;
 
                 return (
                   <article
-                    key={question.id}
+                    key={question.question_id}
                     className={[
                       "mock-test-review-item",
                       isCorrect
                         ? "correct"
                         : isUnanswered
-                          ? "unanswered"
-                          : "incorrect",
+                        ? "unanswered"
+                        : "incorrect",
                     ].join(" ")}
                   >
                     <div className="mock-test-review-top">
                       <span>
-                        Question{" "}
-                        {String(index + 1).padStart(2, "0")}
+                        Question {String(index + 1).padStart(2, "0")}
                       </span>
-
                       <strong>
                         {isCorrect
                           ? "Correct"
                           : isUnanswered
-                            ? "Unanswered"
-                            : "Incorrect"}
+                          ? "Unanswered"
+                          : "Incorrect"}
                       </strong>
                     </div>
 
@@ -289,32 +267,42 @@ function MockTestTake() {
                     <div className="mock-test-review-answers">
                       <div className="review-answer-row">
                         <span>Your answer</span>
-
                         <strong>
-                          {getOptionText(
-                            question,
-                            userAnswer
-                          )}
+                          {question.selected_option
+                            ? `${question.selected_option}: ${
+                                question.selected_option === "A"
+                                  ? question.option_a
+                                  : question.selected_option === "B"
+                                  ? question.option_b
+                                  : question.selected_option === "C"
+                                  ? question.option_c
+                                  : question.option_d
+                              }`
+                            : "Not answered"}
                         </strong>
                       </div>
 
                       <div className="review-answer-row correct-answer">
                         <span>Correct answer</span>
-
                         <strong>
-                          {getOptionText(
-                            question,
-                            question.correctOption
-                          )}
+                          {question.correct_option}:{" "}
+                          {question.correct_option === "A"
+                            ? question.option_a
+                            : question.correct_option === "B"
+                            ? question.option_b
+                            : question.correct_option === "C"
+                            ? question.option_c
+                            : question.option_d}
                         </strong>
                       </div>
                     </div>
 
-                    <div className="mock-test-review-explanation">
-                      <span>Why</span>
-
-                      <p>{question.explanation}</p>
-                    </div>
+                    {question.explanation && (
+                      <div className="mock-test-review-explanation">
+                        <span>Why</span>
+                        <p>{question.explanation}</p>
+                      </div>
+                    )}
                   </article>
                 );
               })}
@@ -322,25 +310,11 @@ function MockTestTake() {
           </section>
 
           <div className="mock-test-result-actions">
-            <button
-              type="button"
-              className="mock-tests-primary-button"
-              onClick={restartTest}
-            >
-              Try again
-            </button>
-
-            <Link
-              to="/mock-tests"
-              className="mock-tests-outline-button"
-            >
+            <Link to="/mock-tests" className="mock-tests-primary-button">
               Back to mock tests
             </Link>
 
-            <Link
-              to="/materials"
-              className="mock-tests-outline-button"
-            >
+            <Link to="/study-materials" className="mock-tests-outline-button">
               Study materials
             </Link>
           </div>
@@ -353,20 +327,17 @@ function MockTestTake() {
     <div className="mock-test-page">
       <div className="mock-test-container">
         <header className="mock-test-topbar">
-          <Link
-            to="/mock-tests"
-            className="mock-test-exit"
-          >
+          <Link to="/mock-tests" className="mock-test-exit">
             ← Exit test
           </Link>
 
           <div className="mock-test-title">
             <span>Practice session</span>
-            <strong>Python OOP</strong>
+            <strong>Practice Test</strong>
           </div>
 
           <div className="mock-test-progress-label">
-            {currentIndex + 1} / {MOCK_QUESTIONS.length}
+            {currentIndex + 1} / {questions.length}
           </div>
         </header>
 
@@ -379,116 +350,117 @@ function MockTestTake() {
           />
         </div>
 
+        {error && (
+          <div className="mock-tests-error" style={{ margin: "1rem 0" }}>
+            {error}
+          </div>
+        )}
+
         <main className="mock-test-main">
-          <div className="mock-test-question-meta">
-            <span>
-              QUESTION{" "}
-              {String(currentIndex + 1).padStart(2, "0")}
-            </span>
+          {currentQuestion && (
+            <>
+              <div className="mock-test-question-meta">
+                <span>
+                  QUESTION {String(currentIndex + 1).padStart(2, "0")}
+                </span>
+                <span>{answeredCount} answered</span>
+              </div>
 
-            <span>{answeredCount} answered</span>
-          </div>
+              <section className="mock-test-question-card">
+                <h1>{currentQuestion.question}</h1>
 
-          <section className="mock-test-question-card">
-            <h1>{currentQuestion.question}</h1>
+                <div className="mock-test-options">
+                  {[
+                    { key: "A", text: currentQuestion.option_a },
+                    { key: "B", text: currentQuestion.option_b },
+                    { key: "C", text: currentQuestion.option_c },
+                    { key: "D", text: currentQuestion.option_d },
+                  ].map((option) => {
+                    const isSelected =
+                      answers[currentQuestion.question_id] === option.key;
 
-            <div className="mock-test-options">
-              {currentQuestion.options.map((option) => {
-                const isSelected =
-                  answers[currentQuestion.id] ===
-                  option.key;
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        className={
+                          isSelected
+                            ? "mock-test-option selected"
+                            : "mock-test-option"
+                        }
+                        onClick={() => selectAnswer(option.key)}
+                      >
+                        <span className="mock-test-option-key">
+                          {option.key}
+                        </span>
 
-                return (
+                        <span className="mock-test-option-text">
+                          {option.text}
+                        </span>
+
+                        <span className="mock-test-option-check">
+                          {isSelected ? "✓" : ""}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <div className="mock-test-navigation">
+                <button
+                  type="button"
+                  className="mock-test-navigation-secondary"
+                  onClick={goPrevious}
+                  disabled={currentIndex === 0}
+                >
+                  ← Previous
+                </button>
+
+                <div className="mock-test-dots">
+                  {questions.map((question, index) => {
+                    const isCurrent = index === currentIndex;
+                    const isAnswered = Boolean(answers[question.question_id]);
+
+                    return (
+                      <button
+                        key={question.question_id}
+                        type="button"
+                        className={[
+                          "mock-test-dot",
+                          isCurrent ? "current" : "",
+                          isAnswered ? "answered" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        onClick={() => setCurrentIndex(index)}
+                        aria-label={`Go to question ${index + 1}`}
+                      />
+                    );
+                  })}
+                </div>
+
+                {currentIndex === questions.length - 1 ? (
                   <button
-                    key={option.key}
                     type="button"
-                    className={
-                      isSelected
-                        ? "mock-test-option selected"
-                        : "mock-test-option"
-                    }
-                    onClick={() =>
-                      selectAnswer(option.key)
-                    }
+                    className="mock-test-submit"
+                    onClick={() => void handleSubmitTest()}
+                    disabled={submitting}
                   >
-                    <span className="mock-test-option-key">
-                      {option.key}
-                    </span>
-
-                    <span className="mock-test-option-text">
-                      {option.text}
-                    </span>
-
-                    <span className="mock-test-option-check">
-                      {isSelected ? "✓" : ""}
-                    </span>
+                    {submitting ? "Submitting..." : "Submit test"}
                   </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <div className="mock-test-navigation">
-            <button
-              type="button"
-              className="mock-test-navigation-secondary"
-              onClick={goPrevious}
-              disabled={currentIndex === 0}
-            >
-              ← Previous
-            </button>
-
-            <div className="mock-test-dots">
-              {MOCK_QUESTIONS.map(
-                (question, index) => {
-                  const isCurrent =
-                    index === currentIndex;
-
-                  const isAnswered =
-                    Boolean(answers[question.id]);
-
-                  return (
-                    <button
-                      key={question.id}
-                      type="button"
-                      className={[
-                        "mock-test-dot",
-                        isCurrent ? "current" : "",
-                        isAnswered ? "answered" : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      onClick={() =>
-                        setCurrentIndex(index)
-                      }
-                      aria-label={`Go to question ${
-                        index + 1
-                      }`}
-                    />
-                  );
-                }
-              )}
-            </div>
-
-            {currentIndex ===
-            MOCK_QUESTIONS.length - 1 ? (
-              <button
-                type="button"
-                className="mock-test-submit"
-                onClick={submitTest}
-              >
-                Submit test
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="mock-test-next"
-                onClick={goNext}
-              >
-                Next question →
-              </button>
-            )}
-          </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="mock-test-next"
+                    onClick={goNext}
+                  >
+                    Next question →
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </main>
       </div>
     </div>

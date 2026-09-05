@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     ai_provider: str = "nvidia"
     nvidia_api_key: str = ""
 
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "http://127.0.0.1:8000/auth/google/callback"
+    frontend_url: str = "http://127.0.0.1:5173"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False

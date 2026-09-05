@@ -71,3 +71,9 @@ export async function getCurrentUser(): Promise<User> {
 
   return response.data;
 }
+
+export function startGoogleAuth(): void {
+  window.location.assign(
+    `${apiClient.defaults.baseURL}/auth/google/login`
+  );
+}

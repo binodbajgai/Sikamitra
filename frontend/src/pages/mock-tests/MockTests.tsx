@@ -9,12 +9,17 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import type { Subject } from "../../types/subjects.ts";
-
 import {
-  getMaterialSubjectAssignments,
-  getSubjects,
-} from "../../utils/subjects.ts";
+  createSubjectMockTest,
+  getMockTests,
+  startMockTestAttempt,
+  type MockTest,
+} from "../../api/mockTests.ts";
+import { getSubjects, type Subject } from "../../api/subjects.ts";
+import {
+  getStudyMaterials,
+  type StudyMaterial,
+} from "../../api/studyMaterials.ts";
 
 type Difficulty =
   | "Easy"
@@ -27,11 +32,17 @@ function MockTests() {
   const [subjects, setSubjects] =
     useState<Subject[]>([]);
 
-  const [assignments, setAssignments] =
-    useState<Record<string, string>>({});
+  const [materials, setMaterials] =
+    useState<StudyMaterial[]>([]);
+
+  const [mockTests, setMockTests] =
+    useState<MockTest[]>([]);
 
   const [loading, setLoading] =
     useState(true);
+
+  const [creating, setCreating] =
+    useState(false);
 
   const [error, setError] =
     useState("");
@@ -48,58 +59,45 @@ function MockTests() {
   const [difficulty, setDifficulty] =
     useState<Difficulty>("Medium");
 
-  /*
-   * Load locally stored subjects and
-   * material → subject assignments.
-   */
   useEffect(() => {
-    try {
-      setSubjects(getSubjects());
+    async function loadData() {
+      try {
+        setLoading(true);
+        setError("");
 
-      setAssignments(
-        getMaterialSubjectAssignments()
-      );
-    } catch (err) {
-      console.error(err);
+        const [subjectsData, mockTestsData, materialsData] = await Promise.all([
+          getSubjects(),
+          getMockTests(),
+          getStudyMaterials().catch(() => []),
+        ]);
 
-      setError(
-        "Unable to load your subjects."
-      );
-    } finally {
-      setLoading(false);
+        setSubjects(subjectsData);
+        setMockTests(mockTestsData);
+        setMaterials(materialsData);
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load subjects or mock tests.");
+      } finally {
+        setLoading(false);
+      }
     }
+
+    void loadData();
   }, []);
 
-  /*
-   * Currently this counts how many materials
-   * belong to the selected subject.
-   *
-   * Later the same subject will provide the
-   * question bank for the mock test.
-   */
-  const selectedSubjectMaterialCount =
-    useMemo(() => {
-      if (!selectedSubject) {
-        return 0;
-      }
-
-      return Object.values(
-        assignments
-      ).filter(
-        (subjectId) =>
-          subjectId === selectedSubject
-      ).length;
-    }, [
-      assignments,
-      selectedSubject,
-    ]);
+  const selectedSubjectMaterialCount = useMemo(() => {
+    if (!selectedSubject) return 0;
+    const subId = Number(selectedSubject);
+    return materials.filter((m) => m.subject_id === subId).length;
+  }, [materials, selectedSubject]);
 
   const selectedSubjectName =
     useMemo(() => {
+      const subId = Number(selectedSubject);
       return (
         subjects.find(
           (subject) =>
-            subject.id === selectedSubject
+            subject.id === subId
         )?.name || ""
       );
     }, [
@@ -107,24 +105,62 @@ function MockTests() {
       selectedSubject,
     ]);
 
-  function handleCreateTest() {
+  async function handleCreateTest() {
     if (!selectedSubject) {
       setError(
         "Choose a subject before creating a test."
       );
-
       return;
     }
 
-    setError("");
+    const subId = Number(selectedSubject);
+    if (Number.isNaN(subId)) {
+      setError("Invalid subject chosen.");
+      return;
+    }
 
-    /*
-     * Frontend-only navigation for now.
-     *
-     * Later we will pass the actual backend
-     * mock-test ID here.
-     */
-    navigate("/mock-tests/take");
+    try {
+      setCreating(true);
+      setError("");
+
+      const title = `${selectedSubjectName} Mock Test`;
+      const qCount = Number(questionCount) || 10;
+
+      const createdTest = await createSubjectMockTest(subId, {
+        title,
+        question_count: qCount,
+      });
+
+      const attempt = await startMockTestAttempt(createdTest.id);
+
+      navigate(`/mock-tests/take?attemptId=${attempt.id}&testId=${createdTest.id}`);
+    } catch (err: any) {
+      console.error(err);
+      const message =
+        err?.response?.data?.detail ||
+        "Failed to create mock test. Ensure questions exist for this subject.";
+      setError(message);
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function handleStartExistingTest(testId: number) {
+    try {
+      setLoading(true);
+      setError("");
+
+      const attempt = await startMockTestAttempt(testId);
+      navigate(`/mock-tests/take?attemptId=${attempt.id}&testId=${testId}`);
+    } catch (err: any) {
+      console.error(err);
+      const message =
+        err?.response?.data?.detail ||
+        "Failed to start test attempt.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -438,13 +474,14 @@ function MockTests() {
                 className="mock-tests-primary-button"
                 disabled={
                   loading ||
+                  creating ||
                   !selectedSubject
                 }
                 onClick={
                   handleCreateTest
                 }
               >
-                Start test
+                {creating ? "Creating test..." : "Start test"}
 
                 <span>
                   →
@@ -480,9 +517,8 @@ function MockTests() {
 
               <p>
                 Create a subject, add your study
-                material to it, and eventually use
-                the combined question bank for
-                practice.
+                material to it, and use the generated
+                question bank for practice.
               </p>
             </div>
 
@@ -516,36 +552,72 @@ function MockTests() {
               </p>
 
               <h2>
-                Test history
+                Test library ({mockTests.length})
               </h2>
             </div>
 
           </div>
 
+          {mockTests.length === 0 ? (
+            <div className="mock-tests-empty">
 
-          <div className="mock-tests-empty">
+              <div className="mock-tests-empty-mark">
+                —
+              </div>
 
-            <div className="mock-tests-empty-mark">
-              —
+              <h3>
+                No tests created yet
+              </h3>
+
+              <p>
+                Created tests and your score history will
+                appear here.
+              </p>
+
+              <Link
+                to="/study-materials"
+                className="mock-tests-text-link"
+              >
+                Manage subjects →
+              </Link>
+
             </div>
+          ) : (
+            <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
+              {mockTests.map((test) => (
+                <div
+                  key={test.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "1.25rem 1.5rem",
+                    borderRadius: "12px",
+                    background: "var(--color-bg-surface, #ffffff)",
+                    border: "1px solid var(--color-border, #e5e7eb)",
+                  }}
+                >
+                  <div>
+                    <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
+                      {test.title}
+                    </h3>
+                    <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--color-text-secondary, #6b7280)" }}>
+                      {test.question_count} questions · Created {new Date(test.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
 
-            <h3>
-              No test attempts yet
-            </h3>
-
-            <p>
-              Completed tests and your scores will
-              appear here.
-            </p>
-
-            <Link
-              to="/materials"
-              className="mock-tests-text-link"
-            >
-              Manage subjects →
-            </Link>
-
-          </div>
+                  <button
+                    type="button"
+                    className="mock-tests-primary-button"
+                    style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
+                    onClick={() => void handleStartExistingTest(test.id)}
+                  >
+                    Take test →
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
         </section>
 

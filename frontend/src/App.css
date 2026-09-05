@@ -36,9 +36,9 @@
    
   padding: 28px 20px 22px;   
    
-  background: var(--color-dark);
+  background: var(--color-sidebar);
 
-  border-right: 1px solid var(--color-overlay-soft);
+  border-right: 1px solid var(--color-border);
    
   z-index: 100;   
 }   
@@ -80,7 +80,7 @@
 .sidebar-brand-text h1 {   
   margin: 0;   
    
-  color: var(--color-text-on-dark);
+  color: var(--color-text-primary);
    
   font-size: 19px;   
   line-height: 1.1;   
@@ -91,7 +91,7 @@
 .sidebar-brand-text p {   
   margin: 4px 0 0;   
    
-  color: var(--color-text-on-dark-muted);
+  color: var(--color-text-secondary);
    
   font-size: 11px;   
   line-height: 1.2;   
@@ -111,7 +111,7 @@
    
   padding: 0 10px;   
    
-  color: var(--color-dark);   
+  color: var(--color-text-muted);   
    
   font-size: 10px;   
   font-weight: 800;   
@@ -137,7 +137,7 @@
    
   border-radius: 9px;   
    
-  color: var(--color-dark);   
+  color: var(--color-text-secondary);   
    
   text-decoration: none;   
    
@@ -152,14 +152,14 @@
    
 .sidebar-nav-item:hover {   
   background: var(--color-surface-alt);   
-  color: var(--color-dark);   
+  color: var(--color-text-primary);   
    
   transform: translateX(1px);   
 }   
    
 .sidebar-nav-item.active {   
-  background: var(--color-dark);   
-  color: var(--color-surface-elevated);   
+  background: var(--color-accent-soft);   
+  color: var(--color-accent-strong);   
 }   
    
 .sidebar-nav-icon {   
@@ -412,10 +412,6 @@
   line-height: 1.7;   
 }   
    
-   
-/* =========================================================   
-   RESPONSIVE   
-========================================================= */   
    
 /* =========================================================   
    RESPONSIVE   
@@ -1731,6 +1727,170 @@
    
   margin-left: 264px;   
 }   
+
+/* =========================================================
+   PROGRESS PAGE
+========================================================= */
+
+.progress-page {
+  min-height: 100vh;
+  padding: 52px 24px 90px;
+}
+
+.progress-container {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.progress-header {
+  margin-bottom: 34px;
+}
+
+.progress-kicker {
+  margin: 0 0 9px;
+  color: var(--color-accent-strong);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.progress-header h1,
+.progress-section-heading h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.progress-header h1 {
+  font-size: clamp(34px, 5vw, 52px);
+  letter-spacing: -0.04em;
+}
+
+.progress-header p:last-child {
+  margin: 13px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.progress-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 42px;
+}
+
+.progress-metric-card,
+.progress-history {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+}
+
+.progress-metric-card {
+  min-height: 126px;
+  padding: 22px;
+  border-radius: 10px;
+}
+
+.progress-metric-card span {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.progress-metric-card strong {
+  display: block;
+  margin-top: 17px;
+  color: var(--color-text-primary);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.progress-history {
+  padding: 26px;
+  border-radius: 10px;
+}
+
+.progress-section-heading h2 {
+  font-size: 24px;
+  letter-spacing: -0.025em;
+}
+
+.progress-history-list {
+  margin-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.progress-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.progress-history-row h3,
+.progress-history-row p {
+  margin: 0;
+}
+
+.progress-history-row h3 {
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+.progress-history-row p,
+.progress-history-score span {
+  margin-top: 5px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.progress-history-score {
+  min-width: 100px;
+  text-align: right;
+}
+
+.progress-history-score strong {
+  display: block;
+  color: var(--color-accent-strong);
+  font-size: 18px;
+}
+
+.progress-history-score span {
+  display: block;
+}
+
+.progress-empty,
+.progress-error {
+  padding: 24px 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.progress-error {
+  color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .progress-page {
+    padding: 34px 14px 60px;
+  }
+
+  .progress-metrics {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .progress-metric-card {
+    min-height: 0;
+  }
+
+  .progress-history {
+    padding: 20px;
+  }
+}
    
    
 /* =========================================================   
@@ -5598,7 +5758,6 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   box-shadow: 0 18px 42px var(--color-shadow);
-  backdrop-filter: blur(10px);
 }
 
 .dashboard-page,
@@ -5681,8 +5840,14 @@ body {
 .mock-tests-primary-button:hover:not(:disabled),
 .mock-test-next:hover,
 .mock-test-submit:hover,
-.dashboard-secondary-action:hover {
+.dashboard-secondary-action:hover,
+.material-open-button:hover,
+.material-back-button:hover,
+.subject-close-button:hover,
+.subject-cancel-button:hover,
+.mock-tests-outline-button:hover {
   transform: translateY(-1px);
+  border-color: var(--color-border-strong);
   box-shadow: 0 14px 26px var(--color-shadow-strong);
 }
 
@@ -6057,7 +6222,7 @@ body {
 
 .sidebar {
   background: var(--color-sidebar);
-  border-right-color: var(--color-overlay-soft);
+  border-right-color: var(--color-border);
   box-shadow: 12px 0 30px var(--color-shadow);
 }
 
@@ -6065,28 +6230,28 @@ body {
 .sidebar-nav-item,
 .sidebar-profile-info strong,
 .sidebar-logout {
-  color: var(--color-text-on-dark);
+  color: var(--color-text-primary);
 }
 
 .sidebar-brand-text p,
 .sidebar-section-label,
 .sidebar-profile-info span {
-  color: var(--color-text-on-dark-muted);
+  color: var(--color-text-secondary);
 }
 
 .sidebar-nav-item:hover,
 .sidebar-logout:hover {
-  background: var(--color-overlay-soft);
-  color: var(--color-text-on-dark);
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
 }
 
 .sidebar-nav-item.active {
-  background: var(--color-accent);
-  color: var(--color-sidebar);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 
 .sidebar-nav-item.active .sidebar-nav-icon {
-  color: var(--color-sidebar);
+  color: var(--color-accent-strong);
 }
 
 .sidebar-profile {
@@ -6142,8 +6307,8 @@ body {
 .dashboard-material-icon,
 .dashboard-action-icon,
 .dashboard-empty-mark {
-  background: var(--color-accent);
-  color: var(--color-dark);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 
 .dashboard-primary-action,
@@ -6228,13 +6393,16 @@ body {
 }
 
 .materials-search span,
-.subjects-search span,
+.subjects-search span {
+  color: var(--color-icon-on-surface);
+}
+
 .material-file-icon,
 .subject-folder-icon,
 .dashboard-material-icon,
 .dashboard-action-icon,
 .dashboard-empty-mark {
-  color: var(--color-icon-on-surface);
+  color: var(--color-accent-strong);
 }
 
 .materials-search input,
@@ -6292,6 +6460,8 @@ body {
 .subject-card:hover,
 .unsorted-section:hover {
   border-color: var(--color-border-strong);
+  background: var(--color-surface-elevated);
+  transform: translateY(-2px);
   box-shadow:
     0 1px 2px var(--color-shadow),
     0 14px 28px var(--color-shadow-strong);
@@ -6299,8 +6469,8 @@ body {
 
 .material-file-icon,
 .subject-folder-icon {
-  border-color: var(--color-border-strong);
-  background: var(--color-accent);
+  border-color: var(--color-accent-soft);
+  background: var(--color-accent-soft);
 }
 
 .material-delete-button,
@@ -6332,7 +6502,7 @@ body {
 }
 
 .subject-folder-icon {
-  color: var(--color-dark);
+  color: var(--color-accent-strong);
 }
 
 .subject-card-footer strong {
@@ -6364,7 +6534,33 @@ body {
     background-color 160ms ease;
 }
 
-.subject-card:hover,
-.material-row:hover {
-  transform: translateY(-2px);
+/* =========================================================
+   COMPREHENSIVE ICON CONTRAST FIX
+========================================================= */
+
+.sidebar-nav-icon,
+.dashboard-material-icon,
+.dashboard-action-icon,
+.materials-upload-icon,
+.material-file-icon,
+.materials-empty-icon,
+.subject-folder-icon,
+.app-loading-mark,
+.dashboard-empty-mark,
+.study-empty-mark,
+.state-mark,
+.mock-tests-intro-mark,
+.mock-tests-empty-mark,
+.subjects-empty-mark,
+.mock-test-option-key,
+.mock-test-score-circle {
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+  border-color: var(--color-accent-soft) !important;
+}
+
+.sidebar-nav-item.active .sidebar-nav-icon,
+.mock-test-option.selected .mock-test-option-key {
+  background: var(--color-accent) !important;
+  color: var(--color-surface-elevated) !important;
 }

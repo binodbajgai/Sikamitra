@@ -12,19 +12,20 @@ import {
 
 import {
   deleteStudyMaterial,
-  getStudyMaterials,
   uploadStudyMaterial,
   type StudyMaterial,
 } from "../../api/studyMaterials.ts";
 
-import type { Subject } from "../../types/subjects.ts";
+import {
+  getSubject,
+  getSubjectMaterials,
+  type Subject,
+} from "../../api/subjects.ts";
 
 import {
-  assignMaterialToSubject,
-  getMaterialSubjectAssignments,
-  getSubjects,
-  removeMaterialFromSubject,
-} from "../../utils/subjects.ts";
+  getDisplayFileName,
+  getFileExtensionLabel,
+} from "../../utils/fileDisplay.ts";
 
 function SubjectDetail() {
   const { subjectId } =
@@ -41,9 +42,6 @@ function SubjectDetail() {
   const [materials, setMaterials] =
     useState<StudyMaterial[]>([]);
 
-  const [assignments, setAssignments] =
-    useState<Record<string, string>>({});
-
   const [loading, setLoading] =
     useState(true);
 
@@ -58,45 +56,41 @@ function SubjectDetail() {
 
 
   useEffect(() => {
-    const subjects =
-      getSubjects();
+    async function loadSubjectData() {
+      if (!subjectId) {
+        setError("Subject ID is missing.");
+        setLoading(false);
+        return;
+      }
 
-    const found =
-      subjects.find(
-        (item) =>
-          item.id === subjectId
-      );
+      const id = Number(subjectId);
+      if (Number.isNaN(id)) {
+        setError("Invalid subject ID.");
+        setLoading(false);
+        return;
+      }
 
-    setSubject(found || null);
-
-    setAssignments(
-      getMaterialSubjectAssignments()
-    );
-  }, [subjectId]);
-
-
-  useEffect(() => {
-    async function loadMaterials() {
       try {
         setLoading(true);
+        setError("");
 
-        const data =
-          await getStudyMaterials();
+        const [subjectData, materialsData] = await Promise.all([
+          getSubject(id),
+          getSubjectMaterials(id),
+        ]);
 
-        setMaterials(data);
+        setSubject(subjectData);
+        setMaterials(materialsData);
       } catch (err) {
         console.error(err);
-
-        setError(
-          "Unable to load the subject materials."
-        );
+        setError("Unable to load subject data.");
       } finally {
         setLoading(false);
       }
     }
 
-    void loadMaterials();
-  }, []);
+    void loadSubjectData();
+  }, [subjectId]);
 
 
   const subjectMaterials =
@@ -104,53 +98,33 @@ function SubjectDetail() {
       const value =
         search.trim().toLowerCase();
 
-      return materials.filter(
-        (material) => {
-          const belongs =
-            assignments[
-              String(material.id)
-            ] === subjectId;
+      if (!value) {
+        return materials;
+      }
 
-          if (!belongs) {
-            return false;
-          }
-
-          if (!value) {
-            return true;
-          }
-
-          return [
-            material.title,
-            material.file_name,
-          ]
-            .filter(Boolean)
-            .some((field) =>
-              String(field)
-                .toLowerCase()
-                .includes(value)
-            );
-        }
+      return materials.filter((material) =>
+        [material.title, material.file_name]
+          .filter(Boolean)
+          .some((field) =>
+            String(field).toLowerCase().includes(value)
+          )
       );
-    }, [
-      materials,
-      assignments,
-      subjectId,
-      search,
-    ]);
+    }, [materials, search]);
 
 
-  async function handleFile(
-    file?: File
-  ) {
-    if (!file || !subjectId) {
+  async function handleFile(file?: File) {
+    if (!file || !subject) {
       return;
     }
 
     const validExtensions = [
       ".pdf",
-      ".doc",
       ".docx",
       ".txt",
+      ".pptx",
+      ".png",
+      ".jpg",
+      ".jpeg",
     ];
 
     const name =
@@ -164,9 +138,8 @@ function SubjectDetail() {
 
     if (!valid) {
       setError(
-        "Please upload a PDF, DOC, DOCX, or TXT file."
+        "Please upload a TXT, PDF, DOCX, PPTX, PNG, JPG, or JPEG file."
       );
-
       return;
     }
 
@@ -175,16 +148,7 @@ function SubjectDetail() {
       setError("");
 
       const material =
-        await uploadStudyMaterial(file);
-
-      assignMaterialToSubject(
-        material.id,
-        subjectId
-      );
-
-      setAssignments(
-        getMaterialSubjectAssignments()
-      );
+        await uploadStudyMaterial(file, subject.id);
 
       setMaterials((current) => [
         material,
@@ -192,16 +156,11 @@ function SubjectDetail() {
       ]);
     } catch (err) {
       console.error(err);
-
-      setError(
-        "Unable to add this material."
-      );
+      setError("Unable to add this material.");
     } finally {
       setUploading(false);
-
       if (fileInputRef.current) {
-        fileInputRef.current.value =
-          "";
+        fileInputRef.current.value = "";
       }
     }
   }
@@ -224,19 +183,11 @@ function SubjectDetail() {
         material.id
       );
 
-      removeMaterialFromSubject(
-        material.id
-      );
-
       setMaterials((current) =>
         current.filter(
           (item) =>
             item.id !== material.id
         )
-      );
-
-      setAssignments(
-        getMaterialSubjectAssignments()
       );
     } catch (err) {
       console.error(err);
@@ -256,7 +207,7 @@ function SubjectDetail() {
             Subject not found
           </h2>
 
-          <Link to="/materials">
+          <Link to="/study-materials">
             Back to subjects
           </Link>
         </div>
@@ -270,7 +221,7 @@ function SubjectDetail() {
       <div className="subject-detail-container">
 
         <Link
-          to="/materials"
+          to="/study-materials"
           className="subject-back-link"
         >
           ← Study subjects
@@ -409,23 +360,21 @@ function SubjectDetail() {
                 >
 
                   <div className="material-file-icon">
-                    {material.file_name
-                      ?.split(".")
-                      .pop()
-                      ?.toUpperCase() ||
-                      "DOC"}
+                    {getFileExtensionLabel(
+                      material.file_name
+                    )}
                   </div>
 
                   <div>
                     <Link
-                      to={`/materials/${material.id}`}
+                      to={`/study-materials/${material.id}`}
                       className="material-row-title"
                     >
-                      {material.title}
+                      {getDisplayFileName(material.title)}
                     </Link>
 
                     <p>
-                      {material.file_name ||
+                      {getDisplayFileName(material.file_name) ||
                         material.source_type ||
                         "Study material"}
                     </p>
@@ -434,7 +383,7 @@ function SubjectDetail() {
                   <div className="subject-material-actions-row">
 
                     <Link
-                      to={`/materials/${material.id}`}
+                      to={`/study-materials/${material.id}`}
                       className="material-open-button"
                     >
                       Open
@@ -495,7 +444,7 @@ function SubjectDetail() {
           ref={fileInputRef}
           type="file"
           hidden
-          accept=".pdf,.doc,.docx,.txt"
+          accept=".txt,.pdf,.docx,.pptx,.png,.jpg,.jpeg"
           onChange={(event) =>
             void handleFile(
               event.target.files?.[0]

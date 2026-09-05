@@ -1,28 +1,17 @@
-import {
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-import { useAuth } from "./context/AuthContext.tsx";
-
-import Login from "./pages/Login.tsx";
-import Register from "./pages/Register.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import Materials from "./pages/Materials.tsx";
-import MaterialDetail from "./pages/MaterialDetail.tsx";
-
-import SubjectDetail from "./pages/materials/SubjectDetail.tsx";
-
-import MockTests from "./pages/mock-tests/MockTests.tsx";
-import MockTestTake from "./pages/mock-tests/MockTestTake.tsx";
-
-import AppLayout from "./layouts/AppLayout.tsx";
-
-
-/* =========================================================
-   PROTECTED ROUTE
-========================================================= */
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import Materials from "./pages/Materials";
+import MaterialDetail from "./pages/MaterialDetail";
+import SubjectDetail from "./pages/materials/SubjectDetail";
+import MockTests from "./pages/mock-tests/MockTests";
+import MockTestTake from "./pages/mock-tests/MockTestTake";
+import Progress from "./pages/Progress";
+import AppShell from "./components/AppShell";
+import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 
 function ProtectedRoute({
   children,
@@ -33,45 +22,25 @@ function ProtectedRoute({
 
   if (loading) {
     return (
-      <div className="app-loading-screen">
-        <div className="app-loading-content">
-          <div className="app-loading-mark">
-            S
-          </div>
-
-          <p>
-            Loading Sikamitra...
-          </p>
-        </div>
+      <div className="app-loading">
+        <div className="loading-mark">S</div>
+        <p>Loading Sikamitra...</p>
       </div>
     );
   }
 
   if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
 }
 
-
-/* =========================================================
-   APP
-========================================================= */
-
 function App() {
   return (
     <Routes>
 
-      {/* =====================================================
-          PUBLIC ROUTES
-      ===================================================== */}
-
+      {/* AUTH */}
       <Route
         path="/login"
         element={<Login />}
@@ -82,72 +51,105 @@ function App() {
         element={<Register />}
       />
 
-
-      {/* =====================================================
-          PROTECTED APPLICATION
-      ===================================================== */}
-
       <Route
+        path="/auth/google/callback"
+        element={<GoogleAuthCallback />}
+      />
+
+
+      {/* DASHBOARD */}
+      <Route
+        path="/dashboard"
         element={
           <ProtectedRoute>
-            <AppLayout />
+            <AppShell>
+              <Dashboard />
+            </AppShell>
           </ProtectedRoute>
         }
-      >
-
-        {/* Dashboard */}
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
+      />
 
 
-        {/* =================================================
-            STUDY MATERIALS
-        ================================================= */}
+      {/* MATERIALS */}
+      <Route
+        path="/materials"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <Materials />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
 
-        <Route
-          path="/materials"
-          element={<Materials />}
-        />
+      <Route
+        path="/study-materials"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <Materials />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
 
-        {/* Subject detail
-            IMPORTANT: this comes before
-            /materials/:materialId
-        */}
-        <Route
-          path="/materials/subject/:subjectId"
-          element={<SubjectDetail />}
-        />
+      <Route
+        path="/study-materials/subject/:subjectId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <SubjectDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
 
-        {/* Individual material */}
-        <Route
-          path="/materials/:materialId"
-          element={<MaterialDetail />}
-        />
+      <Route
+        path="/study-materials/:materialId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MaterialDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mock-tests"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MockTests />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mock-tests/take"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <MockTestTake />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/progress"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <Progress />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
 
 
-        {/* =================================================
-            MOCK TESTS
-        ================================================= */}
-
-        <Route
-          path="/mock-tests"
-          element={<MockTests />}
-        />
-
-        <Route
-          path="/mock-tests/take"
-          element={<MockTestTake />}
-        />
-
-      </Route>
-
-
-      {/* =====================================================
-          ROOT
-      ===================================================== */}
-
+      {/* DEFAULT */}
       <Route
         path="/"
         element={
@@ -158,10 +160,6 @@ function App() {
         }
       />
 
-
-      {/* =====================================================
-          UNKNOWN ROUTES
-      ===================================================== */}
 
       <Route
         path="*"

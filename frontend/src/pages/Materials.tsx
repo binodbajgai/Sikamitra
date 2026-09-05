@@ -4,7 +4,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { Link } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+} from "react-router-dom";
 
 import {
   deleteStudyMaterial,
@@ -13,15 +16,20 @@ import {
   type StudyMaterial,
 } from "../api/studyMaterials.ts";
 
-import type { Subject } from "../types/subjects.ts";
-
 import {
   createSubject,
-  getMaterialSubjectAssignments,
   getSubjects,
-} from "../utils/subjects.ts";
+  type Subject,
+} from "../api/subjects.ts";
+import {
+  formatUpdatedDate,
+  getDisplayFileName,
+  getFileExtensionLabel,
+} from "../utils/fileDisplay.ts";
 
 function Materials() {
+  const location = useLocation();
+
   const fileInputRef =
     useRef<HTMLInputElement | null>(null);
 
@@ -30,9 +38,6 @@ function Materials() {
 
   const [subjects, setSubjects] =
     useState<Subject[]>([]);
-
-  const [assignments, setAssignments] =
-    useState<Record<string, string>>({});
 
   const [loading, setLoading] =
     useState(true);
@@ -57,36 +62,48 @@ function Materials() {
 
 
   useEffect(() => {
-    setSubjects(getSubjects());
-    setAssignments(
-      getMaterialSubjectAssignments()
-    );
-  }, []);
-
-
-  useEffect(() => {
-    async function loadMaterials() {
+    async function loadData() {
       try {
         setLoading(true);
         setError("");
 
-        const data =
-          await getStudyMaterials();
+        const [materialsData, subjectsData] = await Promise.all([
+          getStudyMaterials(),
+          getSubjects(),
+        ]);
 
-        setMaterials(data);
+        setMaterials(materialsData);
+        setSubjects(subjectsData);
       } catch (err) {
         console.error(err);
 
         setError(
-          "Unable to load your study materials."
+          "Unable to load your study materials or subjects."
         );
       } finally {
         setLoading(false);
       }
     }
 
-    void loadMaterials();
+    void loadData();
   }, []);
+
+
+  useEffect(() => {
+    const shouldOpenUpload =
+      location.state &&
+      typeof location.state === "object" &&
+      "openUpload" in location.state &&
+      location.state.openUpload;
+
+    if (shouldOpenUpload) {
+      const timer = window.setTimeout(() => {
+        fileInputRef.current?.click();
+      }, 150);
+
+      return () => window.clearTimeout(timer);
+    }
+  }, [location.state]);
 
 
   const filteredMaterials =
@@ -117,12 +134,11 @@ function Materials() {
 
   const unsortedMaterials =
     filteredMaterials.filter(
-      (material) =>
-        !assignments[String(material.id)]
+      (material) => material.subject_id === null || material.subject_id === undefined
     );
 
 
-  function handleCreateSubject() {
+  async function handleCreateSubject() {
     const name =
       subjectName.trim();
 
@@ -147,21 +163,26 @@ function Materials() {
       return;
     }
 
-    const subject =
-      createSubject(
+    try {
+      setError("");
+
+      const newSubject = await createSubject({
         name,
-        subjectDescription
-      );
+        description: subjectDescription || undefined,
+      });
 
-    setSubjects((current) => [
-      ...current,
-      subject,
-    ]);
+      setSubjects((current) => [
+        ...current,
+        newSubject,
+      ]);
 
-    setSubjectName("");
-    setSubjectDescription("");
-    setShowCreateSubject(false);
-    setError("");
+      setSubjectName("");
+      setSubjectDescription("");
+      setShowCreateSubject(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to create subject. Please try again.");
+    }
   }
 
 
@@ -174,9 +195,12 @@ function Materials() {
 
     const validExtensions = [
       ".pdf",
-      ".doc",
       ".docx",
       ".txt",
+      ".pptx",
+      ".png",
+      ".jpg",
+      ".jpeg",
     ];
 
     const lowerName =
@@ -190,7 +214,7 @@ function Materials() {
 
     if (!valid) {
       setError(
-        "Please upload a PDF, DOC, DOCX, or TXT file."
+        "Please upload a TXT, PDF, DOCX, PPTX, PNG, JPG, or JPEG file."
       );
       return;
     }
@@ -265,33 +289,11 @@ function Materials() {
 
 
   function getSubjectMaterialCount(
-    subjectId: string
+    subjectId: number
   ) {
     return materials.filter(
-      (material) =>
-        assignments[String(material.id)] ===
-        subjectId
+      (material) => material.subject_id === subjectId
     ).length;
-  }
-
-
-  function formatDate(date: string) {
-    const value = new Date(date);
-
-    if (
-      Number.isNaN(value.getTime())
-    ) {
-      return "";
-    }
-
-    return value.toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }
-    );
   }
 
 
@@ -519,7 +521,7 @@ function Materials() {
                 return (
                   <Link
                     key={subject.id}
-                    to={`/materials/subject/${subject.id}`}
+                    to={`/study-materials/subject/${subject.id}`}
                     className="subject-card"
                   >
                     <div className="subject-card-top">
@@ -599,29 +601,29 @@ function Materials() {
                         className="material-row"
                       >
                         <div className="material-file-icon">
-                          {material.file_name
-                            ?.split(".")
-                            .pop()
-                            ?.toUpperCase() ||
-                            "DOC"}
+                          {getFileExtensionLabel(
+                            material.file_name
+                          )}
                         </div>
 
                         <div className="material-row-info">
                           <Link
-                            to={`/materials/${material.id}`}
+                            to={`/study-materials/${material.id}`}
                             className="material-row-title"
                           >
-                            {material.title}
+                            {getDisplayFileName(material.title)}
                           </Link>
 
                           <p>
-                            {material.file_name ||
+                            {getDisplayFileName(
+                              material.file_name
+                            ) ||
                               material.source_type ||
                               "Study material"}
 
                             {" · Updated "}
 
-                            {formatDate(
+                            {formatUpdatedDate(
                               material.updated_at
                             )}
                           </p>
@@ -651,7 +653,7 @@ function Materials() {
           ref={fileInputRef}
           type="file"
           hidden
-          accept=".pdf,.doc,.docx,.txt"
+          accept=".txt,.pdf,.docx,.pptx,.png,.jpg,.jpeg"
           onChange={handleFileChange}
         />
 
