@@ -7799,7 +7799,7 @@ body {
   .recent-material-item,
   .unsorted-section .material-row {
     border-color: var(--color-border);
-    background: var(--color-surface-alt);
+    background: var(--color-surface-elevated);
     box-shadow: 0 8px 24px var(--color-shadow);
   }
 
