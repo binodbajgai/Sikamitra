@@ -561,18 +561,18 @@ img {
 }
 
 .action-card-primary {
-  background: #17201d;
-  color: #fffdf8;
-  border-color: #17201d;
+  background: #fffdf8;
+  color: #17201d;
+  border-color: #dedbd2;
 }
 
 .action-card-primary .action-eyebrow,
 .action-card-primary p {
-  color: #b4c2bc;
+  color: #68746f;
 }
 
 .action-card-primary .action-arrow {
-  color: #d9e6df;
+  color: #68746f;
 }
 
 .action-icon {
@@ -594,8 +594,8 @@ img {
 }
 
 .action-card-primary .action-icon {
-  background: #34443d;
-  color: #ffffff;
+  background: #e8eee9;
+  color: #34483e;
 }
 
 .action-content h3 {
