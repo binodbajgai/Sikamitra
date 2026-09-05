@@ -571,6 +571,7 @@ function Materials() {
               <button
                 type="button"
                 className="unsorted-heading"
+                aria-expanded={showUnsorted}
                 onClick={() =>
                   setShowUnsorted(
                     (current) =>
@@ -578,11 +579,12 @@ function Materials() {
                   )
                 }
               >
-                <span>
+                <span className="unsorted-heading-label">
+                  <span className="unsorted-heading-mark">!</span>
                   Unsorted materials
                 </span>
 
-                <span>
+                <span className="unsorted-heading-count">
                   {unsortedMaterials.length}
                   {" "}
                   {showUnsorted
