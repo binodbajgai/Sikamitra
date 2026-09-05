@@ -7427,6 +7427,35 @@ body {
     color: var(--color-text-primary);
   }
 
+  .subjects-create-button,
+  .mock-tests-primary-button,
+  .profile-image-button,
+  .subject-cancel-button,
+  .material-open-button,
+  .material-delete-button,
+  .subjects-create-button:hover,
+  .mock-tests-primary-button:hover,
+  .profile-image-button:hover,
+  .subject-cancel-button:hover,
+  .material-open-button:hover,
+  .material-delete-button:hover {
+    background: transparent;
+  }
+
+  .subjects-create-button:hover,
+  .mock-tests-primary-button:hover,
+  .profile-image-button:hover,
+  .subject-cancel-button:hover,
+  .material-open-button:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+  }
+
+  .material-delete-button,
+  .material-delete-button:hover {
+    color: var(--color-danger);
+  }
+
 @media (max-width: 420px) {
   .brand-text,
   .notification-button,
