@@ -83,18 +83,6 @@ function AppShell({
 
           {/* RIGHT SIDE */}
           <div className="navbar-actions">
-
-            <button
-              type="button"
-              className="notification-button"
-              aria-label="Notifications"
-            >
-              <span>•</span>
-            </button>
-
-            <div className="navbar-divider" />
-
-
             <div className="user-menu">
 
               <button
