@@ -6811,3 +6811,130 @@ body {
   background: var(--color-accent) !important;
   color: var(--color-surface-elevated) !important;
 }
+
+/* =========================================================
+   FINAL RESPONSIVE LAYOUT
+========================================================= */
+
+.app-shell > .app-main {
+  width: 100%;
+  margin-left: 0;
+}
+
+@media (max-width: 700px) {
+  .dashboard-page,
+  .materials-page,
+  .mock-tests-page,
+  .mock-test-page,
+  .subjects-page,
+  .subject-detail-page,
+  .material-detail-page {
+    width: 100%;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .dashboard-page {
+    padding-top: 30px;
+  }
+
+  .materials-header,
+  .mock-tests-header,
+  .material-detail-header,
+  .subject-detail-header {
+    gap: 18px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .materials-header > *,
+  .mock-tests-header > *,
+  .material-detail-header > *,
+  .subject-detail-header > * {
+    max-width: 100%;
+  }
+
+  .material-detail-heading {
+    width: 100%;
+    gap: 16px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mock-tests-header h1,
+  .materials-header h1,
+  .material-detail-heading h1,
+  .subject-detail-header h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .mock-test-topbar {
+    gap: 12px;
+    grid-template-columns: 1fr auto;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .mock-test-title {
+    order: 3;
+    width: 100%;
+  }
+
+  .mock-test-progress-label {
+    margin-left: auto;
+  }
+
+  .mock-test-main {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .mock-test-navigation {
+    gap: 10px;
+  }
+
+  .mock-test-navigation button {
+    min-width: 0;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .recent-empty {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .recent-empty .text-button {
+    margin-left: 64px;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-text,
+  .notification-button,
+  .navbar-divider {
+    display: none;
+  }
+
+  .navbar-inner {
+    gap: 12px;
+  }
+
+  .main-navigation {
+    gap: 2px;
+  }
+
+  .nav-item {
+    padding-right: 7px;
+    padding-left: 7px;
+    font-size: 12px;
+  }
+
+  .mock-test-navigation {
+    justify-content: space-between;
+  }
+
+  .mock-test-navigation button {
+    font-size: 11px;
+  }
+}
