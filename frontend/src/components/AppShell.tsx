@@ -145,8 +145,12 @@ function AppShell({
                 </div>
               )}
 
-              <span className="user-menu-button" aria-hidden="true">
-                {isProfileMenuOpen ? "⌃" : "⌄"}
+              <span
+                className="user-menu-button"
+                aria-hidden="true"
+                title={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
+              >
+                ···
               </span>
 
             </div>
