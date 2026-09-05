@@ -7195,6 +7195,24 @@ body {
   color: var(--color-accent-strong);
 }
 
+.user-avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.user-info {
+  justify-content: center;
+  gap: 3px;
+}
+
+.user-name {
+  font-size: 11px;
+}
+
+.user-label {
+  font-size: 9px;
+}
+
 .user-menu {
   position: relative;
 }
