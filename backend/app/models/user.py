@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -33,6 +33,11 @@ class User(Base):
 
     university: Mapped[str | None] = mapped_column(
         String(150),
+        nullable=True
+    )
+
+    profile_image: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True
     )
 

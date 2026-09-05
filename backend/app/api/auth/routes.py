@@ -1,12 +1,15 @@
 import hashlib
 import hmac
 import json
+import base64
+from io import BytesIO
 import secrets
 import urllib.parse
 import urllib.request
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from fastapi.responses import RedirectResponse
+from PIL import Image
 from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_user
 
@@ -17,6 +20,7 @@ from app.schemas.user import (
     UserCreate,
     UserLogin,
     UserResponse,
+    UserUpdate,
 )
 from app.services.auth_service import (
     login_user,
@@ -199,4 +203,66 @@ def login(
 def get_me(
     current_user=Depends(get_current_user),
 ):
+    return current_user
+
+
+@router.patch(
+    "/me",
+    response_model=UserResponse,
+)
+def update_me(
+    user_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    full_name = user_data.full_name.strip()
+    if not full_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Full name is required.",
+        )
+
+    current_user.full_name = full_name
+    current_user.university = user_data.university.strip() or None if user_data.university else None
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post(
+    "/me/avatar",
+    response_model=UserResponse,
+)
+async def update_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    allowed_types = {"image/png", "image/jpeg", "image/webp"}
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please upload a PNG, JPG, or WEBP image.",
+        )
+
+    image_data = await file.read()
+    if len(image_data) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Profile images must be 5 MB or smaller.",
+        )
+
+    try:
+        image = Image.open(BytesIO(image_data))
+        image.verify()
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The uploaded profile image is invalid.",
+        ) from exc
+
+    encoded_image = base64.b64encode(image_data).decode("ascii")
+    current_user.profile_image = f"data:{file.content_type};base64,{encoded_image}"
+    db.commit()
+    db.refresh(current_user)
     return current_user

@@ -17,6 +17,7 @@ export interface User {
   full_name: string;
   email: string;
   university: string | null;
+  profile_image: string | null;
   is_active: boolean;
 }
 
@@ -76,4 +77,19 @@ export function startGoogleAuth(): void {
   window.location.assign(
     `${apiClient.defaults.baseURL}/auth/google/login`
   );
+}
+
+export async function updateProfile(data: {
+  full_name: string;
+  university?: string;
+}): Promise<User> {
+  const response = await apiClient.patch<User>("/auth/me", data);
+  return response.data;
+}
+
+export async function uploadProfileImage(file: File): Promise<User> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<User>("/auth/me/avatar", formData);
+  return response.data;
 }

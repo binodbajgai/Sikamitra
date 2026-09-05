@@ -20,6 +20,7 @@ interface AuthContextType {
   loading: boolean;
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  setUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -90,6 +91,7 @@ export function AuthProvider({
         loading,
         login,
         register,
+        setUser,
         logout,
       }}
     >

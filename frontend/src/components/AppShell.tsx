@@ -96,7 +96,11 @@ function AppShell({
             <NavLink to="/profile" className="user-menu">
 
               <div className="user-avatar">
-                {user?.full_name?.charAt(0).toUpperCase() || "U"}
+                {user?.profile_image ? (
+                  <img src={user.profile_image} alt="" />
+                ) : (
+                  user?.full_name?.charAt(0).toUpperCase() || "U"
+                )}
               </div>
 
               <div className="user-info">

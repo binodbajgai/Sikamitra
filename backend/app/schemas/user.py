@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
     full_name: str
     email: EmailStr
     university: str | None
+    profile_image: str | None
     is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
@@ -26,3 +27,8 @@ class UserResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
+
+
+class UserUpdate(BaseModel):
+    full_name: str
+    university: str | None = None
