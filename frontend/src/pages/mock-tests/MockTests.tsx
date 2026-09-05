@@ -583,25 +583,14 @@ function MockTests() {
 
             </div>
           ) : (
-            <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
+            <div className="mock-tests-library-list">
               {mockTests.map((test) => (
-                <div
-                  key={test.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "1.25rem 1.5rem",
-                    borderRadius: "12px",
-                    background: "var(--color-bg-surface, #ffffff)",
-                    border: "1px solid var(--color-border, #e5e7eb)",
-                  }}
-                >
+                <article key={test.id} className="mock-tests-library-row">
                   <div>
-                    <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.1rem" }}>
+                    <h3>
                       {test.title}
                     </h3>
-                    <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--color-text-secondary, #6b7280)" }}>
+                    <p>
                       {test.question_count} questions · Created {new Date(test.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -609,12 +598,11 @@ function MockTests() {
                   <button
                     type="button"
                     className="mock-tests-primary-button"
-                    style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
                     onClick={() => void handleStartExistingTest(test.id)}
                   >
                     Take test →
                   </button>
-                </div>
+                </article>
               ))}
             </div>
           )}

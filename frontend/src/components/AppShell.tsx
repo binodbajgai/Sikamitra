@@ -93,25 +93,27 @@ function AppShell({
             <div className="navbar-divider" />
 
 
-            <NavLink to="/profile" className="user-menu">
+            <div className="user-menu">
 
-              <div className="user-avatar">
+              <NavLink to="/profile" className="user-account-link">
+                <div className="user-avatar">
                 {user?.profile_image ? (
                   <img src={user.profile_image} alt="" />
                 ) : (
                   user?.full_name?.charAt(0).toUpperCase() || "U"
                 )}
-              </div>
+                </div>
 
-              <div className="user-info">
-                <span className="user-name">
-                  {user?.full_name || "Student"}
-                </span>
+                <div className="user-info">
+                  <span className="user-name">
+                    {user?.full_name || "Student"}
+                  </span>
 
-                <span className="user-label">
-                  Account
-                </span>
-              </div>
+                  <span className="user-label">
+                    Account
+                  </span>
+                </div>
+              </NavLink>
 
               <button
                 type="button"
@@ -122,7 +124,7 @@ function AppShell({
                 ↗
               </button>
 
-            </NavLink>
+            </div>
 
           </div>
 

@@ -6992,6 +6992,217 @@ body {
   }
 }
 
+/* =========================================================
+   CONSISTENT APP SURFACES AND CONTROLS
+========================================================= */
+
+.app-shell > .app-main {
+  width: 100%;
+  min-height: 100vh;
+  margin-left: 0;
+}
+
+.user-account-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.user-account-link:hover .user-name {
+  color: var(--color-accent-strong);
+}
+
+.materials-page,
+.mock-tests-page,
+.mock-test-page,
+.subjects-page,
+.subject-detail-page,
+.material-detail-page,
+.dashboard-page,
+.progress-page,
+.profile-page {
+  text-align: left;
+}
+
+.materials-container,
+.mock-tests-container,
+.mock-test-container,
+.subjects-container,
+.subject-detail-container,
+.material-detail-container,
+.progress-container,
+.profile-container {
+  width: min(1180px, calc(100% - 48px));
+  max-width: none;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.materials-page,
+.mock-tests-page,
+.mock-test-page,
+.subjects-page,
+.subject-detail-page,
+.material-detail-page,
+.dashboard-page,
+.progress-page,
+.profile-page {
+  padding-top: 48px;
+  padding-bottom: 80px;
+}
+
+.materials-page,
+.mock-tests-page,
+.mock-test-page,
+.subjects-page,
+.subject-detail-page,
+.material-detail-page {
+  padding-right: 24px;
+  padding-left: 24px;
+}
+
+.materials-page,
+.mock-tests-page,
+.mock-test-page,
+.subjects-page,
+.subject-detail-page,
+.material-detail-page,
+.dashboard-page,
+.progress-page,
+.profile-page,
+.profile-card,
+.subject-card,
+.material-row,
+.mock-tests-library-row {
+  color: var(--color-text-primary);
+}
+
+.subjects-create-button,
+.mock-tests-primary-button,
+.profile-edit-button,
+.profile-image-button,
+.profile-logout-button,
+.study-action,
+.mock-tests-outline-button,
+.material-open-button,
+.material-delete-button {
+  min-height: 36px;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.subjects-create-button:focus-visible,
+.mock-tests-primary-button:focus-visible,
+.profile-edit-button:focus-visible,
+.profile-image-button:focus-visible,
+.profile-logout-button:focus-visible,
+.study-action:focus-visible,
+.mock-tests-outline-button:focus-visible,
+.material-open-button:focus-visible,
+.material-delete-button:focus-visible,
+.nav-item:focus-visible,
+.user-account-link:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.mock-tests-library-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.mock-tests-library-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-elevated);
+  box-shadow: 0 5px 16px var(--color-shadow);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.mock-tests-library-row:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: 0 9px 22px var(--color-shadow-strong);
+  transform: translateY(-2px);
+}
+
+.mock-tests-library-row h3,
+.mock-tests-library-row p {
+  margin: 0;
+}
+
+.mock-tests-library-row h3 {
+  font-size: 15px;
+}
+
+.mock-tests-library-row p {
+  margin-top: 6px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.mock-test-state-panel {
+  padding-top: 64px;
+  padding-bottom: 64px;
+  text-align: center;
+}
+
+.mock-test-state-panel p {
+  max-width: 520px;
+  margin: 12px auto 28px;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 700px) {
+  .materials-container,
+  .mock-tests-container,
+  .mock-test-container,
+  .subjects-container,
+  .subject-detail-container,
+  .material-detail-container,
+  .progress-container,
+  .profile-container {
+    width: 100%;
+  }
+
+  .materials-page,
+  .mock-tests-page,
+  .mock-test-page,
+  .subjects-page,
+  .subject-detail-page,
+  .material-detail-page,
+  .dashboard-page,
+  .progress-page,
+  .profile-page {
+    padding-top: 32px;
+    padding-bottom: 60px;
+  }
+
+  .mock-tests-library-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mock-tests-library-row .mock-tests-primary-button {
+    width: 100%;
+  }
+}
+
 @media (max-width: 420px) {
   .brand-text,
   .notification-button,

@@ -157,7 +157,7 @@ function MockTestTake() {
   if (loading) {
     return (
       <div className="mock-test-page">
-        <div className="mock-test-container" style={{ textAlign: "center", padding: "4rem 1rem" }}>
+        <div className="mock-test-container mock-test-state-panel">
           <h2>Loading mock test...</h2>
         </div>
       </div>
@@ -167,9 +167,9 @@ function MockTestTake() {
   if (error && questions.length === 0) {
     return (
       <div className="mock-test-page">
-        <div className="mock-test-container" style={{ textAlign: "center", padding: "4rem 1rem" }}>
+        <div className="mock-test-container mock-test-state-panel">
           <h2>Unable to start test</h2>
-          <p style={{ color: "var(--color-text-secondary, #6b7280)", margin: "1rem 0 2rem 0" }}>{error}</p>
+          <p>{error}</p>
           <Link to="/mock-tests" className="mock-tests-primary-button">
             Back to mock tests
           </Link>
