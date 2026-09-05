@@ -5578,16 +5578,26 @@
 
 .unsorted-section-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 18px;
+}
+
+.unsorted-section-header > div:first-child {
+  min-width: 0;
+}
+
+.unsorted-section-header .subjects-kicker {
+  margin-bottom: 8px;
+  line-height: 1;
 }
 
 .unsorted-section-header h2 {
   margin: 0;
   color: var(--color-text-primary);
   font-size: 24px;
+  line-height: 1.1;
   letter-spacing: -0.025em;
 }
    
@@ -5603,6 +5613,7 @@
   background: transparent;   
    
   color: var(--color-text-secondary);
+  line-height: 1;
    
   font-family: inherit;   
    
@@ -6960,7 +6971,7 @@ body {
   }
 
   .unsorted-section-header {
-    align-items: flex-start;
+    align-items: center;
   }
 
   .unsorted-section-header h2 {
