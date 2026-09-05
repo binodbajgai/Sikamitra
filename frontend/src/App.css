@@ -2019,6 +2019,51 @@ html[data-reduce-motion="true"] *::after {
   transition-duration: 0.01ms !important;
 }
 
+/* =========================================================
+   LIGHT BUTTON SYSTEM
+========================================================= */
+
+button:not(.profile-menu-item):not(.user-account-link):not(.notification-button):not(.user-menu-button):not(.mock-test-option):not(.mock-test-dot) {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+}
+
+button:not(.profile-menu-item):not(.user-account-link):not(.notification-button):not(.user-menu-button):not(.mock-test-option):not(.mock-test-dot):hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+button:not(.profile-menu-item):not(.user-account-link):not(.notification-button):not(.user-menu-button):not(.mock-test-option):not(.mock-test-dot):active:not(:disabled) {
+  background: var(--color-border-strong);
+}
+
+.subjects-create-button,
+.mock-tests-primary-button,
+.profile-image-button,
+.subject-cancel-button,
+.material-open-button,
+.material-delete-button {
+  background: var(--color-surface-alt) !important;
+  color: var(--color-text-primary);
+}
+
+.subjects-create-button:hover:not(:disabled),
+.mock-tests-primary-button:hover:not(:disabled),
+.profile-image-button:hover:not(:disabled),
+.subject-cancel-button:hover:not(:disabled),
+.material-open-button:hover,
+.material-delete-button:hover {
+  background: var(--color-border) !important;
+  color: var(--color-text-primary);
+}
+
+.material-delete-button,
+.material-delete-button:hover {
+  color: var(--color-danger);
+}
+
 .profile-actions-card {
   display: flex;
   align-items: center;
