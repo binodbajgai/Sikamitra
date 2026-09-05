@@ -155,14 +155,6 @@ def submit_attempt(
                 is_correct=is_correct,
             )
 
-        if submitted_question_ids != allowed_question_ids:
-            unanswered = allowed_question_ids - submitted_question_ids
-
-            raise ValueError(
-                f"Please answer all questions. "
-                f"Unanswered questions: {len(unanswered)}"
-            )
-
         score = round(
             (correct_answers / attempt.total_questions) * 100
         )

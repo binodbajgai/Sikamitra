@@ -105,12 +105,16 @@ function MockTestTake() {
       return;
     }
 
-    if (answeredCount !== questions.length) {
-      setError(
-        `Please answer all questions before submitting. ${
-          questions.length - answeredCount
-        } remaining.`
-      );
+    const unansweredCount = questions.length - answeredCount;
+
+    if (
+      unansweredCount > 0 &&
+      !window.confirm(
+        `You have ${unansweredCount} unanswered question${
+          unansweredCount === 1 ? "" : "s"
+        }. Submit your test anyway?`
+      )
+    ) {
       return;
     }
 
