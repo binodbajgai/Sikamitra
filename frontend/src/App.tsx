@@ -10,6 +10,7 @@ import SubjectDetail from "./pages/materials/SubjectDetail";
 import MockTests from "./pages/mock-tests/MockTests";
 import MockTestTake from "./pages/mock-tests/MockTestTake";
 import Progress from "./pages/Progress";
+import Profile from "./pages/Profile";
 import AppShell from "./components/AppShell";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 
@@ -143,6 +144,17 @@ function App() {
           <ProtectedRoute>
             <AppShell>
               <Progress />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <Profile />
             </AppShell>
           </ProtectedRoute>
         }

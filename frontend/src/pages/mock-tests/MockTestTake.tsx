@@ -154,16 +154,6 @@ function MockTestTake() {
     }
   }
 
-  function getOptionText(question: MockTestQuestion | undefined, optionKey?: string) {
-    if (!question || !optionKey) return "Not answered";
-    const key = optionKey.toUpperCase();
-    if (key === "A") return question.option_a;
-    if (key === "B") return question.option_b;
-    if (key === "C") return question.option_c;
-    if (key === "D") return question.option_d;
-    return optionKey;
-  }
-
   if (loading) {
     return (
       <div className="mock-test-page">

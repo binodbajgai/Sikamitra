@@ -6,12 +6,12 @@ function AppShell({
 }: {
   children: React.ReactNode;
 }) {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
-    localStorage.removeItem("access_token");
+    logout();
     navigate("/login", { replace: true });
-    window.location.reload();
   }
 
   return (
@@ -93,15 +93,15 @@ function AppShell({
             <div className="navbar-divider" />
 
 
-            <div className="user-menu">
+            <NavLink to="/profile" className="user-menu">
 
               <div className="user-avatar">
-                U
+                {user?.full_name?.charAt(0).toUpperCase() || "U"}
               </div>
 
               <div className="user-info">
                 <span className="user-name">
-                  Student
+                  {user?.full_name || "Student"}
                 </span>
 
                 <span className="user-label">
@@ -118,7 +118,7 @@ function AppShell({
                 ↗
               </button>
 
-            </div>
+            </NavLink>
 
           </div>
 
