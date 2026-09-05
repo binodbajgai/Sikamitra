@@ -32,3 +32,8 @@ class TokenResponse(BaseModel):
 class UserUpdate(BaseModel):
     full_name: str
     university: str | None = None
+
+
+class PasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str

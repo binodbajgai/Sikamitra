@@ -12,6 +12,7 @@ import MockTests from "./pages/mock-tests/MockTests";
 import MockTestTake from "./pages/mock-tests/MockTestTake";
 import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import AppShell from "./components/AppShell";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import { applyUserPreferences, getUserPreferences } from "./utils/preferences";
@@ -161,6 +162,17 @@ function App() {
           <ProtectedRoute>
             <AppShell>
               <Profile />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <Settings />
             </AppShell>
           </ProtectedRoute>
         }

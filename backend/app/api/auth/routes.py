@@ -16,6 +16,7 @@ from app.api.dependencies import get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.database import get_db
 from app.schemas.user import (
+    PasswordUpdate,
     TokenResponse,
     UserCreate,
     UserLogin,
@@ -27,7 +28,7 @@ from app.services.auth_service import (
     register_user,
 )
 from app.core.config import settings
-from app.core.security import create_access_token, hash_password
+from app.core.security import create_access_token, hash_password, verify_password
 from app.repositories.user_repository import create_user, get_user_by_email
 
 
@@ -266,3 +267,26 @@ async def update_avatar(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@router.post("/me/password")
+def update_password(
+    password_data: PasswordUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    if not verify_password(password_data.current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect.",
+        )
+
+    if len(password_data.new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The new password must contain at least 8 characters.",
+        )
+
+    current_user.password_hash = hash_password(password_data.new_password)
+    db.commit()
+    return {"message": "Password updated"}

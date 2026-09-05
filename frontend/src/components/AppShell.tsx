@@ -136,7 +136,7 @@ function AppShell({
                   </NavLink>
 
                   <NavLink
-                    to="/profile"
+                    to="/settings"
                     className="profile-menu-item"
                     role="menuitem"
                     onClick={() => setIsProfileMenuOpen(false)}

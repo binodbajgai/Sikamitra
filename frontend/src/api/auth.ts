@@ -93,3 +93,10 @@ export async function uploadProfileImage(file: File): Promise<User> {
   const response = await apiClient.post<User>("/auth/me/avatar", formData);
   return response.data;
 }
+
+export async function changePassword(data: {
+  current_password: string;
+  new_password: string;
+}): Promise<void> {
+  await apiClient.post("/auth/me/password", data);
+}
