@@ -569,6 +569,7 @@ function Materials() {
             <section className="unsorted-section">
 
               <div className="unsorted-section-header">
+                <span className="unsorted-section-icon" aria-hidden="true">!</span>
                 <div>
                   <p className="subjects-kicker">Needs organizing</p>
                   <h2>Unsorted materials</h2>
@@ -585,7 +586,6 @@ function Materials() {
                     )
                   }
                 >
-                  <span className="unsorted-heading-mark">!</span>
                   <span className="unsorted-heading-count">
                     {unsortedMaterials.length} {showUnsorted ? "⌃" : "⌄"}
                   </span>
