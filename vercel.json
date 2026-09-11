@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "services": {
+    "frontend": {
+      "root": "frontend/",
+      "framework": "vite"
+    },
+    "backend": {
+      "root": "backend/",
+      "entrypoint": "app.main:app"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/auth/:path*",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/ai/:path*",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/mock-tests/:path*",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/study-materials/:path*",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/subjects/:path*",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/api/:path*",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "frontend"
+      }
+    }
+  ]
+}

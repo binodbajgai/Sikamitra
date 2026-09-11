@@ -1,28 +1,23 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.tsx";
 
-function Sidebar() {
+interface SidebarProps {
+  isCollapsed?: boolean;
+  toggleSidebar?: () => void;
+}
+
+function Sidebar({ isCollapsed = false, toggleSidebar }: SidebarProps) {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
-  const getInitials = (name?: string) => {
-    if (!name) {
-      return "S";
-    }
-
-    const parts = name.trim().split(/\s+/);
-
-    if (parts.length === 1) {
-      return parts[0].charAt(0).toUpperCase();
-    }
-
-    return (
-      parts[0].charAt(0) +
-      parts[parts.length - 1].charAt(0)
-    ).toUpperCase();
-  };
+  const isStudyMaterialsRoute =
+    location.pathname === "/study-materials" ||
+    location.pathname.startsWith("/study-materials/") ||
+    location.pathname === "/materials" ||
+    location.pathname.startsWith("/materials/");
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
       {/* Brand */}
       <div className="sidebar-top">
         <div className="sidebar-brand">
@@ -34,6 +29,16 @@ function Sidebar() {
             <h1>Sikamitra</h1>
             <p>AI Study Companion</p>
           </div>
+          
+          {toggleSidebar && (
+            <button 
+              className="sidebar-toggle" 
+              onClick={toggleSidebar} 
+              title="Toggle Sidebar"
+            >
+              {isCollapsed ? "»" : "«"}
+            </button>
+          )}
         </div>
 
         {/* Navigation */}
@@ -58,11 +63,11 @@ function Sidebar() {
           </NavLink>
 
           <NavLink
-            to="/materials"
-            className={({ isActive }) =>
-              `sidebar-nav-item ${
-                isActive ? "active" : ""
-              }`
+            to="/study-materials"
+            className={
+              isStudyMaterialsRoute
+                ? "sidebar-nav-item active"
+                : "sidebar-nav-item"
             }
           >
             <span className="sidebar-nav-icon">
@@ -91,25 +96,18 @@ function Sidebar() {
 
       {/* Bottom section */}
       <div className="sidebar-bottom">
-        <div className="sidebar-profile">
-          <div className="sidebar-avatar">
-            {getInitials(user?.full_name)}
-          </div>
-
-          <div className="sidebar-profile-info">
-            <strong>
-              {user?.full_name || "Student"}
-            </strong>
-
-            <span>
-              {user?.university || "Sikamitra Student"}
-            </span>
-          </div>
+        <div className="sidebar-profile-simplified">
+          <strong>
+            {user?.full_name || "Student"}
+          </strong>
+          <span>
+            {user?.university || "Sikamitra Student"}
+          </span>
         </div>
 
         <button
           type="button"
-          className="sidebar-logout"
+          className="sidebar-logout-simplified"
           onClick={logout}
         >
           <span>↪</span>

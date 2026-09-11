@@ -1,12 +1,18 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "../components/common/Sidebar.tsx";
 import Topbar from "../components/common/Topbar.tsx";
 
 function AppLayout() {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   return (
-    <div className="app-layout">
-      <Sidebar />
+    <div className={`app-layout ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+      <Sidebar 
+        isCollapsed={isSidebarCollapsed} 
+        toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+      />
 
       <div className="app-main">
         <Topbar />

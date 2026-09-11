@@ -5,21 +5,19 @@ function Topbar() {
   const location = useLocation();
   const { user } = useAuth();
 
+  const isStudyMaterialsPage =
+    location.pathname === "/study-materials" ||
+    location.pathname.startsWith("/study-materials/") ||
+    location.pathname === "/materials" ||
+    location.pathname.startsWith("/materials/");
+
   function getPageTitle() {
     if (location.pathname === "/dashboard") {
       return "Dashboard";
     }
 
-    if (location.pathname === "/materials") {
+    if (isStudyMaterialsPage) {
       return "Study Materials";
-    }
-
-    if (
-      location.pathname.startsWith(
-        "/materials/"
-      )
-    ) {
-      return "Material";
     }
 
     if (
@@ -38,16 +36,8 @@ function Topbar() {
       return "Your study workspace";
     }
 
-    if (location.pathname === "/materials") {
+    if (isStudyMaterialsPage) {
       return "";
-    }
-
-    if (
-      location.pathname.startsWith(
-        "/materials/"
-      )
-    ) {
-      return "Review and study your material";
     }
 
     if (
@@ -82,7 +72,8 @@ function Topbar() {
 
       <div className="topbar-actions">
         <Link
-          to="/materials"
+          to="/study-materials"
+          state={{ openUpload: true }}
           className="topbar-add-button"
         >
           <span>+</span>

@@ -3,33 +3,39 @@ from sqlalchemy.orm import Session
 from app.models.question import Question
 
 
-def create_question(
+def create_questions(
     db: Session,
     material_id: int,
-    question: str,
-    option_a: str,
-    option_b: str,
-    option_c: str,
-    option_d: str,
-    correct_option: str,
-    explanation: str | None = None,
-) -> Question:
-    new_question = Question(
-        material_id=material_id,
-        question=question,
-        option_a=option_a,
-        option_b=option_b,
-        option_c=option_c,
-        option_d=option_d,
-        correct_option=correct_option,
-        explanation=explanation,
-    )
+    questions: list[dict],
+) -> list[Question]:
+    """
+    Create multiple questions in a single database transaction.
 
-    db.add(new_question)
+    This prevents hundreds of individual commits when generating
+    an exhaustive question bank.
+    """
+
+    question_objects = [
+        Question(
+            material_id=material_id,
+            question=item["question"],
+            option_a=item["option_a"],
+            option_b=item["option_b"],
+            option_c=item["option_c"],
+            option_d=item["option_d"],
+            correct_option=item["correct_option"],
+            explanation=item.get("explanation"),
+        )
+        for item in questions
+    ]
+
+    db.add_all(question_objects)
     db.commit()
-    db.refresh(new_question)
 
-    return new_question
+    for question in question_objects:
+        db.refresh(question)
+
+    return question_objects
 
 
 def get_questions_by_material(
@@ -38,10 +44,15 @@ def get_questions_by_material(
 ) -> list[Question]:
     return (
         db.query(Question)
-        .filter(Question.material_id == material_id)
-        .order_by(Question.created_at.asc())
+        .filter(
+            Question.material_id == material_id
+        )
+        .order_by(
+            Question.created_at.asc()
+        )
         .all()
     )
+
 
 def get_question_by_id(
     db: Session,
@@ -49,9 +60,12 @@ def get_question_by_id(
 ) -> Question | None:
     return (
         db.query(Question)
-        .filter(Question.id == question_id)
+        .filter(
+            Question.id == question_id
+        )
         .first()
     )
+
 
 def delete_questions_by_material(
     db: Session,
@@ -59,8 +73,12 @@ def delete_questions_by_material(
 ) -> None:
     (
         db.query(Question)
-        .filter(Question.material_id == material_id)
-        .delete(synchronize_session=False)
+        .filter(
+            Question.material_id == material_id
+        )
+        .delete(
+            synchronize_session=False
+        )
     )
 
     db.commit()

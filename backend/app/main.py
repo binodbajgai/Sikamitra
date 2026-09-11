@@ -18,7 +18,11 @@ from app.core.config import settings
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="Sikamitra API",
+    servers=[
+        {
+            "url": "https://sikamitra-mgkx.vercel.app",
+        }
+    ],
 )
 
 

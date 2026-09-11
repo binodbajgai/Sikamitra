@@ -7203,12 +7203,16 @@ body {
 .profile-large-avatar {
   width: 48px;
   height: 48px;
+  aspect-ratio: 1;
+  overflow: hidden;
   font-size: 17px;
 }
 
 .user-avatar {
   width: 30px;
   height: 30px;
+  aspect-ratio: 1;
+  overflow: hidden;
 }
 
 .user-info {

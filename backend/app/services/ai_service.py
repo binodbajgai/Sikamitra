@@ -14,7 +14,7 @@ from app.repositories.important_point_repository import (
 )
 
 from app.repositories.question_repository import (
-    create_question,
+    create_questions,
     get_questions_by_material,
     delete_questions_by_material,
 )
@@ -99,24 +99,11 @@ def generate_questions(
 
     questions = provider.generate_questions(content)
 
-    created_questions = []
-
-    for question in questions:
-        created_questions.append(
-            create_question(
-                db=db,
-                material_id=material_id,
-                question=question["question"],
-                option_a=question["option_a"],
-                option_b=question["option_b"],
-                option_c=question["option_c"],
-                option_d=question["option_d"],
-                correct_option=question["correct_option"],
-                explanation=question["explanation"],
-            )
-        )
-
-    return created_questions
+    return create_questions(
+      db=db,
+      material_id=material_id,
+      questions=questions,
+  )
 
 
 
@@ -196,24 +183,11 @@ def regenerate_questions(
         material_id=material_id,
     )
 
-    created_questions = []
-
-    for question in questions:
-        created_questions.append(
-            create_question(
-                db=db,
-                material_id=material_id,
-                question=question["question"],
-                option_a=question["option_a"],
-                option_b=question["option_b"],
-                option_c=question["option_c"],
-                option_d=question["option_d"],
-                correct_option=question["correct_option"],
-                explanation=question["explanation"],
-            )
-        )
-
-    return created_questions
+    return create_questions(
+        db=db,
+        material_id=material_id,
+        questions=questions,
+    )
 
 def get_summaries(
     db: Session,
