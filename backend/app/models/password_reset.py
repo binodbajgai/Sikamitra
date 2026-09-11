@@ -4,7 +4,7 @@ from uuid import uuid4
 from sqlalchemy import Column, String, DateTime, Integer, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.core.database import Base
 
 class PasswordReset(Base):
     __tablename__ = "password_resets"

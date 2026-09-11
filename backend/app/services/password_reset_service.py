@@ -32,5 +32,5 @@ def perform_password_reset(db: Session, token: str, new_password: str) -> bool:
     # Update password via repository helper
     update_user_password(db, pr.email, new_password)
     # Invalidate the token
-    delete_reset(db, pr.id)
+    delete_reset(db, pr)
     return True

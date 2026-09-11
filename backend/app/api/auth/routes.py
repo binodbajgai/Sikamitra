@@ -335,4 +335,4 @@ def reset_password(
 
 
 
-    return {"message": "Password updated successfully"}
+
