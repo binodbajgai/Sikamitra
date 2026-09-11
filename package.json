@@ -1,0 +1,9 @@
+{
+  "name": "sikamitra",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "npm install --prefix frontend && npm run build --prefix frontend"
+  }
+}
