@@ -290,3 +290,71 @@ def update_password(
     current_user.password_hash = hash_password(password_data.new_password)
     db.commit()
     return {"message": "Password updated"}
+
+from datetime import datetime
+from app.schemas.password_reset import ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest
+from app.services.password_reset_service import request_password_reset, perform_password_reset
+
+@router.post(
+
+    response_model=ForgotPasswordResponse,
+    status_code=status.HTTP_200_OK,
+)
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    pr = request_password_reset(db, payload.email)
+    if pr is None:
+        # Silent success to avoid user enumeration
+        return ForgotPasswordResponse(token="", expires_at=datetime.utcnow())
+    return ForgotPasswordResponse(token=pr.token, expires_at=pr.expires_at)
+
+@router.post(
+    "/reset-password",
+    status_code=status.HTTP_200_OK,
+)
+def reset_password(
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    success = perform_password_reset(db, payload.token, payload.new_password)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token",
+        )
+    return {"message": "Password updated successfully"}
+
+
+
+
+
+    response_model=ForgotPasswordResponse,
+    status_code=status.HTTP_200_OK,
+)
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    pr = request_password_reset(db, payload.email)
+    if pr is None:
+        # Silent success to avoid user enumeration
+        return ForgotPasswordResponse(token="", expires_at=datetime.utcnow())
+    return ForgotPasswordResponse(token=pr.token, expires_at=pr.expires_at)
+
+@router.post(
+    "/reset-password",
+    status_code=status.HTTP_200_OK,
+)
+def reset_password(
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    success = perform_password_reset(db, payload.token, payload.new_password)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token",
+        )
+    return {"message": "Password updated successfully"}
