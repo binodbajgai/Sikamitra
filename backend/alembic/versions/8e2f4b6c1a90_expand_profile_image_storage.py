@@ -8,7 +8,7 @@ Create Date: 2026-09-05 00:00:00.000000
 from typing import Sequence, Union
 
 from alembic import op
-from sqlalchemy.dialects import mysql
+import sqlalchemy as sa
 
 
 revision: str = "8e2f4b6c1a90"
@@ -18,11 +18,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # PostgreSQL TEXT is already unlimited; this is a no-op for Postgres
+    # (was mysql.MEDIUMTEXT previously — not supported by PostgreSQL)
     op.alter_column(
         "users",
         "profile_image",
-        existing_type=mysql.TEXT(),
-        type_=mysql.MEDIUMTEXT(),
+        existing_type=sa.Text(),
+        type_=sa.Text(),
         existing_nullable=True,
     )
 
@@ -31,7 +33,7 @@ def downgrade() -> None:
     op.alter_column(
         "users",
         "profile_image",
-        existing_type=mysql.MEDIUMTEXT(),
-        type_=mysql.TEXT(),
+        existing_type=sa.Text(),
+        type_=sa.Text(),
         existing_nullable=True,
     )

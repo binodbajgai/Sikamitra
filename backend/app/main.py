@@ -36,12 +36,14 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
 
-        # Sikamitra frontend
+        # Sikamitra frontend (production)
         "https://sikamitra.vercel.app",
 
-        # Backend production URLs
+        # Backend project URL
         "https://sikamitra-mgkx.vercel.app",
-        "https://sikamitra-mgkx-iyxayiq4t-bajgaibenod-sketchs-projects.vercel.app",
+
+        # Dynamic frontend URL from env
+        settings.frontend_url,
     ],
     allow_credentials=True,
     allow_methods=["*"],

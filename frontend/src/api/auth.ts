@@ -74,8 +74,10 @@ export async function getCurrentUser(): Promise<User> {
 }
 
 export function startGoogleAuth(): void {
+  const backendUrl =
+    import.meta.env.VITE_API_URL ?? window.location.origin;
   window.location.assign(
-    `${apiClient.defaults.baseURL}/auth/google/login`
+    `${backendUrl}/auth/google/login`
   );
 }
 

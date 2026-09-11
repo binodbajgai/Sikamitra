@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "https://sikamitra-mgkx.vercel.app",
+  baseURL: import.meta.env.VITE_API_URL ?? "",
 });
 
 apiClient.interceptors.request.use(
