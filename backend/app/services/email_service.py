@@ -1,22 +1,26 @@
 import logging
-import httpx
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 def send_password_reset_otp(recipient_email: str, otp_code: str) -> bool:
     """
-    Sends a 6-digit verification code to recipient_email using Resend API.
-    If RESEND_API_KEY is not configured, logs the code for local/staging testing.
+    Sends a 6-digit verification code to recipient_email using standard SMTP (e.g. Gmail).
+    If SMTP credentials are not configured, logs the code to console for testing.
     """
-    if not settings.resend_api_key:
+    if not settings.smtp_user or not settings.smtp_password:
         logger.warning(
-            f"[TESTING/NO RESEND KEY] Password reset code for {recipient_email}: {otp_code}"
+            f"[TESTING/NO SMTP CONFIG] Password reset code for {recipient_email}: {otp_code}"
         )
         print(f"\n==========================================")
         print(f"🔑 [SIKAMITRA OTP] Code for {recipient_email}: {otp_code}")
         print(f"==========================================\n")
         return True
+
+    from_email = settings.smtp_from_email or settings.smtp_user
 
     html_content = f"""
     <!DOCTYPE html>
@@ -53,26 +57,24 @@ def send_password_reset_otp(recipient_email: str, otp_code: str) -> bool:
     """
 
     try:
-        response = httpx.post(
-            "https://api.resend.com/emails",
-            headers={
-                "Authorization": f"Bearer {settings.resend_api_key.strip()}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "from": settings.resend_from_email,
-                "to": [recipient_email],
-                "subject": f"{otp_code} is your Sikamitra verification code",
-                "html": html_content,
-            },
-            timeout=10.0,
-        )
-        if response.status_code in (200, 201):
-            logger.info(f"Password reset email sent successfully to {recipient_email}")
-            return True
-        else:
-            logger.error(f"Resend error ({response.status_code}): {response.text}")
-            return False
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"{otp_code} is your Sikamitra verification code"
+        msg["From"] = f"Sikamitra <{from_email}>"
+        msg["To"] = recipient_email
+
+        # Attach HTML
+        part = MIMEText(html_content, "html")
+        msg.attach(part)
+
+        # Connect to SMTP server
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10.0) as server:
+            server.starttls()
+            server.login(settings.smtp_user.strip(), settings.smtp_password.strip())
+            server.sendmail(from_email, recipient_email, msg.as_string())
+
+        logger.info(f"Password reset email sent successfully via SMTP to {recipient_email}")
+        return True
     except Exception as e:
-        logger.error(f"Failed to send email via Resend: {e}")
+        logger.error(f"Failed to send email via SMTP: {e}")
+        print(f"SMTP send failed: {e}")
         return False
