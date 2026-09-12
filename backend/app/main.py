@@ -13,6 +13,9 @@ from app.api.study_materials.routes import (
 from app.api.subjects.routes import router as subject_router
 from app.api.router import router as api_router
 from app.core.config import settings
+from app.core.database import engine, Base
+from sqlalchemy import text
+import app.models.password_reset  # noqa: F401
 
 
 app = FastAPI(
@@ -24,6 +27,29 @@ app = FastAPI(
         }
     ],
 )
+
+
+@app.on_event("startup")
+def init_db_tables():
+    try:
+        with engine.begin() as conn:
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE IF NOT EXISTS password_resets (
+                        id SERIAL PRIMARY KEY,
+                        email VARCHAR(255) NOT NULL,
+                        token VARCHAR(255) NOT NULL UNIQUE,
+                        expires_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS ix_password_resets_email ON password_resets (email);
+                    CREATE INDEX IF NOT EXISTS ix_password_resets_token ON password_resets (token);
+                    """
+                )
+            )
+            print("Auto-created / verified password_resets table successfully!")
+    except Exception as e:
+        print(f"Error ensuring password_resets table: {e}")
 
 
 # --------------------------------------------------

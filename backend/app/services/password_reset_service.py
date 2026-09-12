@@ -9,10 +9,26 @@ from app.core.database import engine
 
 logger = logging.getLogger(__name__)
 
+from sqlalchemy import text
+
 def _ensure_table_exists():
     """Ensure the password_resets table exists in the database."""
     try:
-        PasswordReset.__table__.create(bind=engine, checkfirst=True)
+        with engine.begin() as conn:
+            conn.execute(
+                text(
+                    """
+                    CREATE TABLE IF NOT EXISTS password_resets (
+                        id SERIAL PRIMARY KEY,
+                        email VARCHAR(255) NOT NULL,
+                        token VARCHAR(255) NOT NULL UNIQUE,
+                        expires_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS ix_password_resets_email ON password_resets (email);
+                    CREATE INDEX IF NOT EXISTS ix_password_resets_token ON password_resets (token);
+                    """
+                )
+            )
     except Exception as e:
         logger.warning(f"Could not verify/create password_resets table: {e}")
 
