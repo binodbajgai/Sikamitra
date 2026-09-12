@@ -42,6 +42,25 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
+function RootRedirect() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-mark">S</div>
+        <p>Loading Sikamitra...</p>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Landing />;
+}
+
 function App() {
   useEffect(() => {
     applyUserPreferences(getUserPreferences());
@@ -49,8 +68,8 @@ function App() {
 
   return (
     <Routes>
-      {/* PUBLIC / LANDING */}
-      <Route path="/" element={<Landing />} />
+      {/* PUBLIC / LANDING — redirects to /dashboard if already logged in */}
+      <Route path="/" element={<RootRedirect />} />
 
       {/* AUTH */}
       <Route path="/login" element={<Login />} />
