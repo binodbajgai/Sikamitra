@@ -148,7 +148,8 @@ def google_callback(
         return RedirectResponse(
             f"{callback_url}#access_token={urllib.parse.quote(app_token)}"
         )
-    except Exception:
+    except Exception as exc:
+        print(f"GOOGLE AUTH ERROR: {exc}")
         return RedirectResponse(f"{callback_url}?error=google_auth_failed")
 
 
@@ -335,4 +336,4 @@ def reset_password(
 
 
 
-
+

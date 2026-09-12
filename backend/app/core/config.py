@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -18,6 +19,13 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
     google_redirect_uri: str = "http://127.0.0.1:8000/auth/google/callback"
     frontend_url: str = "http://127.0.0.1:5173"
+
+    @field_validator("frontend_url", mode="before")
+    @classmethod
+    def clean_frontend_url(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip().rstrip("/")
+        return v
 
     model_config = SettingsConfigDict(
         env_file=".env",
