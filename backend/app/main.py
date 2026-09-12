@@ -71,4 +71,7 @@ app.include_router(subject_router)
 def root():
     return {
         "message": "Welcome to Sikamitra API"
-    }
+    }from fastapi import Request
+@app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
+async def catch_all(request: Request, path_name: str):
+    return {"detail": "Not Found", "debug_path": path_name, "method": request.method}
