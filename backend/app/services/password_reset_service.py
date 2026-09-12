@@ -1,9 +1,20 @@
 import secrets
 import datetime
+import logging
 from sqlalchemy.orm import Session
 from app.models.password_reset import PasswordReset
 from app.repositories.user_repository import get_user_by_email, update_user_password
 from app.services.email_service import send_password_reset_otp
+from app.core.database import engine
+
+logger = logging.getLogger(__name__)
+
+def _ensure_table_exists():
+    """Ensure the password_resets table exists in the database."""
+    try:
+        PasswordReset.__table__.create(bind=engine, checkfirst=True)
+    except Exception as e:
+        logger.warning(f"Could not verify/create password_resets table: {e}")
 
 def _generate_otp_code() -> str:
     """Generate a secure 6-digit numerical code."""
@@ -11,56 +22,70 @@ def _generate_otp_code() -> str:
 
 def request_password_reset(db: Session, email: str) -> bool:
     """
-    Creates a 6-digit verification code entry and sends it via Resend email.
+    Creates a 6-digit verification code entry and sends it via email.
     Always returns True to prevent email enumeration.
     """
+    _ensure_table_exists()
+
     normalized_email = email.strip().lower()
-    user = get_user_by_email(db, normalized_email)
-    if not user:
-        return True
+    try:
+        user = get_user_by_email(db, normalized_email)
+        if not user:
+            return True
 
-    # Invalidate previous unused codes for this email
-    db.query(PasswordReset).filter(PasswordReset.email == normalized_email).delete()
-    db.commit()
+        # Invalidate previous unused codes for this email
+        db.query(PasswordReset).filter(PasswordReset.email == normalized_email).delete()
+        db.commit()
 
-    otp_code = _generate_otp_code()
-    expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+        otp_code = _generate_otp_code()
+        expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
 
-    pr = PasswordReset(
-        email=normalized_email,
-        token=otp_code,
-        expires_at=expires_at,
-    )
-    db.add(pr)
-    db.commit()
+        pr = PasswordReset(
+            email=normalized_email,
+            token=otp_code,
+            expires_at=expires_at,
+        )
+        db.add(pr)
+        db.commit()
 
-    # Send email via Resend
-    send_password_reset_otp(normalized_email, otp_code)
+        # Send email via SMTP (or log if not yet configured)
+        send_password_reset_otp(normalized_email, otp_code)
+    except Exception as e:
+        logger.error(f"Error in request_password_reset: {e}")
+        db.rollback()
+
     return True
 
 def perform_password_reset(db: Session, email: str, code: str, new_password: str) -> bool:
     """
     Validates the 6-digit code for the specified email and updates the password.
     """
+    _ensure_table_exists()
+
     normalized_email = email.strip().lower()
     normalized_code = code.strip()
 
-    pr = (
-        db.query(PasswordReset)
-        .filter(
-            PasswordReset.email == normalized_email,
-            PasswordReset.token == normalized_code,
-            PasswordReset.expires_at > datetime.datetime.utcnow(),
+    try:
+        pr = (
+            db.query(PasswordReset)
+            .filter(
+                PasswordReset.email == normalized_email,
+                PasswordReset.token == normalized_code,
+                PasswordReset.expires_at > datetime.datetime.utcnow(),
+            )
+            .first()
         )
-        .first()
-    )
-    if not pr:
+        if not pr:
+            return False
+
+        # Update password
+        update_user_password(db, normalized_email, new_password)
+
+        # Invalidate the used token
+        db.delete(pr)
+        db.commit()
+        return True
+    except Exception as e:
+        logger.error(f"Error in perform_password_reset: {e}")
+        db.rollback()
         return False
-
-    # Update password
-    update_user_password(db, normalized_email, new_password)
-
-    # Invalidate the used token
-    db.delete(pr)
-    db.commit()
-    return True

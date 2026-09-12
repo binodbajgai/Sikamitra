@@ -30,25 +30,24 @@ app = FastAPI(
 # CORS
 # --------------------------------------------------
 
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://sikamitra.vercel.app",
+    "https://sikamitra-mgkx.vercel.app",
+]
+if settings.frontend_url and settings.frontend_url not in origins:
+    origins.append(settings.frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-
-        # Sikamitra frontend (production)
-        "https://sikamitra.vercel.app",
-
-        # Backend project URL
-        "https://sikamitra-mgkx.vercel.app",
-
-        # Dynamic frontend URL from env
-        settings.frontend_url,
-    ],
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # --------------------------------------------------
 # API ROUTERS
