@@ -12,8 +12,7 @@ function Login() {
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] =
-    useState("");
+  const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,17 +22,13 @@ function Login() {
       from?: string;
     } | null)?.from || "/dashboard";
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
 
     if (!email.trim()) {
-      setError(
-        "Please enter your email address."
-      );
+      setError("Please enter your email address.");
       return;
     }
 
@@ -56,15 +51,12 @@ function Login() {
     } catch (err: any) {
       console.error(err);
 
-      const detail =
-        err?.response?.data?.detail;
+      const detail = err?.response?.data?.detail;
 
       if (typeof detail === "string") {
         setError(detail);
       } else {
-        setError(
-          "Invalid email or password."
-        );
+        setError("Invalid email or password.");
       }
     } finally {
       setLoading(false);
@@ -77,92 +69,79 @@ function Login() {
 
   return (
     <AuthLayout>
-        <section className="auth-content">
-          <p className="auth-eyebrow">
-            Welcome back
-          </p>
+      <section className="auth-content">
+        <p className="auth-eyebrow">Welcome back</p>
 
-          <h1>Sign in to Sikamitra</h1>
+        <h1>Sign in to Sikamitra</h1>
 
-          <p className="auth-description">
-            Continue your study session and access
-            your materials, questions, and mock tests.
-          </p>
+        <p className="auth-description">
+          Continue your study session and access your materials, questions, and mock tests.
+        </p>
 
-          <button
-            type="button"
-            className="google-button"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-          >
-            <span className="google-logo">
-              G
-            </span>
+        <button
+          type="button"
+          className="google-button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+        >
+          <span className="google-logo">G</span>
+          Continue with Google
+        </button>
 
-            Continue with Google
-          </button>
+        <div className="auth-divider">
+          <span>or continue with email</span>
+        </div>
 
-          <div className="auth-divider">
-            <span>or continue with email</span>
-          </div>
-
-          <form
-            className="auth-form"
-            onSubmit={handleSubmit}
-          >
-            <label>
-              Email address
-
-              <input
-                type="email"
-                value={email}
-                onChange={(event) =>
-                  setEmail(event.target.value)
-                }
-                placeholder="you@example.com"
-                autoComplete="email"
-                disabled={loading}
-              />
-            </label>
-
-            <label>
-              Password
-
-              <input
-                type="password"
-                value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
-                placeholder="Your password"
-                autoComplete="current-password"
-                disabled={loading}
-              />
-            </label>
-
-            {error && (
-              <p className="auth-error">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label>
+            Email address
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              autoComplete="email"
               disabled={loading}
-            >
-              {loading
-                ? "Signing in..."
-                : "Sign in"}
-            </button>
-          </form>
+            />
+          </label>
 
-          <p className="auth-switch">
-            Don't have an account?{" "}
-            <Link to="/register">
-              Create one
-            </Link>
-          </p>
-        </section>
+          <label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span>Password</span>
+              <Link
+                to="/forgot-password"
+                style={{
+                  color: "#4f46e5",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Your password"
+              autoComplete="current-password"
+              disabled={loading}
+            />
+          </label>
+
+          {error && <p className="auth-error">{error}</p>}
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+
+        <p className="auth-switch">
+          Don't have an account? <Link to="/register">Create one</Link>
+        </p>
+      </section>
     </AuthLayout>
   );
 }

@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Materials from "./pages/Materials";
 import MaterialDetail from "./pages/MaterialDetail";
@@ -47,23 +49,14 @@ function App() {
 
   return (
     <Routes>
+      {/* PUBLIC / LANDING */}
+      <Route path="/" element={<Landing />} />
 
       {/* AUTH */}
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      <Route
-        path="/register"
-        element={<Register />}
-      />
-
-      <Route
-        path="/auth/google/callback"
-        element={<GoogleAuthCallback />}
-      />
-
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
 
       {/* DASHBOARD */}
       <Route
@@ -76,7 +69,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
 
       {/* MATERIALS */}
       <Route
@@ -102,18 +94,7 @@ function App() {
       />
 
       <Route
-        path="/study-materials/subject/:subjectId"
-        element={
-          <ProtectedRoute>
-            <AppShell>
-              <SubjectDetail />
-            </AppShell>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/study-materials/:materialId"
+        path="/materials/:materialId"
         element={
           <ProtectedRoute>
             <AppShell>
@@ -123,6 +104,18 @@ function App() {
         }
       />
 
+      <Route
+        path="/materials/subjects/:subjectId"
+        element={
+          <ProtectedRoute>
+            <AppShell>
+              <SubjectDetail />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* MOCK TESTS */}
       <Route
         path="/mock-tests"
         element={
@@ -135,7 +128,7 @@ function App() {
       />
 
       <Route
-        path="/mock-tests/take"
+        path="/mock-tests/:mockTestId"
         element={
           <ProtectedRoute>
             <AppShell>
@@ -145,6 +138,7 @@ function App() {
         }
       />
 
+      {/* PROGRESS */}
       <Route
         path="/progress"
         element={
@@ -156,6 +150,7 @@ function App() {
         }
       />
 
+      {/* PROFILE & SETTINGS */}
       <Route
         path="/profile"
         element={
@@ -178,29 +173,8 @@ function App() {
         }
       />
 
-
-      {/* DEFAULT */}
-      <Route
-        path="/"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
-
-
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
-
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
