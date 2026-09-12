@@ -1883,3 +1883,182 @@ img {
     text-align: center;
   }
 }
+
+
+/* =========================================================
+   GLOBAL APP-WIDE THEME UNIFICATION (MATCHING LANDING PAGE)
+   ========================================================= */
+
+/* All pages share clean gradient background & typography */
+.materials-page,
+.material-detail-page,
+.subject-detail-page,
+.mock-tests-page,
+.mock-test-page,
+.progress-page,
+.profile-page,
+.settings-page {
+  min-height: 100vh;
+  background: transparent !important;
+  color: #0f172a !important;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+  padding-bottom: 80px;
+}
+
+/* Page Kickers & Headings */
+.materials-kicker,
+.mock-tests-kicker,
+.progress-kicker,
+.profile-kicker,
+.subject-detail-kicker {
+  color: #6366f1 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.materials-header h1,
+.mock-tests-header h1,
+.progress-header h1,
+.profile-header h1,
+.subject-detail-header h1,
+.material-detail-header h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: clamp(28px, 4vw, 42px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+  color: #0f172a !important;
+}
+
+/* Common Card Styling (Glassmorphic cards matching Landing/Dashboard) */
+.materials-card,
+.materials-item,
+.subject-card,
+.mock-test-card,
+.mock-test-intro-card,
+.mock-test-create-panel,
+.mock-test-question-card,
+.mock-test-score-card,
+.profile-card,
+.settings-card,
+.progress-stat-card,
+.progress-attempt-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.materials-item:hover,
+.subject-card:hover,
+.mock-test-card:hover,
+.progress-attempt-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: #c7d2fe !important;
+  box-shadow: 0 16px 36px -8px rgba(79, 70, 229, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* Primary buttons unified to landing page gradient */
+.materials-primary-action,
+.materials-upload-button,
+.mock-tests-create-button,
+.mock-test-submit-button,
+.profile-save-button,
+.subject-create-button,
+.settings-save-button {
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  padding: 12px 22px !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+}
+
+.materials-primary-action:hover:not(:disabled),
+.materials-upload-button:hover:not(:disabled),
+.mock-tests-create-button:hover:not(:disabled),
+.mock-test-submit-button:hover:not(:disabled),
+.profile-save-button:hover:not(:disabled),
+.subject-create-button:hover:not(:disabled),
+.settings-save-button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.45) !important;
+}
+
+/* Secondary & Action Buttons */
+.materials-filter-button,
+.mock-test-action-btn,
+.profile-cancel-button,
+.subject-cancel-button {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.2s ease !important;
+}
+
+.materials-filter-button:hover,
+.mock-test-action-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px) !important;
+}
+
+.materials-filter-button.active {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  border-color: #c7d2fe !important;
+  font-weight: 700 !important;
+}
+
+/* Form Inputs across all pages */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Tags, Pills & Badges */
+.material-tag,
+.mock-test-badge,
+.difficulty-badge {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  border: 1px solid #e0e7ff !important;
+}
+
+/* Success / Active states */
+.status-pill.completed,
+.status-pill.active {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border: 1px solid #a7f3d0 !important;
+}

@@ -8017,3 +8017,246 @@ body {
     padding: 13px 12px;
   }
 }
+
+/* ==========================================================
+   GLOBAL THEME UNIFICATION — LANDING PAGE COLOR MATCH
+   All inner pages: Materials, Mock Tests, Progress, Profile,
+   Settings, Material Detail, Subject Detail
+   ========================================================== */
+
+/* ---- Background: unified gradient just like landing page --- */
+body {
+  background:
+    radial-gradient(1000px circle at 85% -10%, rgba(99, 102, 241, 0.08), transparent 50%),
+    radial-gradient(800px circle at 0% 40%, rgba(16, 185, 129, 0.06), transparent 45%),
+    radial-gradient(700px circle at 50% 100%, rgba(99, 102, 241, 0.04), transparent 40%),
+    #f8fafc !important;
+  background-attachment: fixed !important;
+}
+
+.app-shell,
+.app-layout {
+  background: transparent !important;
+}
+
+/* ---- Navbar: exact match to landing navbar ---- */
+.top-navbar {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* ---- Brand gradient matching landing ---- */
+.brand-mark,
+.sidebar-brand-mark,
+.auth-brand-mark,
+.app-loading-mark {
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+}
+
+/* ---- Inner page wrappers: transparent bg so body gradient shows ---- */
+.materials-page,
+.mock-tests-page,
+.mock-test-page,
+.subjects-page,
+.subject-detail-page,
+.material-detail-page,
+.profile-page,
+.progress-page {
+  background: transparent !important;
+  min-height: 100vh;
+}
+
+/* ---- Page-level containers: ensure full-width layout ---- */
+.materials-container,
+.mock-tests-container,
+.mock-test-container,
+.subjects-container,
+.subject-detail-container,
+.material-detail-container,
+.profile-container,
+.progress-container {
+  position: relative;
+  width: min(1200px, calc(100% - 48px)) !important;
+  margin: 0 auto !important;
+}
+
+/* ---- Section headings: unified typography ---- */
+.materials-header h1,
+.mock-tests-header h1,
+.subjects-header h1,
+.subject-detail-header h1,
+.material-detail-header h1,
+.progress-header h1,
+.profile-header h1 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  font-size: clamp(30px, 4vw, 44px) !important;
+}
+
+.materials-kicker,
+.mock-tests-kicker,
+.subjects-kicker,
+.subject-detail-kicker,
+.material-detail-kicker,
+.progress-kicker,
+.profile-kicker {
+  color: #6366f1 !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* ---- Cards: glassmorphic panels ---- */
+.materials-library,
+.mock-test-intro-card,
+.mock-test-create-panel,
+.mock-test-question-card,
+.mock-test-score-card,
+.subject-detail-info-card,
+.dashboard-section,
+.dashboard-stat-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 1px 4px -1px rgba(15, 23, 42, 0.02) !important;
+}
+
+/* ---- Profile & Settings Cards ---- */
+.profile-card,
+.profile-actions-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* ---- Material items & subject cards: hover lift ---- */
+.material-item,
+.materials-item,
+.subject-card {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-radius: 16px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+}
+
+.material-item:hover,
+.materials-item:hover,
+.subject-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: #c7d2fe !important;
+  box-shadow: 0 16px 36px -8px rgba(79, 70, 229, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* ---- Primary CTA Buttons: indigo gradient ---- */
+.dashboard-primary-action,
+.materials-primary-action,
+.mock-tests-primary-action,
+.mock-test-submit-button,
+.subject-detail-start-button {
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-decoration: none !important;
+}
+
+.dashboard-primary-action:hover:not(:disabled),
+.materials-primary-action:hover:not(:disabled),
+.mock-tests-primary-action:hover:not(:disabled),
+.mock-test-submit-button:hover:not(:disabled),
+.subject-detail-start-button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.45) !important;
+}
+
+/* ---- General button defaults matching landing ---- */
+button:not(.profile-menu-item):not(.user-account-link):not(.notification-button):not(.user-menu-button):not(.mock-test-option):not(.mock-test-dot):not(.google-button):not(.btn-primary-gradient):not(.hero-cta-btn):not(.btn-text):not(.cta-large-btn) {
+  border-radius: 10px;
+}
+
+/* ---- Sidebar: glass-like surface ---- */
+.sidebar {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid rgba(226, 232, 240, 0.7) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Sidebar active nav item: indigo highlight ---- */
+.sidebar-nav-item.active,
+.sidebar-nav-item[aria-current="page"] {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+}
+
+.sidebar-nav-item.active .sidebar-nav-icon,
+.sidebar-nav-item[aria-current="page"] .sidebar-nav-icon {
+  color: #4f46e5 !important;
+}
+
+/* ---- Auth pages: keep consistent ---- */
+.auth-page {
+  background:
+    radial-gradient(1000px circle at 80% -20%, rgba(99, 102, 241, 0.12), transparent 50%),
+    radial-gradient(800px circle at 10% 110%, rgba(16, 185, 129, 0.08), transparent 45%),
+    #f8fafc !important;
+  background-attachment: fixed !important;
+}
+
+.auth-content {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* ---- Progress page attempt items ---- */
+.progress-attempt-item {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-radius: 16px !important;
+  transition: all 0.25s ease !important;
+}
+
+.progress-attempt-item:hover {
+  border-color: #c7d2fe !important;
+  box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ---- Score badges: green/red ---- */
+.mock-test-score-badge.pass {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.mock-test-score-badge.fail {
+  background: #fef2f2 !important;
+  color: #ef4444 !important;
+  border: 1px solid #fecaca !important;
+}
+
+/* ---- Section labels ---- */
+.dashboard-section-kicker,
+.dashboard-kicker {
+  color: #6366f1 !important;
+}
