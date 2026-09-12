@@ -305,11 +305,8 @@ def forgot_password(
     payload: ForgotPasswordRequest,
     db: Session = Depends(get_db),
 ):
-    pr = request_password_reset(db, payload.email)
-    if pr is None:
-        # Silent success to avoid user enumeration
-        return ForgotPasswordResponse(token="", expires_at=datetime.utcnow())
-    return ForgotPasswordResponse(token=pr.token, expires_at=pr.expires_at)
+    request_password_reset(db, payload.email)
+    return ForgotPasswordResponse(message="If an account exists with this email, a verification code has been sent.")
 
 @router.post(
     "/reset-password",
@@ -319,11 +316,11 @@ def reset_password(
     payload: ResetPasswordRequest,
     db: Session = Depends(get_db),
 ):
-    success = perform_password_reset(db, payload.token, payload.new_password)
+    success = perform_password_reset(db, payload.email, payload.code, payload.new_password)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired token",
+            detail="Invalid or expired verification code. Please check the code or request a new one.",
         )
     return {"message": "Password updated successfully"}
 

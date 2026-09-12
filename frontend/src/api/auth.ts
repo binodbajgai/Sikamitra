@@ -20,8 +20,7 @@ export interface TokenResponse {
 }
 
 export interface ForgotPasswordResponse {
-  token: string;
-  expires_at: string;
+  message: string;
 }
 
 export interface RegisterData {
@@ -111,9 +110,14 @@ export async function requestPasswordReset(email: string): Promise<ForgotPasswor
   return response.data;
 }
 
-export async function resetPassword(token: string, new_password: string): Promise<void> {
+export async function resetPassword(
+  email: string,
+  code: string,
+  new_password: string
+): Promise<void> {
   await apiClient.post("/auth/reset-password", {
-    token,
+    email,
+    code,
     new_password,
   });
 }

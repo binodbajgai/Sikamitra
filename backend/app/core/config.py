@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     google_redirect_uri: str = "http://127.0.0.1:8000/auth/google/callback"
     frontend_url: str = "http://127.0.0.1:5173"
 
+    resend_api_key: str = ""
+    resend_from_email: str = "Sikamitra <onboarding@resend.dev>"
+
     @field_validator("frontend_url", mode="before")
     @classmethod
     def clean_frontend_url(cls, v: str) -> str:

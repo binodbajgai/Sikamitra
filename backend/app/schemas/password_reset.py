@@ -1,13 +1,12 @@
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, Field
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
 class ForgotPasswordResponse(BaseModel):
-    token: str
-    expires_at: datetime
+    message: str
 
 class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: constr(min_length=8)
+    email: EmailStr
+    code: str = Field(..., min_length=6, max_length=6, description="6-digit verification code")
+    new_password: str = Field(..., min_length=8, description="New password with at least 8 characters")
