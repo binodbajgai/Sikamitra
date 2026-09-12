@@ -2593,3 +2593,74 @@ select:focus {
     z-index: 95;
   }
 }
+
+
+/* ==========================================================
+   USER PREFERENCES: SOFT DISTINCT BACKGROUND & LIGHT CRISP HERO
+   ========================================================== */
+
+/* Distinct pleasant background color (soft slate-indigo tint + vibrant ambient glow) */
+body {
+  background-color: #f1f5f9 !important;
+  background-image: 
+    radial-gradient(1200px circle at 85% -10%, rgba(99, 102, 241, 0.16), transparent 50%),
+    radial-gradient(900px circle at 0% 40%, rgba(16, 185, 129, 0.12), transparent 45%),
+    radial-gradient(800px circle at 50% 100%, rgba(99, 102, 241, 0.10), transparent 40%) !important;
+  background-attachment: fixed !important;
+}
+
+/* Dashboard Hero Banner: Lighter vibrant violet-indigo gradient, glowing and fresh */
+.dashboard-hero {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 45%, #818cf8 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 16px 36px -10px rgba(79, 70, 229, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+  padding: 44px 52px !important;
+  border-radius: 24px !important;
+}
+
+/* Crisp high-contrast readable text inside Dashboard Hero (no dark blur) */
+.dashboard-hero .page-kicker {
+  color: #e0e7ff !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.14em !important;
+  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.2) !important;
+}
+
+.dashboard-hero h1 {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  text-shadow: 0 2px 4px rgba(15, 23, 42, 0.2) !important;
+}
+
+.dashboard-hero h1 span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: none !important;
+  font-weight: 800 !important;
+  text-shadow: 0 2px 6px rgba(15, 23, 42, 0.25) !important;
+}
+
+.dashboard-hero p {
+  color: #f8fafc !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.6 !important;
+  text-shadow: 0 1px 3px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* Floating Badge in Hero */
+.hero-preview-card,
+.hero-glass-card {
+  background: rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18) !important;
+}
+
+.hero-preview-card *,
+.hero-glass-card * {
+  color: #ffffff !important;
+}
