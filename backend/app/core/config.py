@@ -5,6 +5,7 @@ from pydantic import field_validator
 class Settings(BaseSettings):
     app_name: str
     app_version: str
+    environment: str = "development"
 
     database_url: str
 

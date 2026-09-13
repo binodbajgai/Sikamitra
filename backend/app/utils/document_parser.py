@@ -1,4 +1,6 @@
 from io import BytesIO
+import os
+import shutil
 
 from fastapi import UploadFile
 from pypdf import PdfReader
@@ -17,11 +19,12 @@ ALLOWED_EXTENSIONS = {
     ".jpg",
     ".jpeg",
 }
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 
-TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
-pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+TESSERACT_PATH = os.getenv("TESSERACT_PATH") or shutil.which("tesseract")
+if TESSERACT_PATH:
+    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
 
 def get_file_extension(filename: str) -> str:
@@ -40,7 +43,10 @@ async def extract_text(file: UploadFile) -> str:
             "Supported formats: PDF, TXT, DOCX, PPTX, PNG, JPG, JPEG"
         )
 
-    file_content = await file.read()
+    file_content = await file.read(MAX_UPLOAD_BYTES + 1)
+
+    if len(file_content) > MAX_UPLOAD_BYTES:
+        raise ValueError("Uploaded files must be 10 MB or smaller")
 
     if not file_content:
         raise ValueError("Uploaded file is empty")

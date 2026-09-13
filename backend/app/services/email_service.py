@@ -9,16 +9,11 @@ logger = logging.getLogger(__name__)
 def send_password_reset_otp(recipient_email: str, otp_code: str) -> bool:
     """
     Sends a 6-digit verification code to recipient_email using standard SMTP (e.g. Gmail).
-    If SMTP credentials are not configured, logs the code to console for testing.
+    Password reset delivery is disabled when SMTP is not configured.
     """
     if not settings.smtp_user or not settings.smtp_password:
-        logger.warning(
-            f"[TESTING/NO SMTP CONFIG] Password reset code for {recipient_email}: {otp_code}"
-        )
-        print(f"\n==========================================")
-        print(f"🔑 [SIKAMITRA OTP] Code for {recipient_email}: {otp_code}")
-        print(f"==========================================\n")
-        return True
+        logger.error("Password reset email is unavailable because SMTP is not configured")
+        return False
 
     from_email = settings.smtp_from_email or settings.smtp_user
 
@@ -72,9 +67,8 @@ def send_password_reset_otp(recipient_email: str, otp_code: str) -> bool:
             server.login(settings.smtp_user.strip(), settings.smtp_password.strip())
             server.sendmail(from_email, recipient_email, msg.as_string())
 
-        logger.info(f"Password reset email sent successfully via SMTP to {recipient_email}")
+        logger.info("Password reset email sent successfully")
         return True
     except Exception as e:
-        logger.error(f"Failed to send email via SMTP: {e}")
-        print(f"SMTP send failed: {e}")
+        logger.error("Failed to send password reset email: %s", type(e).__name__)
         return False

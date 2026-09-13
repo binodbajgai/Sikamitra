@@ -4,10 +4,11 @@ import json
 import base64
 from io import BytesIO
 import secrets
+import logging
 import urllib.parse
 import urllib.request
 
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
+from fastapi import APIRouter, Depends, File, Request, UploadFile, HTTPException, status
 from fastapi.responses import RedirectResponse
 from PIL import Image
 from sqlalchemy.orm import Session
@@ -36,6 +37,7 @@ router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
 )
+logger = logging.getLogger(__name__)
 
 
 def _google_state_signature(nonce: str) -> str:
@@ -64,6 +66,12 @@ def _google_request(
         return json.loads(response.read().decode("utf-8"))
 
 
+def _google_redirect(url: str) -> RedirectResponse:
+    response = RedirectResponse(url)
+    response.delete_cookie("google_oauth_state", path="/auth")
+    return response
+
+
 @router.get("/google/login")
 def google_login():
     if not settings.google_client_id or not settings.google_client_secret:
@@ -85,13 +93,22 @@ def google_login():
             "prompt": "select_account",
         }
     )
-    return RedirectResponse(
-        f"https://accounts.google.com/o/oauth2/v2/auth?{query}"
+    response = RedirectResponse(f"https://accounts.google.com/o/oauth2/v2/auth?{query}")
+    response.set_cookie(
+        "google_oauth_state",
+        state,
+        max_age=600,
+        httponly=True,
+        secure=settings.frontend_url.startswith("https://"),
+        samesite="lax",
+        path="/auth",
     )
+    return response
 
 
 @router.get("/google/callback")
 def google_callback(
+    request: Request,
     code: str | None = None,
     state: str | None = None,
     error: str | None = None,
@@ -100,12 +117,17 @@ def google_callback(
     callback_url = f"{settings.frontend_url}/auth/google/callback"
 
     if error or not code or not state:
-        return RedirectResponse(f"{callback_url}?error=google_auth_failed")
+        return _google_redirect(f"{callback_url}?error=google_auth_failed")
 
     try:
         nonce, signature = state.rsplit(".", 1)
         if not hmac.compare_digest(signature, _google_state_signature(nonce)):
             raise ValueError("Invalid OAuth state")
+        if not hmac.compare_digest(
+            state,
+            request.cookies.get("google_oauth_state", ""),
+        ):
+            raise ValueError("OAuth state does not match the login session")
 
         token_data = _google_request(
             "https://oauth2.googleapis.com/token",
@@ -145,12 +167,12 @@ def google_callback(
             raise ValueError("User account is inactive")
 
         app_token = create_access_token(user.id)
-        return RedirectResponse(
+        return _google_redirect(
             f"{callback_url}#access_token={urllib.parse.quote(app_token)}"
         )
     except Exception as exc:
-        print(f"GOOGLE AUTH ERROR: {exc}")
-        return RedirectResponse(f"{callback_url}?error=google_auth_failed")
+        logger.exception("Google authentication failed: %s", type(exc).__name__)
+        return _google_redirect(f"{callback_url}?error=google_auth_failed")
 
 
 @router.post(
@@ -323,7 +345,6 @@ def reset_password(
             detail="Invalid or expired verification code. Please check the code or request a new one.",
         )
     return {"message": "Password updated successfully"}
-
 
 
 

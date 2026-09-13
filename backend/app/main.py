@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from collections import defaultdict, deque
+from time import monotonic
+from threading import Lock
 
 from app.api.auth.routes import router as auth_router
 from app.api.ai.routes import router as ai_router
@@ -13,9 +17,9 @@ from app.api.study_materials.routes import (
 from app.api.subjects.routes import router as subject_router
 from app.api.router import router as api_router
 from app.core.config import settings
-from app.core.database import engine, Base
-from sqlalchemy import text
-import app.models.password_reset  # noqa: F401
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
@@ -27,29 +31,6 @@ app = FastAPI(
         }
     ],
 )
-
-
-@app.on_event("startup")
-def init_db_tables():
-    try:
-        with engine.begin() as conn:
-            conn.execute(
-                text(
-                    """
-                    CREATE TABLE IF NOT EXISTS password_resets (
-                        id SERIAL PRIMARY KEY,
-                        email VARCHAR(255) NOT NULL,
-                        token VARCHAR(255) NOT NULL UNIQUE,
-                        expires_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
-                    );
-                    CREATE INDEX IF NOT EXISTS ix_password_resets_email ON password_resets (email);
-                    CREATE INDEX IF NOT EXISTS ix_password_resets_token ON password_resets (token);
-                    """
-                )
-            )
-            print("Auto-created / verified password_resets table successfully!")
-    except Exception as e:
-        print(f"Error ensuring password_resets table: {e}")
 
 
 # --------------------------------------------------
@@ -68,11 +49,79 @@ if settings.frontend_url and settings.frontend_url not in origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=[
+        "sikamitra-mgkx.vercel.app",
+        "*.vercel.app",
+        "localhost",
+        "127.0.0.1",
+    ],
+)
+
+_rate_limit_lock = Lock()
+_rate_limit_events: dict[tuple[str, str], deque[float]] = defaultdict(deque)
+_rate_limit_rules = {
+    "/auth/login": (10, 60),
+    "/auth/register": (5, 60),
+    "/auth/forgot-password": (5, 60),
+    "/auth/reset-password": (10, 60),
+    "/ai/": (10, 60),
+}
+
+
+@app.middleware("http")
+async def limit_sensitive_requests(request, call_next):
+    matched_rule = next(
+        (
+            (prefix, limit, window)
+            for prefix, (limit, window) in _rate_limit_rules.items()
+            if request.url.path == prefix or request.url.path.startswith(prefix)
+        ),
+        None,
+    )
+    if matched_rule is not None:
+        prefix, limit, window = matched_rule
+        client_host = request.client.host if request.client else "unknown"
+        key = (prefix, client_host)
+        now = monotonic()
+        with _rate_limit_lock:
+            events = _rate_limit_events[key]
+            while events and events[0] <= now - window:
+                events.popleft()
+            if len(events) >= limit:
+                from fastapi.responses import JSONResponse
+
+                return JSONResponse(
+                    {"detail": "Too many requests. Please try again later."},
+                    status_code=429,
+                    headers={"Retry-After": str(window)},
+                )
+            events.append(now)
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; frame-ancestors 'none'; base-uri 'self'",
+    )
+    if request.url.scheme == "https":
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains",
+        )
+    return response
 
 
 # --------------------------------------------------
@@ -97,4 +146,3 @@ def root():
     return {
         "message": "Welcome to Sikamitra API"
     }
-
