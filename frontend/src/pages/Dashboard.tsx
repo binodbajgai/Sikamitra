@@ -10,8 +10,6 @@ import {
   ArrowRight,
   Plus,
   FileText,
-  TrendingUp,
-  Clock,
 } from "lucide-react";
 
 function Dashboard() {

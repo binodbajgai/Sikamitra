@@ -6,7 +6,7 @@ import {
   saveUserPreferences,
   type ThemePreference,
 } from "../utils/preferences";
-import { Lock, Monitor, Accessibility, KeyRound, Eye, Zap } from "lucide-react";
+import { Lock, Monitor, Accessibility, Eye, Zap } from "lucide-react";
 
 
 function Settings() {

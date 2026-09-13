@@ -38,7 +38,6 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
-  FileText,
   X,
 } from "lucide-react";
 import ConfirmModal from "../components/ConfirmModal";

@@ -36,8 +36,6 @@ import {
   Search,
   Pencil,
   Trash2,
-  FileQuestion,
-  BookOpen,
   X,
 } from "lucide-react";
 import ConfirmModal from "../../components/ConfirmModal";
