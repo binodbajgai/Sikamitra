@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     secret_key: str
     algorithm: str
-    access_token_expire_minutes: int
+    access_token_expire_minutes: int = 43200
 
     ai_provider: str = "nvidia"
     nvidia_api_key: str = ""
