@@ -5,14 +5,36 @@ from email.mime.text import MIMEText
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+_smtp_ready = False
+
+
+def is_smtp_ready() -> bool:
+    return _smtp_ready
+
+
+def verify_smtp_connection() -> bool:
+    global _smtp_ready
+    if not settings.smtp_user or not settings.smtp_password:
+        _smtp_ready = False
+        return False
+    try:
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10.0) as server:
+            server.starttls()
+            server.login(settings.smtp_user.strip(), settings.smtp_password.strip())
+        _smtp_ready = True
+    except (OSError, smtplib.SMTPException):
+        logger.exception("SMTP readiness check failed")
+        _smtp_ready = False
+    return _smtp_ready
+
 
 def send_password_reset_otp(recipient_email: str, otp_code: str) -> bool:
     """
     Sends a 6-digit verification code to recipient_email using standard SMTP (e.g. Gmail).
     Password reset delivery is disabled when SMTP is not configured.
     """
-    if not settings.smtp_user or not settings.smtp_password:
-        logger.error("Password reset email is unavailable because SMTP is not configured")
+    if not _smtp_ready:
+        logger.error("Password reset email is unavailable because SMTP is not ready")
         return False
 
     from_email = settings.smtp_from_email or settings.smtp_user

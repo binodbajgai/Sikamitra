@@ -143,6 +143,7 @@ def create_subject_test(
                 db=db,
                 material_id=material.id,
                 content=material.content,
+                user_id=user_id,
             )
 
         question_pool.extend(

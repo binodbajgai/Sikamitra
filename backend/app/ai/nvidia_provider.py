@@ -26,6 +26,7 @@ class NVIDIAProvider(AIProvider):
         self.client = OpenAI(
             base_url="https://integrate.api.nvidia.com/v1",
             api_key=settings.nvidia_api_key,
+            timeout=30.0,
         )
         self.model = "openai/gpt-oss-20b"
 

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy.orm import Session
 
 from app.ai.nvidia_provider import NVIDIAProvider
@@ -18,15 +20,36 @@ from app.repositories.question_repository import (
     get_questions_by_material,
     delete_questions_by_material,
 )
+from app.core.config import settings
+from app.core.redis import get_sync_redis
 
 
 provider = NVIDIAProvider()
+
+
+def _consume_ai_quota(user_id: int) -> None:
+    now = datetime.now(timezone.utc)
+    key = f"ai-quota:{user_id}:{now.date().isoformat()}"
+    redis = get_sync_redis()
+    try:
+        count = redis.incr(key)
+        if count == 1:
+            seconds_until_reset = int(
+                (now.replace(hour=0, minute=0, second=0, microsecond=0)
+                 + timedelta(days=1) - now).total_seconds()
+            )
+            redis.expire(key, max(seconds_until_reset, 1))
+        if count > settings.ai_daily_quota:
+            raise ValueError("Daily AI generation limit reached")
+    finally:
+        redis.close()
 
 
 def generate_summary(
     db: Session,
     material_id: int,
     content: str,
+    user_id: int,
 ):
     if not content.strip():
         raise ValueError("Material has no content")
@@ -39,6 +62,7 @@ def generate_summary(
     if existing:
         return existing[0]
 
+    _consume_ai_quota(user_id)
     summary_text = provider.generate_summary(content)
 
     return create_summary(
@@ -52,6 +76,7 @@ def generate_important_points(
     db: Session,
     material_id: int,
     content: str,
+    user_id: int,
 ):
     if not content.strip():
         raise ValueError("Material has no content")
@@ -64,6 +89,7 @@ def generate_important_points(
     if existing:
         return existing
 
+    _consume_ai_quota(user_id)
     points = provider.generate_important_points(content)
 
     created_points = []
@@ -85,6 +111,7 @@ def generate_questions(
     db: Session,
     material_id: int,
     content: str,
+    user_id: int,
 ):
     if not content.strip():
         raise ValueError("Material has no content")
@@ -97,6 +124,7 @@ def generate_questions(
     if existing:
         return existing
 
+    _consume_ai_quota(user_id)
     questions = provider.generate_questions(content)
 
     return create_questions(
@@ -111,10 +139,12 @@ def regenerate_summary(
     db: Session,
     material_id: int,
     content: str,
+    user_id: int,
 ):
     if not content.strip():
         raise ValueError("Material has no content")
 
+    _consume_ai_quota(user_id)
     summary_text = provider.generate_summary(content)
 
     return create_summary(
@@ -128,10 +158,12 @@ def regenerate_important_points(
     db: Session,
     material_id: int,
     content: str,
+    user_id: int,
 ):
     if not content.strip():
         raise ValueError("Material has no content")
 
+    _consume_ai_quota(user_id)
     # Generate the new points first.
     points = provider.generate_important_points(content)
 
@@ -165,10 +197,12 @@ def regenerate_questions(
     db: Session,
     material_id: int,
     content: str,
+    user_id: int,
 ):
     if not content.strip():
         raise ValueError("Material has no content")
 
+    _consume_ai_quota(user_id)
     questions = provider.generate_questions(content)
 
     if not questions:

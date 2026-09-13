@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     smtp_from_email: str = ""
+    redis_url: str = ""
+    ai_daily_quota: int = 50
 
     @field_validator("frontend_url", mode="before")
     @classmethod

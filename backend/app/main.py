@@ -1,10 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from collections import defaultdict, deque
-from time import monotonic
-from threading import Lock
-
 from app.api.auth.routes import router as auth_router
 from app.api.ai.routes import router as ai_router
 from app.api.mock_tests.routes import router as mock_test_router
@@ -17,6 +13,8 @@ from app.api.study_materials.routes import (
 from app.api.subjects.routes import router as subject_router
 from app.api.router import router as api_router
 from app.core.config import settings
+from app.core.redis import get_async_redis
+from app.services.email_service import verify_smtp_connection
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,6 +29,11 @@ app = FastAPI(
         }
     ],
 )
+
+
+@app.on_event("startup")
+def verify_external_services():
+    verify_smtp_connection()
 
 
 # --------------------------------------------------
@@ -64,8 +67,6 @@ app.add_middleware(
     ],
 )
 
-_rate_limit_lock = Lock()
-_rate_limit_events: dict[tuple[str, str], deque[float]] = defaultdict(deque)
 _rate_limit_rules = {
     "/auth/login": (10, 60),
     "/auth/register": (5, 60),
@@ -88,21 +89,32 @@ async def limit_sensitive_requests(request, call_next):
     if matched_rule is not None:
         prefix, limit, window = matched_rule
         client_host = request.client.host if request.client else "unknown"
-        key = (prefix, client_host)
-        now = monotonic()
-        with _rate_limit_lock:
-            events = _rate_limit_events[key]
-            while events and events[0] <= now - window:
-                events.popleft()
-            if len(events) >= limit:
-                from fastapi.responses import JSONResponse
+        key = f"rate-limit:{prefix}:{client_host}"
+        try:
+            redis = get_async_redis()
+            count = await redis.incr(key)
+            if count == 1:
+                await redis.expire(key, window)
+        except Exception:
+            logger.exception("Distributed rate limiter unavailable")
+            from fastapi.responses import JSONResponse
 
-                return JSONResponse(
-                    {"detail": "Too many requests. Please try again later."},
-                    status_code=429,
-                    headers={"Retry-After": str(window)},
-                )
-            events.append(now)
+            return JSONResponse(
+                {"detail": "Rate limiting service unavailable"},
+                status_code=503,
+            )
+        finally:
+            if "redis" in locals():
+                await redis.aclose()
+
+        if count > limit:
+            from fastapi.responses import JSONResponse
+
+            return JSONResponse(
+                {"detail": "Too many requests. Please try again later."},
+                status_code=429,
+                headers={"Retry-After": str(window)},
+            )
     return await call_next(request)
 
 

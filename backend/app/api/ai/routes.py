@@ -89,6 +89,7 @@ def create_summary(
             db=db,
             material_id=material.id,
             content=material.content or "",
+            user_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(
@@ -121,6 +122,7 @@ def create_important_points(
             db=db,
             material_id=material.id,
             content=material.content or "",
+            user_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(
@@ -153,6 +155,7 @@ def create_questions(
             db=db,
             material_id=material.id,
             content=material.content or "",
+            user_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(
@@ -185,6 +188,7 @@ def regenerate_summary_endpoint(
             db=db,
             material_id=material.id,
             content=material.content or "",
+            user_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(
@@ -217,6 +221,7 @@ def regenerate_important_points_endpoint(
             db=db,
             material_id=material.id,
             content=material.content or "",
+            user_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(
@@ -249,6 +254,7 @@ def regenerate_questions_endpoint(
             db=db,
             material_id=material.id,
             content=material.content or "",
+            user_id=current_user.id,
         )
     except ValueError as exc:
         raise HTTPException(

@@ -28,6 +28,7 @@ from app.services.auth_service import (
     login_user,
     register_user,
 )
+from app.services.email_service import is_smtp_ready
 from app.core.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.repositories.user_repository import create_user, get_user_by_email
@@ -327,6 +328,11 @@ def forgot_password(
     payload: ForgotPasswordRequest,
     db: Session = Depends(get_db),
 ):
+    if not is_smtp_ready():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Password reset is temporarily unavailable.",
+        )
     request_password_reset(db, payload.email)
     return ForgotPasswordResponse(message="If an account exists with this email, a verification code has been sent.")
 
@@ -345,7 +351,6 @@ def reset_password(
             detail="Invalid or expired verification code. Please check the code or request a new one.",
         )
     return {"message": "Password updated successfully"}
-
 
 
 
