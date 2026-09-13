@@ -15,6 +15,11 @@ export interface SubjectCreate {
   description?: string;
 }
 
+export interface SubjectUpdate {
+  name?: string;
+  description?: string;
+}
+
 export async function getSubjects(): Promise<Subject[]> {
   const response = await apiClient.get<Subject[]>("/subjects/");
   return response.data;
@@ -27,6 +32,14 @@ export async function getSubject(subjectId: number): Promise<Subject> {
 
 export async function createSubject(data: SubjectCreate): Promise<Subject> {
   const response = await apiClient.post<Subject>("/subjects/", data);
+  return response.data;
+}
+
+export async function updateSubject(
+  subjectId: number,
+  data: SubjectUpdate
+): Promise<Subject> {
+  const response = await apiClient.patch<Subject>(`/subjects/${subjectId}`, data);
   return response.data;
 }
 

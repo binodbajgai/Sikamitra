@@ -68,6 +68,21 @@ def get_subject_materials(
     )
 
 
+def update_subject(
+    db: Session,
+    subject: Subject,
+    name: str | None = None,
+    description: str | None = None,
+) -> Subject:
+    if name is not None:
+        subject.name = name
+    if description is not None:
+        subject.description = description
+    db.commit()
+    db.refresh(subject)
+    return subject
+
+
 def delete_subject(
     db: Session,
     subject: Subject,

@@ -7,6 +7,7 @@ import {
   type MockTestQuestion,
   type MockTestReview,
 } from "../../api/mockTests";
+import ConfirmModal from "../../components/ConfirmModal";
 
 function MockTestTake() {
   const [searchParams] = useSearchParams();
@@ -26,6 +27,7 @@ function MockTestTake() {
 
   const [review, setReview] = useState<MockTestReview | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   useEffect(() => {
     async function loadTestQuestions() {
@@ -99,22 +101,24 @@ function MockTestTake() {
     }
   }
 
-  async function handleSubmitTest() {
+  function handleSubmitTest() {
     if (!attemptId) {
       setSubmitted(true);
       return;
     }
 
     const unansweredCount = questions.length - answeredCount;
+    if (unansweredCount > 0) {
+      setShowSubmitModal(true);
+      return;
+    }
 
-    if (
-      unansweredCount > 0 &&
-      !window.confirm(
-        `You have ${unansweredCount} unanswered question${
-          unansweredCount === 1 ? "" : "s"
-        }. Submit your test anyway?`
-      )
-    ) {
+    void doSubmitTest();
+  }
+
+  async function doSubmitTest() {
+    if (!attemptId) {
+      setSubmitted(true);
       return;
     }
 
@@ -327,7 +331,7 @@ function MockTestTake() {
               Back to mock tests
             </Link>
 
-            <Link to="/study-materials" className="mock-tests-outline-button">
+            <Link to="/materials" className="mock-tests-outline-button">
               Study materials
             </Link>
           </div>
@@ -476,6 +480,22 @@ function MockTestTake() {
           )}
         </main>
       </div>
+
+      <ConfirmModal
+        isOpen={showSubmitModal}
+        title="Submit Test?"
+        message={`You have ${questions.length - answeredCount} unanswered question${
+          questions.length - answeredCount === 1 ? "" : "s"
+        }. Submit your test anyway?`}
+        confirmText="Submit Anyway"
+        type="warning"
+        isLoading={submitting}
+        onConfirm={() => {
+          setShowSubmitModal(false);
+          void doSubmitTest();
+        }}
+        onCancel={() => setShowSubmitModal(false)}
+      />
     </div>
   );
 }

@@ -18,7 +18,9 @@ import {
 
 import {
   createSubject,
+  deleteSubject,
   getSubjects,
+  updateSubject,
   type Subject,
 } from "../api/subjects.ts";
 import {
@@ -26,6 +28,20 @@ import {
   getDisplayFileName,
   getFileExtensionLabel,
 } from "../utils/fileDisplay.ts";
+import {
+  Folder,
+  ArrowRight,
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  X,
+} from "lucide-react";
+import ConfirmModal from "../components/ConfirmModal";
 
 function Materials() {
   const location = useLocation();
@@ -59,6 +75,27 @@ function Materials() {
 
   const [showUnsorted, setShowUnsorted] =
     useState(true);
+
+  const [editingSubject, setEditingSubject] =
+    useState<Subject | null>(null);
+
+  const [editSubjectName, setEditSubjectName] =
+    useState("");
+
+  const [editSubjectDesc, setEditSubjectDesc] =
+    useState("");
+
+  const [savingEdit, setSavingEdit] =
+    useState(false);
+
+  const [deletingSubject, setDeletingSubject] =
+    useState<Subject | null>(null);
+
+  const [deletingMaterial, setDeletingMaterial] =
+    useState<StudyMaterial | null>(null);
+
+  const [isDeleting, setIsDeleting] =
+    useState(false);
 
 
   useEffect(() => {
@@ -186,6 +223,74 @@ function Materials() {
   }
 
 
+  function handleOpenEditSubject(e: React.MouseEvent, subject: Subject) {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingSubject(subject);
+    setEditSubjectName(subject.name);
+    setEditSubjectDesc(subject.description || "");
+    setError("");
+  }
+
+
+  async function handleSaveSubjectEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingSubject) return;
+
+    const trimmed = editSubjectName.trim();
+    if (!trimmed) {
+      setError("Subject name cannot be empty.");
+      return;
+    }
+
+    try {
+      setSavingEdit(true);
+      setError("");
+
+      const updated = await updateSubject(editingSubject.id, {
+        name: trimmed,
+        description: editSubjectDesc.trim() || undefined,
+      });
+
+      setSubjects((current) =>
+        current.map((s) => (s.id === updated.id ? updated : s))
+      );
+      setEditingSubject(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to update subject.");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+
+  function handlePromptDeleteSubject(e: React.MouseEvent, subject: Subject) {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeletingSubject(subject);
+  }
+
+  async function handleConfirmDeleteSubject() {
+    if (!deletingSubject) return;
+
+    try {
+      setIsDeleting(true);
+      setError("");
+      await deleteSubject(deletingSubject.id);
+      setSubjects((current) => current.filter((s) => s.id !== deletingSubject.id));
+      const updatedMaterials = await getStudyMaterials();
+      setMaterials(updatedMaterials);
+      setDeletingSubject(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to delete subject.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+
   async function handleFile(
     file?: File
   ) {
@@ -244,37 +349,28 @@ function Materials() {
   }
 
 
-  async function handleDelete(
-    material: StudyMaterial
-  ) {
-    const confirmed =
-      window.confirm(
-        `Delete "${material.title}"? This cannot be undone.`
-      );
+  function handlePromptDeleteMaterial(material: StudyMaterial) {
+    setDeletingMaterial(material);
+  }
 
-    if (!confirmed) {
-      return;
-    }
+  async function handleConfirmDeleteMaterial() {
+    if (!deletingMaterial) return;
 
     try {
+      setIsDeleting(true);
       setError("");
 
-      await deleteStudyMaterial(
-        material.id
-      );
+      await deleteStudyMaterial(deletingMaterial.id);
 
       setMaterials((current) =>
-        current.filter(
-          (item) =>
-            item.id !== material.id
-        )
+        current.filter((item) => item.id !== deletingMaterial.id)
       );
+      setDeletingMaterial(null);
     } catch (err) {
       console.error(err);
-
-      setError(
-        "Unable to delete this material."
-      );
+      setError("Unable to delete this material.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -325,7 +421,7 @@ function Materials() {
               setShowCreateSubject(true);
             }}
           >
-            <span>+</span>
+            <Plus size={16} />
             New subject
           </button>
         </header>
@@ -334,7 +430,7 @@ function Materials() {
         {/* SEARCH */}
         <div className="subjects-toolbar">
           <div className="subjects-search">
-            <span>⌕</span>
+            <Search size={16} />
 
             <input
               type="search"
@@ -392,7 +488,7 @@ function Materials() {
                   )
                 }
               >
-                ×
+                <X size={18} />
               </button>
             </div>
 
@@ -526,12 +622,28 @@ function Materials() {
                   >
                     <div className="subject-card-top">
                       <div className="subject-folder-icon">
-                        □
+                        <Folder size={18} />
                       </div>
 
-                      <span>
-                        →
-                      </span>
+                      <div className="subject-card-actions">
+                        <button
+                          type="button"
+                          className="subject-action-btn"
+                          title="Edit subject"
+                          onClick={(e) => handleOpenEditSubject(e, subject)}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="subject-action-btn delete"
+                          title="Delete subject"
+                          onClick={(e) => handlePromptDeleteSubject(e, subject)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                        <ArrowRight size={16} style={{ marginLeft: "4px", color: "var(--color-text-secondary)" }} />
+                      </div>
                     </div>
 
                     <h3>
@@ -569,7 +681,9 @@ function Materials() {
             <section className="unsorted-section">
 
               <div className="unsorted-section-header">
-                <span className="unsorted-section-icon" aria-hidden="true">!</span>
+                <span className="unsorted-section-icon" aria-hidden="true">
+                  <AlertTriangle size={18} color="#eab308" />
+                </span>
                 <div>
                   <p className="subjects-kicker">Needs organizing</p>
                   <h2>Unsorted materials</h2>
@@ -586,8 +700,8 @@ function Materials() {
                     )
                   }
                 >
-                  <span className="unsorted-heading-count">
-                    {unsortedMaterials.length} {showUnsorted ? "⌃" : "⌄"}
+                  <span className="unsorted-heading-count" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                    {unsortedMaterials.length} {showUnsorted ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </span>
                 </button>
               </div>
@@ -609,7 +723,7 @@ function Materials() {
 
                         <div className="material-row-info">
                           <Link
-                            to={`/study-materials/${material.id}`}
+                            to={`/materials/${material.id}`}
                             className="material-row-title"
                           >
                             {getDisplayFileName(material.title)}
@@ -633,12 +747,9 @@ function Materials() {
                         <button
                           type="button"
                           className="material-delete-button"
-                          onClick={() =>
-                            void handleDelete(
-                              material
-                            )
-                          }
+                          onClick={() => handlePromptDeleteMaterial(material)}
                         >
+                          <Trash2 size={14} style={{ marginRight: "4px", verticalAlign: "middle" }} />
                           Delete
                         </button>
                       </article>
@@ -649,6 +760,88 @@ function Materials() {
 
             </section>
           )}
+
+        {/* EDIT SUBJECT MODAL */}
+        {editingSubject && (
+          <div className="sikamitra-modal-overlay" onClick={() => setEditingSubject(null)}>
+            <div className="sikamitra-modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="sikamitra-modal-header">
+                <h3>Edit subject</h3>
+                <button
+                  type="button"
+                  className="sikamitra-modal-close"
+                  onClick={() => setEditingSubject(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveSubjectEdit}>
+                <div className="sikamitra-modal-body">
+                  <label>
+                    Subject name
+                    <input
+                      type="text"
+                      required
+                      value={editSubjectName}
+                      onChange={(e) => setEditSubjectName(e.target.value)}
+                      placeholder="e.g. Mathematics"
+                    />
+                  </label>
+
+                  <label>
+                    Description
+                    <textarea
+                      rows={3}
+                      value={editSubjectDesc}
+                      onChange={(e) => setEditSubjectDesc(e.target.value)}
+                      placeholder="Optional details about this subject"
+                    />
+                  </label>
+                </div>
+
+                <div className="sikamitra-modal-footer">
+                  <button
+                    type="button"
+                    className="subject-cancel-button"
+                    onClick={() => setEditingSubject(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="subjects-create-button"
+                    disabled={savingEdit}
+                  >
+                    {savingEdit ? "Saving..." : "Save changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <ConfirmModal
+          isOpen={deletingSubject !== null}
+          title="Delete Subject"
+          message={`Are you sure you want to delete "${deletingSubject?.name}"? Materials inside will remain available.`}
+          confirmText="Delete Subject"
+          type="danger"
+          isLoading={isDeleting}
+          onConfirm={handleConfirmDeleteSubject}
+          onCancel={() => !isDeleting && setDeletingSubject(null)}
+        />
+
+        <ConfirmModal
+          isOpen={deletingMaterial !== null}
+          title="Delete Material"
+          message={`Delete "${deletingMaterial ? getDisplayFileName(deletingMaterial.title) : ""}"? This cannot be undone.`}
+          confirmText="Delete Material"
+          type="danger"
+          isLoading={isDeleting}
+          onConfirm={handleConfirmDeleteMaterial}
+          onCancel={() => !isDeleting && setDeletingMaterial(null)}
+        />
 
         <input
           ref={fileInputRef}

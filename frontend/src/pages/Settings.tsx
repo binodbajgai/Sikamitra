@@ -6,6 +6,8 @@ import {
   saveUserPreferences,
   type ThemePreference,
 } from "../utils/preferences";
+import { Lock, Monitor, Accessibility, KeyRound, Eye, Zap } from "lucide-react";
+
 
 function Settings() {
   const [preferences, setPreferences] = useState(getUserPreferences);
@@ -62,7 +64,9 @@ function Settings() {
 
         <section className="profile-card settings-card">
           <div className="settings-heading">
-            <p className="profile-kicker">Accessibility</p>
+            <p className="profile-kicker" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Monitor size={15} /> Accessibility
+            </p>
             <h2>Display settings</h2>
             <p>Adjust Sikamitra to make studying more comfortable.</p>
           </div>
@@ -70,7 +74,9 @@ function Settings() {
           <div className="settings-list">
             <label className="settings-row">
               <span>
-                <strong>Theme</strong>
+                <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Eye size={15} /> Theme
+                </strong>
                 <small>Choose the appearance used across the app.</small>
               </span>
               <select
@@ -86,7 +92,9 @@ function Settings() {
 
             <label className="settings-row">
               <span>
-                <strong>Larger text</strong>
+                <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Accessibility size={15} /> Larger text
+                </strong>
                 <small>Increase readable text across the workspace.</small>
               </span>
               <input
@@ -100,7 +108,9 @@ function Settings() {
 
             <label className="settings-row">
               <span>
-                <strong>Reduce motion</strong>
+                <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Zap size={15} /> Reduce motion
+                </strong>
                 <small>Minimize animations and movement.</small>
               </span>
               <input
@@ -116,7 +126,9 @@ function Settings() {
 
         <section className="profile-card settings-card">
           <div className="settings-heading">
-            <p className="profile-kicker">Security</p>
+            <p className="profile-kicker" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Lock size={15} /> Security
+            </p>
             <h2>Change credentials</h2>
             <p>Update the password used to sign in with email.</p>
           </div>

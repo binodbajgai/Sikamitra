@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import {
+  BookOpen,
+  LayoutDashboard,
+  Library,
+  FileQuestion,
+  TrendingUp,
+  User,
+  Settings as SettingsIcon,
+  LogOut,
+  MoreHorizontal,
+  GraduationCap
+} from "lucide-react";
 
 function AppShell({
   children,
@@ -48,6 +60,7 @@ function AppShell({
                 `nav-item ${isActive ? "active" : ""}`
               }
             >
+              <LayoutDashboard size={18} style={{ marginRight: "6px", verticalAlign: "middle" }} />
               Overview
             </NavLink>
 
@@ -57,6 +70,7 @@ function AppShell({
                 `nav-item ${isActive ? "active" : ""}`
               }
             >
+              <Library size={18} style={{ marginRight: "6px", verticalAlign: "middle" }} />
               Library
             </NavLink>
 
@@ -66,6 +80,7 @@ function AppShell({
                 `nav-item ${isActive ? "active" : ""}`
               }
             >
+              <FileQuestion size={18} style={{ marginRight: "6px", verticalAlign: "middle" }} />
               Mock Tests
             </NavLink>
 
@@ -75,6 +90,7 @@ function AppShell({
                 `nav-item ${isActive ? "active" : ""}`
               }
             >
+              <TrendingUp size={18} style={{ marginRight: "6px", verticalAlign: "middle" }} />
               Progress
             </NavLink>
 
@@ -116,8 +132,11 @@ function AppShell({
                     role="menuitem"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
-                    <strong>Profile</strong>
-                    <span>View your account</span>
+                    <User size={16} style={{ marginRight: "8px" }} />
+                    <div>
+                      <strong>Profile</strong>
+                      <span>View your account</span>
+                    </div>
                   </NavLink>
 
                   <NavLink
@@ -126,8 +145,11 @@ function AppShell({
                     role="menuitem"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
-                    <strong>Settings</strong>
-                    <span>Manage your account</span>
+                    <SettingsIcon size={16} style={{ marginRight: "8px" }} />
+                    <div>
+                      <strong>Settings</strong>
+                      <span>Manage your account</span>
+                    </div>
                   </NavLink>
 
                   <button
@@ -136,8 +158,11 @@ function AppShell({
                     role="menuitem"
                     onClick={handleLogout}
                   >
-                    <strong>Log out</strong>
-                    <span>End this session</span>
+                    <LogOut size={16} style={{ marginRight: "8px" }} />
+                    <div>
+                      <strong>Log out</strong>
+                      <span>End this session</span>
+                    </div>
                   </button>
                 </div>
               )}
@@ -151,7 +176,7 @@ function AppShell({
                 onClick={() => setIsProfileMenuOpen((current) => !current)}
                 title={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
               >
-                ···
+                <MoreHorizontal size={18} />
               </button>
 
             </div>

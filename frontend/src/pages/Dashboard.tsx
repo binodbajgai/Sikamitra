@@ -3,6 +3,16 @@ import { NavLink } from "react-router-dom";
 import { getMockTestAttemptHistory, getMockTests } from "../api/mockTests";
 import { getStudyMaterials, type StudyMaterial } from "../api/studyMaterials";
 import { useAuth } from "../context/AuthContext";
+import {
+  Sparkles,
+  BookOpen,
+  CheckCircle,
+  ArrowRight,
+  Plus,
+  FileText,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
 
 function Dashboard() {
   const { user } = useAuth();
@@ -75,7 +85,7 @@ function Dashboard() {
             <div className="hero-circle hero-circle-two" />
 
             <div className="hero-note">
-              <span>✦</span>
+              <Sparkles size={16} color="#6366f1" />
 
               <strong>
                 Study smarter
@@ -117,7 +127,7 @@ function Dashboard() {
             >
 
               <div className="action-icon">
-                +
+                <BookOpen size={24} />
               </div>
 
               <div className="action-content">
@@ -138,7 +148,7 @@ function Dashboard() {
               </div>
 
               <span className="action-arrow">
-                →
+                <ArrowRight size={20} />
               </span>
 
             </NavLink>
@@ -150,7 +160,7 @@ function Dashboard() {
             >
 
               <div className="action-icon">
-                ✓
+                <CheckCircle size={24} />
               </div>
 
               <div className="action-content">
@@ -171,7 +181,7 @@ function Dashboard() {
               </div>
 
               <span className="action-arrow">
-                →
+                <ArrowRight size={20} />
               </span>
 
             </NavLink>
@@ -280,8 +290,9 @@ function Dashboard() {
             <NavLink
               to="/materials"
               className="section-link"
+              style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
             >
-              View library →
+              View library <ArrowRight size={14} />
             </NavLink>
 
           </div>
@@ -295,16 +306,20 @@ function Dashboard() {
             <div className="recent-material-list">
               {recentMaterials.map((material) => (
                 <NavLink
-                  to={`/study-materials/${material.id}`}
+                  to={`/materials/${material.id}`}
                   className="recent-material-item"
                   key={material.id}
                 >
-                  <span className="recent-material-icon">{material.source_type}</span>
+                  <span className="recent-material-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <FileText size={18} />
+                  </span>
                   <span className="recent-material-info">
                     <strong>{material.title}</strong>
                     <small>{material.subject_name || "Unsorted material"}</small>
                   </span>
-                  <span className="recent-material-arrow">→</span>
+                  <span className="recent-material-arrow">
+                    <ArrowRight size={16} />
+                  </span>
                 </NavLink>
               ))}
             </div>
@@ -312,7 +327,7 @@ function Dashboard() {
           <div className="recent-empty">
 
             <div className="recent-empty-mark">
-              +
+              <Plus size={24} />
             </div>
 
             <div>
@@ -332,8 +347,9 @@ function Dashboard() {
             <NavLink
               to="/materials"
               className="text-button"
+              style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
             >
-              Open library →
+              Open library <ArrowRight size={14} />
             </NavLink>
 
           </div>

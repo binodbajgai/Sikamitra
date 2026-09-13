@@ -8,6 +8,7 @@ from app.schemas.study_material import StudyMaterialResponse
 from app.schemas.subject import (
     SubjectCreate,
     SubjectResponse,
+    SubjectUpdate,
 )
 from app.services.subject_service import (
     create_user_subject,
@@ -15,6 +16,7 @@ from app.services.subject_service import (
     get_subject,
     get_subjects_for_user,
     remove_subject,
+    update_user_subject,
 )
 
 
@@ -77,6 +79,30 @@ def get_one(
         )
 
     return subject
+
+
+@router.patch(
+    "/{subject_id}",
+    response_model=SubjectResponse,
+)
+def update(
+    subject_id: int,
+    subject_data: SubjectUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        return update_user_subject(
+            db=db,
+            subject_id=subject_id,
+            user_id=current_user.id,
+            subject_data=subject_data,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        )
 
 
 @router.get(

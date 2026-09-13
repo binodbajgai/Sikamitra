@@ -19,4 +19,20 @@ apiClient.interceptors.request.use(
   }
 );
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("access_token");
+      // Only redirect if we're not already on an auth page
+      const path = window.location.pathname;
+      const authPaths = ["/login", "/register", "/forgot-password"];
+      if (!authPaths.some((p) => path.startsWith(p))) {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default apiClient;

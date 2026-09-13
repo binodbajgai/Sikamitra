@@ -254,7 +254,7 @@ function MaterialDetail() {
           <p>{error || "This material is unavailable."}</p>
 
           <Link
-            to="/study-materials"
+            to="/materials"
             className="material-back-button"
           >
             Back to materials
@@ -270,7 +270,7 @@ function MaterialDetail() {
 
         <header className="material-detail-header">
           <Link
-            to="/study-materials"
+            to="/materials"
             className="material-back-link"
           >
             ← Study materials

@@ -575,7 +575,7 @@ function MockTests() {
               </p>
 
               <Link
-                to="/study-materials"
+                to="/materials"
                 className="mock-tests-text-link"
               >
                 Manage subjects →

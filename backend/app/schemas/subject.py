@@ -8,6 +8,11 @@ class SubjectCreate(BaseModel):
     description: str | None = None
 
 
+class SubjectUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+
+
 class SubjectResponse(BaseModel):
     id: int
     user_id: int

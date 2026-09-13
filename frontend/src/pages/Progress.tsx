@@ -5,6 +5,13 @@ import {
   type MockTest,
   type MockTestAttempt,
 } from "../api/mockTests";
+import {
+  Award,
+  CheckCircle2,
+  TrendingUp,
+  Clock,
+  BarChart3,
+} from "lucide-react";
 
 interface ProgressAttempt extends MockTestAttempt {
   testTitle: string;
@@ -98,15 +105,21 @@ function Progress() {
 
         <section className="progress-metrics" aria-label="Progress summary">
           <article className="progress-metric-card">
-            <span>Completed tests</span>
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <CheckCircle2 size={16} color="#6366f1" /> Completed tests
+            </span>
             <strong>{attempts.length}</strong>
           </article>
           <article className="progress-metric-card">
-            <span>Average score</span>
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <BarChart3 size={16} color="#059669" /> Average score
+            </span>
             <strong>{averageScore}%</strong>
           </article>
           <article className="progress-metric-card">
-            <span>Best score</span>
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Award size={16} color="#d97706" /> Best score
+            </span>
             <strong>{bestScore}%</strong>
           </article>
         </section>
@@ -131,7 +144,8 @@ function Progress() {
                 <article className="progress-history-row" key={attempt.id}>
                   <div>
                     <h3>{attempt.testTitle}</h3>
-                    <p>
+                    <p style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <Clock size={13} />
                       {formatAttemptDate(
                         attempt.submitted_at ?? attempt.started_at
                       )}

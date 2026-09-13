@@ -102,11 +102,11 @@ function App() {
       />
 
       <Route
-        path="/study-materials"
+        path="/materials/subjects/:subjectId"
         element={
           <ProtectedRoute>
             <AppShell>
-              <Materials />
+              <SubjectDetail />
             </AppShell>
           </ProtectedRoute>
         }
@@ -123,12 +123,13 @@ function App() {
         }
       />
 
+      {/* Legacy alias kept for any old bookmarks */}
       <Route
-        path="/materials/subjects/:subjectId"
+        path="/study-materials"
         element={
           <ProtectedRoute>
             <AppShell>
-              <SubjectDetail />
+              <Materials />
             </AppShell>
           </ProtectedRoute>
         }

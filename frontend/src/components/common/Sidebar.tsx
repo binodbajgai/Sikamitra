@@ -63,7 +63,7 @@ function Sidebar({ isCollapsed = false, toggleSidebar }: SidebarProps) {
           </NavLink>
 
           <NavLink
-            to="/study-materials"
+            to="/materials"
             className={
               isStudyMaterialsRoute
                 ? "sidebar-nav-item active"

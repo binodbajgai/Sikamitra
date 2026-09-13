@@ -72,7 +72,7 @@ function Topbar() {
 
       <div className="topbar-actions">
         <Link
-          to="/study-materials"
+          to="/materials"
           state={{ openUpload: true }}
           className="topbar-add-button"
         >

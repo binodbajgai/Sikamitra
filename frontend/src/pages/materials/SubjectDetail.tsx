@@ -17,8 +17,10 @@ import {
 } from "../../api/studyMaterials.ts";
 
 import {
+  deleteSubject,
   getSubject,
   getSubjectMaterials,
+  updateSubject,
   type Subject,
 } from "../../api/subjects.ts";
 
@@ -26,6 +28,19 @@ import {
   getDisplayFileName,
   getFileExtensionLabel,
 } from "../../utils/fileDisplay.ts";
+
+import {
+  ArrowLeft,
+  ArrowRight,
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  FileQuestion,
+  BookOpen,
+  X,
+} from "lucide-react";
+import ConfirmModal from "../../components/ConfirmModal";
 
 function SubjectDetail() {
   const { subjectId } =
@@ -54,6 +69,30 @@ function SubjectDetail() {
   const [search, setSearch] =
     useState("");
 
+  const [isEditing, setIsEditing] =
+    useState(false);
+
+  const [editName, setEditName] =
+    useState("");
+
+  const [editDescription, setEditDescription] =
+    useState("");
+
+  const [savingEdit, setSavingEdit] =
+    useState(false);
+
+  const [showDeleteSubjectModal, setShowDeleteSubjectModal] =
+    useState(false);
+
+  const [isDeletingSubject, setIsDeletingSubject] =
+    useState(false);
+
+  const [deletingMaterial, setDeletingMaterial] =
+    useState<StudyMaterial | null>(null);
+
+  const [isDeletingMaterial, setIsDeletingMaterial] =
+    useState(false);
+
 
   useEffect(() => {
     async function loadSubjectData() {
@@ -80,6 +119,8 @@ function SubjectDetail() {
         ]);
 
         setSubject(subjectData);
+        setEditName(subjectData.name);
+        setEditDescription(subjectData.description || "");
         setMaterials(materialsData);
       } catch (err) {
         console.error(err);
@@ -91,6 +132,53 @@ function SubjectDetail() {
 
     void loadSubjectData();
   }, [subjectId]);
+
+
+  async function handleSaveSubjectEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!subject) return;
+
+    const trimmed = editName.trim();
+    if (!trimmed) {
+      setError("Subject name cannot be empty.");
+      return;
+    }
+
+    try {
+      setSavingEdit(true);
+      setError("");
+
+      const updated = await updateSubject(subject.id, {
+        name: trimmed,
+        description: editDescription.trim() || undefined,
+      });
+
+      setSubject(updated);
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to update subject.");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+
+  async function handleConfirmDeleteSubject() {
+    if (!subject) return;
+
+    try {
+      setIsDeletingSubject(true);
+      setError("");
+      await deleteSubject(subject.id);
+      navigate("/materials");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to delete subject.");
+    } finally {
+      setIsDeletingSubject(false);
+    }
+  }
 
 
   const subjectMaterials =
@@ -166,35 +254,26 @@ function SubjectDetail() {
   }
 
 
-  async function handleDelete(
-    material: StudyMaterial
-  ) {
-    const confirmed =
-      window.confirm(
-        `Delete "${material.title}"?`
-      );
+  function handlePromptDelete(material: StudyMaterial) {
+    setDeletingMaterial(material);
+  }
 
-    if (!confirmed) {
-      return;
-    }
+  async function handleConfirmDeleteMaterial() {
+    if (!deletingMaterial) return;
 
     try {
-      await deleteStudyMaterial(
-        material.id
-      );
+      setIsDeletingMaterial(true);
+      await deleteStudyMaterial(deletingMaterial.id);
 
       setMaterials((current) =>
-        current.filter(
-          (item) =>
-            item.id !== material.id
-        )
+        current.filter((item) => item.id !== deletingMaterial.id)
       );
+      setDeletingMaterial(null);
     } catch (err) {
       console.error(err);
-
-      setError(
-        "Unable to delete this material."
-      );
+      setError("Unable to delete this material.");
+    } finally {
+      setIsDeletingMaterial(false);
     }
   }
 
@@ -207,7 +286,7 @@ function SubjectDetail() {
             Subject not found
           </h2>
 
-          <Link to="/study-materials">
+          <Link to="/materials">
             Back to subjects
           </Link>
         </div>
@@ -221,10 +300,11 @@ function SubjectDetail() {
       <div className="subject-detail-container">
 
         <Link
-          to="/study-materials"
+          to="/materials"
           className="subject-back-link"
+          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
         >
-          ← Study subjects
+          <ArrowLeft size={16} /> Study subjects
         </Link>
 
 
@@ -235,9 +315,30 @@ function SubjectDetail() {
               Subject
             </p>
 
-            <h1>
-              {subject.name}
-            </h1>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+              <h1 style={{ margin: 0 }}>
+                {subject.name}
+              </h1>
+
+              <div style={{ display: "inline-flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  className="subject-action-btn"
+                  title="Edit subject name or description"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Pencil size={18} />
+                </button>
+                <button
+                  type="button"
+                  className="subject-action-btn delete"
+                  title="Delete subject"
+                  onClick={() => setShowDeleteSubjectModal(true)}
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
 
             <p>
               {subject.description ||
@@ -254,7 +355,8 @@ function SubjectDetail() {
               )
             }
           >
-            Create mock test →
+            Create mock test
+            <ArrowRight size={16} style={{ marginLeft: "4px" }} />
           </button>
 
         </header>
@@ -285,7 +387,7 @@ function SubjectDetail() {
           <div className="subject-material-actions">
 
             <div className="subjects-search">
-              <span>⌕</span>
+              <Search size={16} />
 
               <input
                 type="search"
@@ -307,9 +409,10 @@ function SubjectDetail() {
               }
               disabled={uploading}
             >
+              <Plus size={16} />
               {uploading
                 ? "Uploading..."
-                : "+ Add material"}
+                : "Add material"}
             </button>
 
           </div>
@@ -326,7 +429,7 @@ function SubjectDetail() {
           <div className="subject-detail-empty">
 
             <div className="subjects-empty-mark">
-              +
+              <Plus size={24} />
             </div>
 
             <h3>
@@ -345,6 +448,7 @@ function SubjectDetail() {
                 fileInputRef.current?.click()
               }
             >
+              <Plus size={16} />
               Add material
             </button>
 
@@ -367,7 +471,7 @@ function SubjectDetail() {
 
                   <div>
                     <Link
-                      to={`/study-materials/${material.id}`}
+                      to={`/materials/${material.id}`}
                       className="material-row-title"
                     >
                       {getDisplayFileName(material.title)}
@@ -383,7 +487,7 @@ function SubjectDetail() {
                   <div className="subject-material-actions-row">
 
                     <Link
-                      to={`/study-materials/${material.id}`}
+                      to={`/materials/${material.id}`}
                       className="material-open-button"
                     >
                       Open
@@ -392,12 +496,9 @@ function SubjectDetail() {
                     <button
                       type="button"
                       className="material-delete-button"
-                      onClick={() =>
-                        void handleDelete(
-                          material
-                        )
-                      }
+                      onClick={() => handlePromptDelete(material)}
                     >
+                      <Trash2 size={14} style={{ marginRight: "4px", verticalAlign: "middle" }} />
                       Delete
                     </button>
 
@@ -435,10 +536,92 @@ function SubjectDetail() {
             className="subjects-create-button"
           >
             Create mock test
+            <ArrowRight size={16} style={{ marginLeft: "4px" }} />
           </Link>
 
         </section>
 
+        {/* EDIT MODAL */}
+        {isEditing && (
+          <div className="sikamitra-modal-overlay" onClick={() => setIsEditing(false)}>
+            <div className="sikamitra-modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="sikamitra-modal-header">
+                <h3>Edit subject</h3>
+                <button
+                  type="button"
+                  className="sikamitra-modal-close"
+                  onClick={() => setIsEditing(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveSubjectEdit}>
+                <div className="sikamitra-modal-body">
+                  <label>
+                    Subject name
+                    <input
+                      type="text"
+                      required
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="Subject name"
+                    />
+                  </label>
+
+                  <label>
+                    Description
+                    <textarea
+                      rows={3}
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Optional description"
+                    />
+                  </label>
+                </div>
+
+                <div className="sikamitra-modal-footer">
+                  <button
+                    type="button"
+                    className="subject-cancel-button"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="subjects-create-button"
+                    disabled={savingEdit}
+                  >
+                    {savingEdit ? "Saving..." : "Save changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <ConfirmModal
+          isOpen={showDeleteSubjectModal}
+          title="Delete Subject"
+          message={`Are you sure you want to delete "${subject.name}"? This action cannot be undone.`}
+          confirmText="Delete Subject"
+          type="danger"
+          isLoading={isDeletingSubject}
+          onConfirm={handleConfirmDeleteSubject}
+          onCancel={() => !isDeletingSubject && setShowDeleteSubjectModal(false)}
+        />
+
+        <ConfirmModal
+          isOpen={deletingMaterial !== null}
+          title="Delete Material"
+          message={`Delete "${deletingMaterial ? getDisplayFileName(deletingMaterial.title) : ""}"? This cannot be undone.`}
+          confirmText="Delete Material"
+          type="danger"
+          isLoading={isDeletingMaterial}
+          onConfirm={handleConfirmDeleteMaterial}
+          onCancel={() => !isDeletingMaterial && setDeletingMaterial(null)}
+        />
 
         <input
           ref={fileInputRef}
@@ -457,4 +640,4 @@ function SubjectDetail() {
   );
 }
 
-export default SubjectDetail;
+export default SubjectDetail;

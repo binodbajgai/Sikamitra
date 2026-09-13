@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadProfileImage } from "../api/auth";
+import { User, Mail, GraduationCap, Camera, Pencil, ShieldCheck, Sliders } from "lucide-react";
+import AvatarAdjustModal from "../components/AvatarAdjustModal";
 
 function Profile() {
   const { user, setUser } = useAuth();
@@ -10,6 +12,8 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
+  const [adjustImageSrc, setAdjustImageSrc] = useState<string>("");
 
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,21 +34,41 @@ function Profile() {
     }
   }
 
-  async function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      if (src) {
+        setAdjustImageSrc(src);
+        setIsAdjustModalOpen(true);
+      }
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  }
+
+  async function handleSaveCroppedAvatar(file: File) {
     try {
       setSaving(true);
       setMessage("");
       const updatedUser = await uploadProfileImage(file);
       setUser(updatedUser);
-      setMessage("Profile image updated.");
+      setIsAdjustModalOpen(false);
+      setMessage("Profile image updated and perfectly adjusted!");
     } catch (error: any) {
       setMessage(error?.response?.data?.detail || "Unable to update profile image.");
     } finally {
       setSaving(false);
-      event.target.value = "";
+    }
+  }
+
+  function handleOpenAdjustExisting() {
+    if (user?.profile_image) {
+      setAdjustImageSrc(user.profile_image);
+      setIsAdjustModalOpen(true);
     }
   }
 
@@ -75,6 +99,7 @@ function Profile() {
               className="profile-edit-button"
               onClick={() => setEditing((current) => !current)}
             >
+              <Pencil size={15} style={{ marginRight: "5px", verticalAlign: "middle" }} />
               {editing ? "Close edit" : "Edit profile"}
             </button>
           </div>
@@ -103,32 +128,64 @@ function Profile() {
             onChange={handleImageChange}
           />
 
-          <button
-            type="button"
-            className="profile-image-button"
-            onClick={() => imageInputRef.current?.click()}
-            disabled={saving}
-          >
-            Change profile image
-          </button>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", margin: "16px 0" }}>
+            <button
+              type="button"
+              className="profile-image-button"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={saving}
+            >
+              <Camera size={15} style={{ marginRight: "5px", verticalAlign: "middle" }} />
+              Change profile image
+            </button>
+
+            {user?.profile_image && (
+              <button
+                type="button"
+                className="profile-image-button"
+                onClick={handleOpenAdjustExisting}
+                disabled={saving}
+                style={{ background: "transparent", borderColor: "#6366f1", color: "#6366f1" }}
+              >
+                <Sliders size={15} style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                Auto-adjust / Reposition photo
+              </button>
+            )}
+          </div>
+
+          <AvatarAdjustModal
+            isOpen={isAdjustModalOpen}
+            imageSrc={adjustImageSrc}
+            onSave={handleSaveCroppedAvatar}
+            onCancel={() => setIsAdjustModalOpen(false)}
+            saving={saving}
+          />
 
           {message && <p className="profile-message">{message}</p>}
 
           <div className="profile-fields">
             <div className="profile-field">
-              <span>Full name</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <User size={15} color="#6366f1" /> Full name
+              </span>
               <strong>{user?.full_name || "Not provided"}</strong>
             </div>
             <div className="profile-field">
-              <span>Email address</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Mail size={15} color="#6366f1" /> Email address
+              </span>
               <strong>{user?.email || "Not provided"}</strong>
             </div>
             <div className="profile-field">
-              <span>University</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <GraduationCap size={15} color="#6366f1" /> University
+              </span>
               <strong>{user?.university || "Not provided"}</strong>
             </div>
             <div className="profile-field">
-              <span>Account status</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <ShieldCheck size={15} color="#059669" /> Account status
+              </span>
               <strong>{user?.is_active ? "Active" : "Inactive"}</strong>
             </div>
           </div>
@@ -139,4 +196,4 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default Profile;
