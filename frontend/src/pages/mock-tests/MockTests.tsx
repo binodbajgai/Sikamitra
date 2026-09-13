@@ -138,7 +138,7 @@ function MockTests() {
       console.error(err);
       const message =
         err?.response?.data?.detail ||
-        "Failed to create mock test. Ensure questions exist for this subject.";
+        "Failed to create mock test. Add study material with content and try again.";
       setError(message);
     } finally {
       setCreating(false);
@@ -184,8 +184,8 @@ function MockTests() {
             <p className="mock-tests-description">
               Practice an entire subject instead of
               preparing from individual files. Your
-              subject will become the source for your
-              future question bank.
+              subject materials will be used to prepare
+              the question bank when you start a test.
             </p>
           </div>
 
@@ -352,7 +352,7 @@ function MockTests() {
                           ? ""
                           : "s"
                       } in this subject`
-                    : "Questions will eventually be selected from this subject's combined question bank."}
+                    : "Questions will be prepared from this subject's study materials when you start."}
                 </small>
 
               </label>
@@ -517,8 +517,9 @@ function MockTests() {
 
               <p>
                 Create a subject, add your study
-                material to it, and use the generated
-                question bank for practice.
+                material to it, and start practicing.
+                Questions will be generated automatically
+                if you have not created a question bank yet.
               </p>
             </div>
 

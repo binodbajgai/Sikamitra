@@ -25,6 +25,7 @@ from app.repositories.study_material_repository import (
 )
 
 from app.schemas.mock_test import MockTestCreate
+from app.services.ai_service import generate_questions
 
 
 # ============================================================
@@ -137,14 +138,21 @@ def create_subject_test(
             material_id=material.id,
         )
 
+        if not material_questions and material.content:
+            material_questions = generate_questions(
+                db=db,
+                material_id=material.id,
+                content=material.content,
+            )
+
         question_pool.extend(
             material_questions
         )
 
     if not question_pool:
         raise ValueError(
-            "No questions are available for this subject. "
-            "Generate the question banks for its chapters first."
+            "No questions could be prepared for this subject. "
+            "Add study material with content and try again."
         )
 
     if len(question_pool) < test_data.question_count:

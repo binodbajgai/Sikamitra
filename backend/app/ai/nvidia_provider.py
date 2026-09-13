@@ -169,13 +169,13 @@ class NVIDIAProvider(AIProvider):
 
             concepts = self._extract_concepts(chunk)
 
-            if not concepts:
-                continue
-
-            questions = self._generate_questions_from_concepts(
-                chunk,
-                concepts,
-            )
+            if concepts:
+                questions = self._generate_questions_from_concepts(
+                    chunk,
+                    concepts,
+                )
+            else:
+                questions = self._generate_questions_directly(chunk)
 
             print(
                 f"Generated {len(questions)} raw questions "
@@ -209,45 +209,6 @@ class NVIDIAProvider(AIProvider):
                 "source validation."
             )
 
-            # ----------------------------------------------------
-            # Coverage audit
-            # ----------------------------------------------------
-
-            missing = self._find_missing_concepts(
-                chunk,
-                concepts,
-                questions,
-            )
-
-            if missing:
-                print(
-                    f"Coverage check found "
-                    f"{len(missing)} missing concepts."
-                )
-
-                additional_questions = (
-                    self._generate_missing_questions(
-                        chunk,
-                        concepts,
-                        missing,
-                    )
-                )
-
-                additional_questions = (
-                    self._basic_validate_questions(
-                        additional_questions
-                    )
-                )
-
-                additional_questions = (
-                    self._validate_questions_against_source(
-                        chunk,
-                        additional_questions,
-                    )
-                )
-
-                questions.extend(additional_questions)
-
             all_questions.extend(questions)
 
         # --------------------------------------------------------
@@ -277,6 +238,46 @@ class NVIDIAProvider(AIProvider):
         )
 
         return all_questions
+
+    def _generate_questions_directly(
+        self,
+        content: str,
+    ) -> list[dict]:
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Create valid academic multiple-choice questions "
+                        "from the supplied source material only.\n\n"
+                        "Generate one question for each distinct fact or "
+                        "concept you can test confidently. Do not invent "
+                        "facts or rely on outside knowledge.\n\n"
+                        "Every question must have exactly four distinct "
+                        "options and exactly one correct answer.\n"
+                        "Use this format for every question:\n"
+                        "QUESTION: ...\n"
+                        "A: ...\n"
+                        "B: ...\n"
+                        "C: ...\n"
+                        "D: ...\n"
+                        "ANSWER: A\n"
+                        "EXPLANATION: ...\n\n"
+                        "Return only question blocks."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": f"SOURCE MATERIAL:\n{content}",
+                },
+            ],
+            temperature=0.1,
+            max_tokens=5000,
+        )
+
+        result = response.choices[0].message.content
+        return self._parse_questions(result or "")
 
     # ============================================================
     # CONCEPT EXTRACTION
@@ -583,8 +584,9 @@ class NVIDIAProvider(AIProvider):
             return []
 
         validated_questions: list[dict] = []
+        received_validation = False
 
-        batch_size = 20
+        batch_size = 8
 
         for start in range(
             0,
@@ -660,8 +662,8 @@ class NVIDIAProvider(AIProvider):
             result = response.choices[0].message.content
 
             if not result:
-                # Fail safe: reject this validation batch rather than
-                # silently trusting unvalidated questions.
+                # Keep deterministic-valid questions if the validator
+                # returns no response.
                 continue
 
             parsed = self._parse_json_response(result)
@@ -669,12 +671,16 @@ class NVIDIAProvider(AIProvider):
             if not parsed:
                 continue
 
+            received_validation = True
             valid_indexes = parsed.get(
                 "valid",
                 [],
             )
 
             for index in valid_indexes:
+                if isinstance(index, str) and index.isdigit():
+                    index = int(index)
+
                 if not isinstance(index, int):
                     continue
 
@@ -684,6 +690,9 @@ class NVIDIAProvider(AIProvider):
                     validated_questions.append(
                         batch[zero_based]
                     )
+
+        if not received_validation:
+            return questions
 
         return validated_questions
 
@@ -853,76 +862,35 @@ class NVIDIAProvider(AIProvider):
         self,
         text: str,
     ) -> list[dict]:
-
         questions = []
-
-        blocks = re.split(
-            r"(?=QUESTION:\s*)",
-            text,
+        block_pattern = re.compile(
+            r"^\s*QUESTION(?:\s+\d+)?\s*:\s*(?P<question>.*?)"
+            r"^\s*A\s*:\s*(?P<a>.*?)"
+            r"^\s*B\s*:\s*(?P<b>.*?)"
+            r"^\s*C\s*:\s*(?P<c>.*?)"
+            r"^\s*D\s*:\s*(?P<d>.*?)"
+            r"^\s*ANSWER\s*:\s*(?P<answer>[ABCD])\b"
+            r"\s*EXPLANATION\s*:\s*(?P<explanation>.*?)(?="
+            r"^\s*QUESTION(?:\s+\d+)?\s*:|\Z)",
+            flags=re.IGNORECASE | re.MULTILINE | re.DOTALL,
         )
 
-        for block in blocks:
+        for match in block_pattern.finditer(text):
+            values = {
+                key: re.sub(r"\s+", " ", value).strip()
+                for key, value in match.groupdict().items()
+            }
 
-            block = block.strip()
-
-            if not block.startswith("QUESTION:"):
-                continue
-
-            lines = [
-                line.strip()
-                for line in block.splitlines()
-                if line.strip()
-            ]
-
-            question = ""
-            options: dict[str, str] = {}
-            answer = ""
-            explanation = ""
-
-            for line in lines:
-
-                if line.startswith("QUESTION:"):
-                    question = line[
-                        len("QUESTION:"):
-                    ].strip()
-
-                elif line.startswith("A:"):
-                    options["A"] = line[2:].strip()
-
-                elif line.startswith("B:"):
-                    options["B"] = line[2:].strip()
-
-                elif line.startswith("C:"):
-                    options["C"] = line[2:].strip()
-
-                elif line.startswith("D:"):
-                    options["D"] = line[2:].strip()
-
-                elif line.startswith("ANSWER:"):
-                    answer = line[
-                        len("ANSWER:"):
-                    ].strip().upper()
-
-                elif line.startswith("EXPLANATION:"):
-                    explanation = line[
-                        len("EXPLANATION:"):
-                    ].strip()
-
-            if (
-                question
-                and len(options) == 4
-                and answer in {"A", "B", "C", "D"}
-                and explanation
-            ):
+            if all(values.values()):
                 questions.append(
                     {
-                        "question": question,
-                        "option_a": options["A"],
-                        "option_b": options["B"],
-                        "option_c": options["C"],
-                        "option_d": options["D"],
-                        "correct_option": answer,
-                        "explanation": explanation,
+                        "question": values["question"],
+                        "option_a": values["a"],
+                        "option_b": values["b"],
+                        "option_c": values["c"],
+                        "option_d": values["d"],
+                        "correct_option": values["answer"].upper(),
+                        "explanation": values["explanation"],
                     }
                 )
 
