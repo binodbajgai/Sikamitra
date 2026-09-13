@@ -160,7 +160,7 @@ async def upload_document(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_multiple_documents(
-    subject_id: int,
+    subject_id: int = Form(...),
     files: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
