@@ -28,6 +28,11 @@ provider = NVIDIAProvider()
 
 
 def _consume_ai_quota(user_id: int) -> None:
+    if not settings.redis_url:
+        if settings.environment.lower() != "production":
+            return
+        raise RuntimeError("REDIS_URL is not configured")
+
     now = datetime.now(timezone.utc)
     key = f"ai-quota:{user_id}:{now.date().isoformat()}"
     redis = get_sync_redis()

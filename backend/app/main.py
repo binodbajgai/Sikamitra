@@ -88,6 +88,9 @@ async def limit_sensitive_requests(request, call_next):
     )
     if matched_rule is not None:
         prefix, limit, window = matched_rule
+        if not settings.redis_url and settings.environment.lower() != "production":
+            return await call_next(request)
+
         client_host = request.client.host if request.client else "unknown"
         key = f"rate-limit:{prefix}:{client_host}"
         try:

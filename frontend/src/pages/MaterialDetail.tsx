@@ -40,6 +40,32 @@ interface Question {
   created_at: string;
 }
 
+function getApiErrorMessage(
+  error: unknown,
+  fallback: string
+): string {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error
+  ) {
+    const response = (
+      error as {
+        response?: {
+          data?: { detail?: unknown };
+        };
+      }
+    ).response;
+    const detail = response?.data?.detail;
+
+    if (typeof detail === "string" && detail.trim()) {
+      return detail;
+    }
+  }
+
+  return fallback;
+}
+
 function MaterialDetail() {
   const { materialId } = useParams<{
     materialId: string;
@@ -160,9 +186,10 @@ function MaterialDetail() {
     } catch (err) {
       console.error(err);
 
-      setError(
+      setError(getApiErrorMessage(
+        err,
         "Unable to generate the summary."
-      );
+      ));
     } finally {
       setGeneratingSummary(false);
     }
@@ -191,9 +218,10 @@ function MaterialDetail() {
     } catch (err) {
       console.error(err);
 
-      setError(
+      setError(getApiErrorMessage(
+        err,
         "Unable to generate important points."
-      );
+      ));
     } finally {
       setGeneratingPoints(false);
     }
@@ -222,9 +250,10 @@ function MaterialDetail() {
     } catch (err) {
       console.error(err);
 
-      setError(
+      setError(getApiErrorMessage(
+        err,
         "Unable to generate questions."
-      );
+      ));
     } finally {
       setGeneratingQuestions(false);
     }
