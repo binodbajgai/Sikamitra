@@ -691,7 +691,7 @@ class NVIDIAProvider(AIProvider):
                         batch[zero_based]
                     )
 
-        if not received_validation:
+        if not received_validation or not validated_questions:
             return questions
 
         return validated_questions
