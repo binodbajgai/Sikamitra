@@ -7250,28 +7250,27 @@ body {
   top: calc(100% + 14px);
   right: 0;
   z-index: 120;
-  width: 248px;
-  padding: 8px;
-  border: 1px solid color-mix(in srgb, var(--color-border) 88%, white);
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--color-surface-elevated) 96%, white);
+  width: 190px;
+  padding: 5px;
+  border: 1px solid #27272a;
+  border-radius: 10px;
+  background: #09090b;
   box-shadow:
-    0 20px 44px rgba(15, 23, 42, 0.13),
-    0 3px 10px rgba(15, 23, 42, 0.05);
-  backdrop-filter: blur(14px);
+    0 16px 34px rgba(0, 0, 0, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .profile-menu-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 11px;
-  min-height: 54px;
-  padding: 9px 10px;
+  gap: 8px;
+  min-height: 34px;
+  padding: 7px 6px 7px 8px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 6px;
   background: transparent;
-  color: var(--color-text-primary);
+  color: #f4f4f5;
   cursor: pointer;
   text-align: left;
   text-decoration: none;
@@ -7283,37 +7282,36 @@ body {
 
 .profile-menu-item:hover,
 .profile-menu-item:focus-visible {
-  background: var(--color-surface-alt);
-  color: var(--color-text-primary);
+  background: #18181b;
+  color: #ffffff;
   outline: none;
   transform: translateX(1px);
 }
 
 .profile-menu-item:focus-visible {
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.7);
 }
 
 .profile-menu-icon {
-  width: 32px;
-  height: 32px;
+  order: 2;
+  width: 17px;
+  height: 17px;
   display: grid;
-  flex: 0 0 32px;
+  flex: 0 0 17px;
+  margin-left: auto;
   place-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: 9px;
-  background: var(--color-surface-elevated);
-  color: var(--color-text-secondary);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #a1a1aa;
   transition:
-    background-color 160ms ease,
     color 160ms ease,
-    border-color 160ms ease;
+    opacity 160ms ease;
 }
 
 .profile-menu-item:hover .profile-menu-icon,
 .profile-menu-item:focus-visible .profile-menu-icon {
-  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
+  color: #d4d4d8;
 }
 
 .profile-menu-copy {
@@ -7321,52 +7319,48 @@ body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 3px;
+  order: 1;
 }
 
 .profile-menu-item strong {
   color: inherit;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
   line-height: 1.2;
 }
 
 .profile-menu-item small {
-  color: var(--color-text-secondary);
+  color: #a1a1aa;
   font-size: 10px;
   font-weight: 500;
   line-height: 1.25;
 }
 
 .profile-menu-logout {
-  margin-top: 7px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border-top: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-danger);
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #27272a;
+  border-radius: 6px;
+  color: #f87171;
 }
 
 .profile-menu-logout .profile-menu-icon {
-  border-color: color-mix(in srgb, var(--color-danger) 18%, var(--color-border));
-  color: var(--color-danger);
+  color: #f87171;
 }
 
 .profile-menu-logout small {
-  color: color-mix(in srgb, var(--color-danger) 72%, var(--color-text-secondary));
+  color: #f87171;
 }
 
 .profile-menu-logout:hover,
 .profile-menu-logout:focus-visible {
-  color: var(--color-danger);
-  background: color-mix(in srgb, var(--color-danger) 7%, var(--color-surface-elevated));
+  color: #fca5a5;
+  background: rgba(127, 29, 29, 0.3);
 }
 
 .profile-menu-logout:hover .profile-menu-icon,
 .profile-menu-logout:focus-visible .profile-menu-icon {
-  border-color: color-mix(in srgb, var(--color-danger) 28%, var(--color-border));
-  background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface-elevated));
-  color: var(--color-danger);
+  color: #fca5a5;
 }
 
 .materials-page,
@@ -8710,4 +8704,3 @@ button:not(.profile-menu-item):not(.user-account-link):not(.notification-button)
   border-color: #818cf8;
   color: #4f46e5;
 }
-

@@ -135,7 +135,6 @@ function AppShell({
                     </span>
                     <span className="profile-menu-copy">
                       <strong>Profile</strong>
-                      <small>View and edit your account</small>
                     </span>
                   </NavLink>
 
@@ -150,7 +149,6 @@ function AppShell({
                     </span>
                     <span className="profile-menu-copy">
                       <strong>Settings</strong>
-                      <small>Manage your preferences</small>
                     </span>
                   </NavLink>
 
@@ -165,7 +163,6 @@ function AppShell({
                     </span>
                     <span className="profile-menu-copy">
                       <strong>Log out</strong>
-                      <small>Sign out of this device</small>
                     </span>
                   </button>
                 </div>
