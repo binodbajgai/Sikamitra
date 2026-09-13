@@ -521,7 +521,7 @@ function Materials() {
                 return (
                   <Link
                     key={subject.id}
-                    to={`/study-materials/subject/${subject.id}`}
+                    to={`/materials/subjects/${subject.id}`}
                     className="subject-card"
                   >
                     <div className="subject-card-top">
