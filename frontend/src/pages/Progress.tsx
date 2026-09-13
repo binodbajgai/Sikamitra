@@ -8,6 +8,7 @@ import {
 import {
   Award,
   CheckCircle2,
+  Clock,
   BarChart3,
 } from "lucide-react";
 
