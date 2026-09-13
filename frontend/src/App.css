@@ -7247,30 +7247,38 @@ body {
 
 .profile-menu {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 14px);
   right: 0;
   z-index: 120;
-  width: 220px;
-  padding: 7px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface-elevated);
-  box-shadow: 0 14px 30px var(--color-shadow-strong);
+  width: 248px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 88%, white);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--color-surface-elevated) 96%, white);
+  box-shadow:
+    0 20px 44px rgba(15, 23, 42, 0.13),
+    0 3px 10px rgba(15, 23, 42, 0.05);
+  backdrop-filter: blur(14px);
 }
 
 .profile-menu-item {
   width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 10px 11px;
+  align-items: center;
+  gap: 11px;
+  min-height: 54px;
+  padding: 9px 10px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
   color: var(--color-text-primary);
   cursor: pointer;
   text-align: left;
   text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .profile-menu-item:hover,
@@ -7278,27 +7286,86 @@ body {
   background: var(--color-surface-alt);
   color: var(--color-text-primary);
   outline: none;
+  transform: translateX(1px);
+}
+
+.profile-menu-item:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.profile-menu-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  flex: 0 0 32px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.profile-menu-item:hover .profile-menu-icon,
+.profile-menu-item:focus-visible .profile-menu-icon {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.profile-menu-copy {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .profile-menu-item strong {
-  font-size: 12px;
+  color: inherit;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
-.profile-menu-item span {
+.profile-menu-item small {
   color: var(--color-text-secondary);
   font-size: 10px;
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 .profile-menu-logout {
-  margin-top: 4px;
+  margin-top: 7px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   border-top: 1px solid var(--color-border);
   border-radius: 8px;
   color: var(--color-danger);
 }
 
+.profile-menu-logout .profile-menu-icon {
+  border-color: color-mix(in srgb, var(--color-danger) 18%, var(--color-border));
+  color: var(--color-danger);
+}
+
+.profile-menu-logout small {
+  color: color-mix(in srgb, var(--color-danger) 72%, var(--color-text-secondary));
+}
+
 .profile-menu-logout:hover,
 .profile-menu-logout:focus-visible {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 7%, var(--color-surface-elevated));
+}
+
+.profile-menu-logout:hover .profile-menu-icon,
+.profile-menu-logout:focus-visible .profile-menu-icon {
+  border-color: color-mix(in srgb, var(--color-danger) 28%, var(--color-border));
+  background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface-elevated));
   color: var(--color-danger);
 }
 
@@ -8643,5 +8710,4 @@ button:not(.profile-menu-item):not(.user-account-link):not(.notification-button)
   border-color: #818cf8;
   color: #4f46e5;
 }
-
 

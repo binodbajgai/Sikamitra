@@ -130,10 +130,13 @@ function AppShell({
                     role="menuitem"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
-                    <User size={16} style={{ marginRight: "8px" }} />
-                    <div>
+                    <span className="profile-menu-icon" aria-hidden="true">
+                      <User size={16} strokeWidth={1.9} />
+                    </span>
+                    <span className="profile-menu-copy">
                       <strong>Profile</strong>
-                    </div>
+                      <small>View and edit your account</small>
+                    </span>
                   </NavLink>
 
                   <NavLink
@@ -142,10 +145,13 @@ function AppShell({
                     role="menuitem"
                     onClick={() => setIsProfileMenuOpen(false)}
                   >
-                    <SettingsIcon size={16} style={{ marginRight: "8px" }} />
-                    <div>
+                    <span className="profile-menu-icon" aria-hidden="true">
+                      <SettingsIcon size={16} strokeWidth={1.9} />
+                    </span>
+                    <span className="profile-menu-copy">
                       <strong>Settings</strong>
-                    </div>
+                      <small>Manage your preferences</small>
+                    </span>
                   </NavLink>
 
                   <button
@@ -154,10 +160,13 @@ function AppShell({
                     role="menuitem"
                     onClick={handleLogout}
                   >
-                    <LogOut size={16} style={{ marginRight: "8px" }} />
-                    <div>
+                    <span className="profile-menu-icon" aria-hidden="true">
+                      <LogOut size={16} strokeWidth={1.9} />
+                    </span>
+                    <span className="profile-menu-copy">
                       <strong>Log out</strong>
-                    </div>
+                      <small>Sign out of this device</small>
+                    </span>
                   </button>
                 </div>
               )}
@@ -167,7 +176,7 @@ function AppShell({
                 className="user-menu-button"
                 aria-expanded={isProfileMenuOpen}
                 aria-haspopup="menu"
-                aria-label="Open account menu"
+                aria-label={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
                 onClick={() => setIsProfileMenuOpen((current) => !current)}
                 title={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
               >
