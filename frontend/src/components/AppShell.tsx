@@ -133,7 +133,6 @@ function AppShell({
                     <User size={16} style={{ marginRight: "8px" }} />
                     <div>
                       <strong>Profile</strong>
-                      <span>View your account</span>
                     </div>
                   </NavLink>
 
@@ -146,7 +145,6 @@ function AppShell({
                     <SettingsIcon size={16} style={{ marginRight: "8px" }} />
                     <div>
                       <strong>Settings</strong>
-                      <span>Manage your account</span>
                     </div>
                   </NavLink>
 
@@ -159,7 +157,6 @@ function AppShell({
                     <LogOut size={16} style={{ marginRight: "8px" }} />
                     <div>
                       <strong>Log out</strong>
-                      <span>End this session</span>
                     </div>
                   </button>
                 </div>
