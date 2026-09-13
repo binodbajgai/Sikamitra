@@ -12,7 +12,7 @@ import {
 
 import {
   deleteStudyMaterial,
-  uploadStudyMaterial,
+  uploadMultipleStudyMaterials,
   type StudyMaterial,
 } from "../../api/studyMaterials.ts";
 
@@ -224,11 +224,12 @@ function SubjectDetail() {
     }, [materials, search]);
 
 
-  async function handleFile(file?: File) {
-    if (!file || !subject) {
+  async function handleFiles(selectedFiles: FileList | null) {
+    if (!selectedFiles || !subject || selectedFiles.length === 0) {
       return;
     }
 
+    const files = Array.from(selectedFiles);
     const validExtensions = [
       ".pdf",
       ".docx",
@@ -239,18 +240,14 @@ function SubjectDetail() {
       ".jpeg",
     ];
 
-    const name =
-      file.name.toLowerCase();
+    const invalidFile = files.find((file) => {
+      const name = file.name.toLowerCase();
+      return !validExtensions.some((extension) => name.endsWith(extension));
+    });
 
-    const valid =
-      validExtensions.some(
-        (extension) =>
-          name.endsWith(extension)
-      );
-
-    if (!valid) {
+    if (invalidFile) {
       setError(
-        "Please upload a TXT, PDF, DOCX, PPTX, PNG, JPG, or JPEG file."
+        `${invalidFile.name}: please upload a TXT, PDF, DOCX, PPTX, PNG, JPG, or JPEG file.`
       );
       return;
     }
@@ -259,11 +256,11 @@ function SubjectDetail() {
       setUploading(true);
       setError("");
 
-      const material =
-        await uploadStudyMaterial(file, subject.id);
+      const materials =
+        await uploadMultipleStudyMaterials(files, subject.id);
 
       setMaterials((current) => [
-        material,
+        ...materials,
         ...current,
       ]);
     } catch (err) {
@@ -654,11 +651,10 @@ function SubjectDetail() {
           ref={fileInputRef}
           type="file"
           hidden
+          multiple
           accept=".txt,.pdf,.docx,.pptx,.png,.jpg,.jpeg"
           onChange={(event) =>
-            void handleFile(
-              event.target.files?.[0]
-            )
+            void handleFiles(event.target.files)
           }
         />
 

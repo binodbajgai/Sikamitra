@@ -78,6 +78,34 @@ export async function uploadStudyMaterial(
 }
 
 
+export async function uploadMultipleStudyMaterials(
+  files: File[],
+  subjectId: number
+): Promise<StudyMaterial[]> {
+  const formData = new FormData();
+
+  formData.append(
+    "subject_id",
+    String(subjectId)
+  );
+
+  files.forEach((file) => {
+    formData.append(
+      "files",
+      file
+    );
+  });
+
+  const response =
+    await apiClient.post<StudyMaterial[]>(
+      "/study-materials/upload-multiple",
+      formData
+    );
+
+  return response.data;
+}
+
+
 export async function deleteStudyMaterial(
   materialId:number
 ):Promise<void>{
