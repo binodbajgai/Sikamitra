@@ -245,4 +245,5 @@ cd backend
 
 ## Screenshots or demo
 
-[Add screenshots/GIF of the app here]
+<img width="1105" height="961" alt="image" src="https://github.com/user-attachments/assets/57182620-f3c8-4362-8bda-4587c091bf30" />
+
