@@ -7250,27 +7250,25 @@ body {
   top: calc(100% + 14px);
   right: 0;
   z-index: 120;
-  width: 190px;
-  padding: 5px;
-  border: 1px solid #27272a;
-  border-radius: 10px;
-  background: #09090b;
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.28),
-    0 2px 8px rgba(0, 0, 0, 0.18);
+  width: 200px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
 }
 
 .profile-menu-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  padding: 7px 6px 7px 8px;
+  gap: 10px;
+  min-height: 38px;
+  padding: 8px 9px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: #f4f4f5;
+  color: var(--color-text-primary);
   cursor: pointer;
   text-align: left;
   text-decoration: none;
@@ -7282,28 +7280,23 @@ body {
 
 .profile-menu-item:hover,
 .profile-menu-item:focus-visible {
-  background: #18181b;
-  color: #ffffff;
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
   outline: none;
   transform: translateX(1px);
 }
 
 .profile-menu-item:focus-visible {
-  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.7);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .profile-menu-icon {
-  order: 2;
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   display: grid;
-  flex: 0 0 17px;
-  margin-left: auto;
+  flex: 0 0 18px;
   place-items: center;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #a1a1aa;
+  color: var(--color-text-secondary);
   transition:
     color 160ms ease,
     opacity 160ms ease;
@@ -7311,7 +7304,7 @@ body {
 
 .profile-menu-item:hover .profile-menu-icon,
 .profile-menu-item:focus-visible .profile-menu-icon {
-  color: #d4d4d8;
+  color: var(--color-accent-strong);
 }
 
 .profile-menu-copy {
@@ -7319,18 +7312,17 @@ body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  order: 1;
 }
 
 .profile-menu-item strong {
   color: inherit;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   line-height: 1.2;
 }
 
 .profile-menu-item small {
-  color: #a1a1aa;
+  color: var(--color-text-secondary);
   font-size: 10px;
   font-weight: 500;
   line-height: 1.25;
@@ -7339,28 +7331,28 @@ body {
 .profile-menu-logout {
   margin-top: 4px;
   padding-top: 8px;
-  border-top: 1px solid #27272a;
-  border-radius: 6px;
-  color: #f87171;
+  border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
 }
 
 .profile-menu-logout .profile-menu-icon {
-  color: #f87171;
+  color: var(--color-danger);
 }
 
 .profile-menu-logout small {
-  color: #f87171;
+  color: var(--color-danger);
 }
 
 .profile-menu-logout:hover,
 .profile-menu-logout:focus-visible {
-  color: #fca5a5;
-  background: rgba(127, 29, 29, 0.3);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
 }
 
 .profile-menu-logout:hover .profile-menu-icon,
 .profile-menu-logout:focus-visible .profile-menu-icon {
-  color: #fca5a5;
+  color: var(--color-danger);
 }
 
 .materials-page,
