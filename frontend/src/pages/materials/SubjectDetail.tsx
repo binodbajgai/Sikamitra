@@ -40,6 +40,32 @@ import {
 } from "lucide-react";
 import ConfirmModal from "../../components/ConfirmModal";
 
+function getApiErrorMessage(
+  error: unknown,
+  fallback: string
+): string {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error
+  ) {
+    const response = (
+      error as {
+        response?: {
+          data?: { detail?: unknown };
+        };
+      }
+    ).response;
+    const detail = response?.data?.detail;
+
+    if (typeof detail === "string" && detail.trim()) {
+      return detail;
+    }
+  }
+
+  return fallback;
+}
+
 function SubjectDetail() {
   const { subjectId } =
     useParams<{ subjectId: string }>();
@@ -242,7 +268,10 @@ function SubjectDetail() {
       ]);
     } catch (err) {
       console.error(err);
-      setError("Unable to add this material.");
+      setError(getApiErrorMessage(
+        err,
+        "Unable to add this material."
+      ));
     } finally {
       setUploading(false);
       if (fileInputRef.current) {

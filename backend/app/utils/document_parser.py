@@ -80,8 +80,13 @@ async def extract_text(file: UploadFile) -> str:
 
         pages = []
 
-        for page in reader.pages:
-            text = page.extract_text()
+        for page_number, page in enumerate(reader.pages, start=1):
+            try:
+                text = page.extract_text()
+            except Exception as exc:
+                raise ValueError(
+                    f"Could not extract text from PDF page {page_number}: {exc}"
+                ) from exc
 
             if text:
                 pages.append(text.strip())
