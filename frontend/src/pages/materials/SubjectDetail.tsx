@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import {
+  createTextStudyMaterial,
   deleteStudyMaterial,
   uploadMultipleStudyMaterials,
   type StudyMaterial,
@@ -85,6 +86,18 @@ function SubjectDetail() {
     useState(true);
 
   const [uploading, setUploading] =
+    useState(false);
+
+  const [isAddingText, setIsAddingText] =
+    useState(false);
+
+  const [textTitle, setTextTitle] =
+    useState("");
+
+  const [textContent, setTextContent] =
+    useState("");
+
+  const [savingText, setSavingText] =
     useState(false);
 
   const [error, setError] =
@@ -215,13 +228,60 @@ function SubjectDetail() {
       }
 
       return materials.filter((material) =>
-        [material.title, material.file_name]
+        [material.title, material.file_name, material.content]
           .filter(Boolean)
           .some((field) =>
             String(field).toLowerCase().includes(value)
           )
       );
     }, [materials, search]);
+
+  function closeTextModal() {
+    if (savingText) {
+      return;
+    }
+
+    setIsAddingText(false);
+    setTextTitle("");
+    setTextContent("");
+  }
+
+  async function handleCreateTextMaterial(event: React.FormEvent) {
+    event.preventDefault();
+
+    if (!subject) {
+      return;
+    }
+
+    const title = textTitle.trim();
+    const content = textContent.trim();
+
+    if (!title || !content) {
+      setError("Add a title and some text before saving.");
+      return;
+    }
+
+    try {
+      setSavingText(true);
+      setError("");
+
+      const material = await createTextStudyMaterial(
+        title,
+        content,
+        subject.id
+      );
+
+      setMaterials((current) => [material, ...current]);
+      setIsAddingText(false);
+      setTextTitle("");
+      setTextContent("");
+    } catch (err) {
+      console.error(err);
+      setError(getApiErrorMessage(err, "Unable to save pasted text."));
+    } finally {
+      setSavingText(false);
+    }
+  }
 
 
   async function handleFiles(selectedFiles: FileList | null) {
@@ -439,6 +499,15 @@ function SubjectDetail() {
                 : "Add material"}
             </button>
 
+            <button
+              type="button"
+              className="subject-cancel-button"
+              onClick={() => setIsAddingText(true)}
+              disabled={uploading || savingText}
+            >
+              Paste text
+            </button>
+
           </div>
 
         </section>
@@ -474,6 +543,14 @@ function SubjectDetail() {
             >
               <Plus size={16} />
               Add material
+            </button>
+
+            <button
+              type="button"
+              className="subject-cancel-button"
+              onClick={() => setIsAddingText(true)}
+            >
+              Paste text
             </button>
 
           </div>
@@ -618,6 +695,76 @@ function SubjectDetail() {
                     disabled={savingEdit}
                   >
                     {savingEdit ? "Saving..." : "Save changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {isAddingText && (
+          <div
+            className="sikamitra-modal-overlay"
+            onClick={closeTextModal}
+          >
+            <div
+              className="sikamitra-modal-card"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="sikamitra-modal-header">
+                <h3>Paste text</h3>
+                <button
+                  type="button"
+                  className="sikamitra-modal-close"
+                  onClick={closeTextModal}
+                  disabled={savingText}
+                  aria-label="Close paste text dialog"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateTextMaterial}>
+                <div className="sikamitra-modal-body">
+                  <label>
+                    Title
+                    <input
+                      type="text"
+                      required
+                      value={textTitle}
+                      onChange={(event) => setTextTitle(event.target.value)}
+                      placeholder="e.g. Chapter 1 notes"
+                      autoFocus
+                    />
+                  </label>
+
+                  <label>
+                    Text
+                    <textarea
+                      rows={10}
+                      required
+                      value={textContent}
+                      onChange={(event) => setTextContent(event.target.value)}
+                      placeholder="Paste your notes here..."
+                    />
+                  </label>
+                </div>
+
+                <div className="sikamitra-modal-footer">
+                  <button
+                    type="button"
+                    className="subject-cancel-button"
+                    onClick={closeTextModal}
+                    disabled={savingText}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="subjects-create-button"
+                    disabled={savingText}
+                  >
+                    {savingText ? "Saving..." : "Save text"}
                   </button>
                 </div>
               </form>

@@ -45,6 +45,21 @@ export async function getStudyMaterial(
   return response.data;
 }
 
+export async function createTextStudyMaterial(
+  title: string,
+  content: string,
+  subjectId: number
+): Promise<StudyMaterial> {
+  const response = await apiClient.post<StudyMaterial>("/study-materials/", {
+    title,
+    source_type: "text",
+    subject_id: subjectId,
+    content,
+  });
+
+  return response.data;
+}
+
 
 export async function uploadStudyMaterial(
   file: File,
