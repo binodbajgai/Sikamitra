@@ -2788,6 +2788,18 @@ body {
   color: #ffffff !important;
 }
 
+/* Reset outer dashboard-section container to prevent box-inside-box nesting */
+.dashboard-section {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.dashboard-section::before {
+  display: none !important;
+}
+
 /* ==========================================================
    COMPREHENSIVE RESPONSIVE STYLES (TABLETS & MOBILE PHONES)
    ========================================================== */
