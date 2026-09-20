@@ -2142,11 +2142,29 @@ select {
   outline: none !important;
 }
 
+/* Prevent double-box / nested border inside search bars */
+.subjects-search input,
+.materials-search input,
+.subjects-search input[type="search"],
+.materials-search input[type="search"] {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
 input:focus,
 textarea:focus,
 select:focus {
   border-color: #4f46e5 !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+.subjects-search input:focus,
+.materials-search input:focus {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* Tags, Pills & Badges */

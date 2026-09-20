@@ -433,7 +433,7 @@ function Materials() {
 
             <input
               type="search"
-              placeholder="Search your materials..."
+              placeholder="Search..."
               value={search}
               onChange={(event) =>
                 setSearch(
