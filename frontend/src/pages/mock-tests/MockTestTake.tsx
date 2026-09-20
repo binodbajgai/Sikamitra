@@ -8,6 +8,7 @@ import {
   type MockTestReview,
 } from "../../api/mockTests";
 import ConfirmModal from "../../components/ConfirmModal";
+import { CheckCircle2, XCircle, AlertCircle, HelpCircle } from "lucide-react";
 
 function MockTestTake() {
   const [searchParams] = useSearchParams();
@@ -247,6 +248,12 @@ function MockTestTake() {
               {review.questions.map((question, index) => {
                 const isCorrect = question.is_correct;
                 const isUnanswered = !question.selected_option;
+                const options = [
+                  { key: "A", text: question.option_a },
+                  { key: "B", text: question.option_b },
+                  { key: "C", text: question.option_c },
+                  { key: "D", text: question.option_d },
+                ];
 
                 return (
                   <article
@@ -261,56 +268,68 @@ function MockTestTake() {
                     ].join(" ")}
                   >
                     <div className="mock-test-review-top">
-                      <span>
+                      <span className="review-q-badge">
                         Question {String(index + 1).padStart(2, "0")}
                       </span>
-                      <strong>
-                        {isCorrect
-                          ? "Correct"
-                          : isUnanswered
-                          ? "Unanswered"
-                          : "Incorrect"}
+                      <strong className={`review-status-pill ${isCorrect ? "status-correct" : isUnanswered ? "status-unanswered" : "status-incorrect"}`}>
+                        {isCorrect ? (
+                          <>
+                            <CheckCircle2 size={14} /> Correct (+1)
+                          </>
+                        ) : isUnanswered ? (
+                          <>
+                            <AlertCircle size={14} /> Unanswered
+                          </>
+                        ) : (
+                          <>
+                            <XCircle size={14} /> Incorrect
+                          </>
+                        )}
                       </strong>
                     </div>
 
-                    <h3>{question.question}</h3>
+                    <h3 className="review-question-text">{question.question}</h3>
 
-                    <div className="mock-test-review-answers">
-                      <div className="review-answer-row">
-                        <span>Your answer</span>
-                        <strong>
-                          {question.selected_option
-                            ? `${question.selected_option}: ${
-                                question.selected_option === "A"
-                                  ? question.option_a
-                                  : question.selected_option === "B"
-                                  ? question.option_b
-                                  : question.selected_option === "C"
-                                  ? question.option_c
-                                  : question.option_d
-                              }`
-                            : "Not answered"}
-                        </strong>
-                      </div>
+                    <div className="review-options-grid">
+                      {options.map((opt) => {
+                        const isSelected = question.selected_option === opt.key;
+                        const isRightOption = question.correct_option === opt.key;
 
-                      <div className="review-answer-row correct-answer">
-                        <span>Correct answer</span>
-                        <strong>
-                          {question.correct_option}:{" "}
-                          {question.correct_option === "A"
-                            ? question.option_a
-                            : question.correct_option === "B"
-                            ? question.option_b
-                            : question.correct_option === "C"
-                            ? question.option_c
-                            : question.option_d}
-                        </strong>
-                      </div>
+                        let optClass = "review-option-pill";
+                        if (isRightOption && isSelected) {
+                          optClass += " is-correct-selected";
+                        } else if (isRightOption) {
+                          optClass += " is-correct-target";
+                        } else if (isSelected) {
+                          optClass += " is-wrong-selected";
+                        }
+
+                        return (
+                          <div key={opt.key} className={optClass}>
+                            <div className="review-opt-key">{opt.key}</div>
+                            <div className="review-opt-text">{opt.text}</div>
+                            <div className="review-opt-tags">
+                              {isSelected && (
+                                <span className={`review-tag ${isRightOption ? "tag-correct" : "tag-wrong"}`}>
+                                  Your answer {isRightOption ? "✓" : "✗"}
+                                </span>
+                              )}
+                              {isRightOption && !isSelected && (
+                                <span className="review-tag tag-target">
+                                  Correct answer ✓
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {question.explanation && (
                       <div className="mock-test-review-explanation">
-                        <span>Why</span>
+                        <div className="explanation-header">
+                          <HelpCircle size={15} /> Explanation
+                        </div>
                         <p>{question.explanation}</p>
                       </div>
                     )}
