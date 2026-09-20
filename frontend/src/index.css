@@ -22,12 +22,14 @@ html {
   min-width: 320px;
   min-height: 100%;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   background-color: #ebf1f8;
   background-image:
     radial-gradient(1000px circle at 80% -10%, rgba(99, 102, 241, 0.22), transparent 60%),
@@ -1017,18 +1019,33 @@ img {
   }
 
   .navbar-inner {
-    width: calc(100% - 32px);
-    min-height: 68px;
+    width: calc(100% - 24px);
+    min-height: 60px;
     flex-wrap: wrap;
-    padding: 10px 0;
+    padding: 8px 0;
+    gap: 12px;
   }
 
   .main-navigation {
     order: 3;
     width: 100%;
     overflow-x: auto;
-    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
     gap: 4px;
+    display: flex;
+  }
+
+  .main-navigation::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .nav-item.active::after {
@@ -1869,18 +1886,63 @@ img {
   .landing-nav-links {
     display: none;
   }
+  .landing-nav-inner {
+    width: calc(100% - 24px);
+  }
+  .landing-hero {
+    padding: 120px 0 60px;
+  }
+  .landing-hero .landing-container {
+    width: calc(100% - 24px);
+  }
+  .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 12px;
+  }
+  .hero-cta-btn,
+  .hero-secondary-btn {
+    width: 100%;
+    justify-content: center;
+  }
   .features-grid,
   .steps-row,
   .preview-grid {
     grid-template-columns: 1fr;
   }
-  .hero-cta-group {
-    flex-direction: column;
-  }
   .footer-inner {
     flex-direction: column;
     gap: 20px;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-nav {
+    height: 64px;
+  }
+  .landing-nav-actions .btn-text {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .landing-nav-actions .btn-primary-gradient {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .landing-hero {
+    padding: 100px 0 40px;
+  }
+  .hero-card-preview {
+    padding: 16px;
+  }
+  .feature-card {
+    padding: 24px;
+  }
+  .cta-banner-content {
+    padding: 40px 20px;
   }
 }
 
@@ -2663,4 +2725,375 @@ body {
 .hero-preview-card *,
 .hero-glass-card * {
   color: #ffffff !important;
+}
+
+/* ==========================================================
+   COMPREHENSIVE RESPONSIVE STYLES (TABLETS & MOBILE PHONES)
+   ========================================================== */
+
+/* TABLET BREAKPOINT (max-width: 900px) */
+@media (max-width: 900px) {
+  /* Ensure page-level containers use full width with appropriate padding */
+  .materials-container,
+  .mock-tests-container,
+  .mock-test-container,
+  .subjects-container,
+  .subject-detail-container,
+  .material-detail-container,
+  .profile-container,
+  .progress-container,
+  .dashboard-page {
+    width: calc(100% - 32px) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Header adjustments */
+  .materials-header,
+  .subjects-header,
+  .mock-tests-header,
+  .subject-detail-header,
+  .material-detail-header,
+  .profile-header,
+  .progress-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  /* Toolbar adjustments */
+  .subjects-toolbar,
+  .materials-toolbar,
+  .subject-material-toolbar,
+  .mock-tests-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+
+  .subjects-search,
+  .materials-search {
+    width: 100% !important;
+  }
+
+  /* Grid adjustments for tablets: 2 columns */
+  .materials-grid,
+  .subjects-grid,
+  .mock-tests-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  /* Progress stats */
+  .progress-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  /* Material Detail layout */
+  .material-detail-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .material-detail-actions {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* MOBILE PHONES (max-width: 640px) */
+@media (max-width: 640px) {
+  /* Topbar & Navbar */
+  .app-shell {
+    --top-navbar-height: 110px !important;
+  }
+
+  .top-navbar {
+    height: var(--top-navbar-height) !important;
+  }
+
+  .navbar-inner {
+    width: calc(100% - 20px) !important;
+    padding: 6px 0 !important;
+    gap: 8px !important;
+  }
+
+  .brand-name {
+    font-size: 16px !important;
+  }
+
+  .brand-tagline {
+    display: none !important;
+  }
+
+  .brand-mark {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 16px !important;
+  }
+
+  .user-name {
+    max-width: 80px !important;
+  }
+
+  .user-label {
+    display: none !important;
+  }
+
+  .main-navigation {
+    order: 3 !important;
+    width: 100% !important;
+    gap: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .nav-item {
+    padding: 5px 10px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .app-main {
+    padding-top: var(--top-navbar-height) !important;
+  }
+
+  /* Page containers */
+  .dashboard-page,
+  .materials-page,
+  .mock-tests-page,
+  .mock-test-page,
+  .subjects-page,
+  .subject-detail-page,
+  .material-detail-page,
+  .profile-page,
+  .progress-page,
+  .settings-page {
+    padding: 16px 0 60px !important;
+  }
+
+  .materials-container,
+  .mock-tests-container,
+  .mock-test-container,
+  .subjects-container,
+  .subject-detail-container,
+  .material-detail-container,
+  .profile-container,
+  .progress-container,
+  .dashboard-page {
+    width: calc(100% - 24px) !important;
+  }
+
+  /* Headings size on mobile */
+  .materials-header h1,
+  .mock-tests-header h1,
+  .subjects-header h1,
+  .subject-detail-header h1,
+  .material-detail-header h1,
+  .progress-header h1,
+  .profile-header h1 {
+    font-size: 26px !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  /* Single column grids on mobile */
+  .materials-grid,
+  .subjects-grid,
+  .mock-tests-grid,
+  .quick-actions,
+  .overview-grid,
+  .progress-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Dashboard hero banner on mobile */
+  .dashboard-hero {
+    padding: 24px 20px !important;
+    border-radius: 18px !important;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 28px !important;
+  }
+
+  .dashboard-hero p {
+    font-size: 14px !important;
+  }
+
+  .hero-decoration {
+    display: none !important;
+  }
+
+  /* Cards on mobile */
+  .action-card,
+  .overview-card,
+  .materials-card,
+  .subject-card,
+  .mock-test-card,
+  .profile-card,
+  .settings-card {
+    padding: 18px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Buttons & Action Bars */
+  .subjects-create-button,
+  .materials-primary-action,
+  .materials-upload-button,
+  .mock-tests-create-button,
+  .mock-test-submit-button,
+  .profile-save-button,
+  .subject-create-button {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 12px 16px !important;
+  }
+
+  .subject-material-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  /* Mock test taking interface on mobile */
+  .mock-test-topbar {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+
+  .mock-test-question-card {
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .mock-test-question-card h1 {
+    font-size: 18px !important;
+    line-height: 1.4 !important;
+  }
+
+  .mock-test-option {
+    padding: 12px 14px !important;
+    font-size: 14px !important;
+  }
+
+  .mock-test-navigation {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .mock-test-navigation-secondary,
+  .mock-test-navigation-primary {
+    flex: 1 !important;
+    min-width: 120px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .mock-test-dots {
+    order: -1 !important;
+    width: 100% !important;
+    justify-content: center !important;
+    margin-bottom: 8px !important;
+    overflow-x: auto !important;
+    padding: 4px 0 !important;
+  }
+
+  /* Mock test score card on mobile */
+  .mock-test-score-card {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 24px 16px !important;
+  }
+
+  .mock-test-score-details {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .mock-test-result-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .mock-test-result-actions a,
+  .mock-test-result-actions button {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* Modals on mobile */
+  .sikamitra-modal-card {
+    width: calc(100% - 24px) !important;
+    max-width: 100% !important;
+    margin: 12px auto !important;
+    border-radius: 16px !important;
+  }
+
+  .sikamitra-modal-header,
+  .sikamitra-modal-body,
+  .sikamitra-modal-footer {
+    padding: 14px 16px !important;
+  }
+
+  .sikamitra-confirm-body {
+    padding: 16px !important;
+  }
+
+  .avatar-adjust-canvas-box {
+    width: 220px !important;
+    height: 220px !important;
+  }
+
+  .avatar-adjust-canvas-box canvas {
+    width: 220px !important;
+    height: 220px !important;
+  }
+
+  /* Auth forms on mobile */
+  .auth-content {
+    padding: 24px 18px !important;
+    border-radius: 18px !important;
+  }
+
+  .auth-page {
+    padding: 20px 12px !important;
+  }
+
+  .auth-content h1 {
+    font-size: 22px !important;
+  }
+
+  /* Profile page on mobile */
+  .profile-card-heading {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 14px !important;
+  }
+
+  .profile-edit-button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .profile-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .settings-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .settings-row select,
+  .settings-row input[type="text"],
+  .settings-row input[type="checkbox"] {
+    align-self: flex-start !important;
+  }
 }
