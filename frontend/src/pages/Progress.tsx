@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   getMockTestAttemptHistory,
   getMockTests,
@@ -10,6 +11,7 @@ import {
   CheckCircle2,
   Clock,
   BarChart3,
+  ArrowRight,
 } from "lucide-react";
 
 interface ProgressAttempt extends MockTestAttempt {
@@ -140,8 +142,13 @@ function Progress() {
           ) : (
             <div className="progress-history-list">
               {attempts.map((attempt) => (
-                <article className="progress-history-row" key={attempt.id}>
-                  <div>
+                <Link
+                  to={`/mock-tests/take?attemptId=${attempt.id}&mode=review`}
+                  className="progress-history-row progress-history-link"
+                  key={attempt.id}
+                  title="Click to review test questions and answers"
+                >
+                  <div className="progress-history-main">
                     <h3>{attempt.testTitle}</h3>
                     <p style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <Clock size={13} />
@@ -156,7 +163,12 @@ function Progress() {
                       {attempt.correct_answers}/{attempt.total_questions} correct
                     </span>
                   </div>
-                </article>
+                  <div className="progress-history-cta">
+                    <span className="progress-review-badge">
+                      Review <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           )}

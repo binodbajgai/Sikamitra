@@ -2800,6 +2800,89 @@ body {
   display: none !important;
 }
 
+/* Progress History Interactive Rows */
+.progress-history-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  padding: 16px 18px !important;
+  margin-bottom: 8px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+}
+
+.progress-history-link:hover {
+  background: #ffffff !important;
+  border-color: #c7d2fe !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 6px 18px -4px rgba(79, 70, 229, 0.12) !important;
+}
+
+.progress-history-main {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.progress-history-main h3 {
+  margin: 0 0 4px 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.progress-history-main p {
+  margin: 0 !important;
+  color: #64748b !important;
+  font-size: 12px !important;
+}
+
+.progress-history-score {
+  text-align: right !important;
+  margin-right: 14px !important;
+}
+
+.progress-history-score strong {
+  display: block !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #4f46e5 !important;
+}
+
+.progress-history-score span {
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+
+.progress-history-cta {
+  flex-shrink: 0 !important;
+}
+
+.progress-review-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 6px 12px !important;
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  border: 1px solid #e0e7ff !important;
+  transition: all 0.2s ease !important;
+}
+
+.progress-history-link:hover .progress-review-badge {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
+}
+
 /* ==========================================================
    COMPREHENSIVE RESPONSIVE STYLES (TABLETS & MOBILE PHONES)
    ========================================================== */

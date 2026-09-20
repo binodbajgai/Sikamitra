@@ -13,6 +13,7 @@ function MockTestTake() {
   const [searchParams] = useSearchParams();
   const attemptIdParam = searchParams.get("attemptId");
   const testIdParam = searchParams.get("testId");
+  const mode = searchParams.get("mode");
 
   const attemptId = attemptIdParam ? Number(attemptIdParam) : null;
   const testId = testIdParam ? Number(testIdParam) : null;
@@ -41,28 +42,21 @@ function MockTestTake() {
         setLoading(true);
         setError("");
 
-        if (testId) {
+        if (mode === "review" && attemptId) {
+          const reviewData = await getMockTestAttemptReview(attemptId);
+          setReview(reviewData);
+          setSubmitted(true);
+        } else if (testId) {
           const qList = await getMockTestQuestions(testId);
           setQuestions(qList);
         } else if (attemptId) {
           const reviewData = await getMockTestAttemptReview(attemptId);
-          if (reviewData.questions && reviewData.questions.length > 0) {
-            setQuestions(
-              reviewData.questions.map((q) => ({
-                question_id: q.question_id,
-                question_order: q.question_order,
-                question: q.question,
-                option_a: q.option_a,
-                option_b: q.option_b,
-                option_c: q.option_c,
-                option_d: q.option_d,
-              }))
-            );
-          }
+          setReview(reviewData);
+          setSubmitted(true);
         }
       } catch (err) {
         console.error(err);
-        setError("Unable to load test questions from backend.");
+        setError("Unable to load test questions or review from backend.");
       } finally {
         setLoading(false);
       }
