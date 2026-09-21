@@ -332,13 +332,17 @@ img {
   display: grid;
   place-items: center;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  border-radius: 50%;
 
   background: #ffffff;
   color: #64748b;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   transition: all 0.2s ease;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  vertical-align: middle;
 }
 
 .user-menu-button:hover {
