@@ -9,7 +9,6 @@ import {
   User,
   Settings as SettingsIcon,
   LogOut,
-  MoreHorizontal,
 } from "lucide-react";
 
 function AppShell({
@@ -99,9 +98,14 @@ function AppShell({
           <div className="navbar-actions">
             <div className="user-menu">
 
-              <NavLink
-                to="/profile"
-                className="user-account-link"
+              <button
+                type="button"
+                className="user-menu-button"
+                aria-expanded={isProfileMenuOpen}
+                aria-haspopup="menu"
+                aria-label={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
+                onClick={() => setIsProfileMenuOpen((current) => !current)}
+                title={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
               >
                 <div className="user-avatar">
                 {user?.profile_image ? (
@@ -110,17 +114,7 @@ function AppShell({
                   user?.full_name?.charAt(0).toUpperCase() || "U"
                 )}
                 </div>
-
-                <div className="user-info">
-                  <span className="user-name">
-                    {user?.full_name || "Student"}
-                  </span>
-
-                  <span className="user-label">
-                    Account
-                  </span>
-                </div>
-              </NavLink>
+              </button>
 
               {isProfileMenuOpen && (
                 <div className="profile-menu" role="menu">
@@ -167,18 +161,6 @@ function AppShell({
                   </button>
                 </div>
               )}
-
-              <button
-                type="button"
-                className="user-menu-button"
-                aria-expanded={isProfileMenuOpen}
-                aria-haspopup="menu"
-                aria-label={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
-                onClick={() => setIsProfileMenuOpen((current) => !current)}
-                title={isProfileMenuOpen ? "Close account menu" : "Open account menu"}
-              >
-                <MoreHorizontal size={18} />
-              </button>
 
             </div>
 

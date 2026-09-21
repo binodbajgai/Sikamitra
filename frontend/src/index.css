@@ -3479,4 +3479,24 @@ body {
   grid-template-columns: auto minmax(0,1fr) auto !important;
 }
 
+/* Mobile text size adjustments */
+.progress-history-main h3 {
+  font-size: 14px !important;
 }
+.progress-history-main p {
+  font-size: 11px !important;
+}
+.progress-history-score strong {
+  font-size: 13px !important;
+}
+.dashboard-hero h1 {
+  font-size: 24px !important;
+}
+.dashboard-hero p {
+  font-size: 13px !important;
+}
+.action-card, .overview-card, .materials-card, .subject-card, .mock-test-card, .profile-card, .settings-card {
+  font-size: 14px !important;
+}
+}
+
