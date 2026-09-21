@@ -2792,12 +2792,10 @@ body {
   color: #ffffff !important;
 }
 
-/* Reset outer dashboard-section container to prevent box-inside-box nesting */
+/* Dashboard section cards — keep card appearance, restore inner padding */
 .dashboard-section {
-  background: transparent !important;
-  border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  padding: 27px 28px !important;
 }
 
 .dashboard-section::before {
