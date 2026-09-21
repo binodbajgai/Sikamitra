@@ -3474,9 +3474,46 @@ body {
 
 /* Mobile overrides for progress history and mock test options */
 .progress-history-link {
+  display: flex !important;
   flex-direction: column !important;
-  align-items: flex-start !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
 }
+
+.progress-history-row .progress-history-main {
+  width: 100% !important;
+}
+
+.progress-history-row .progress-history-score {
+  text-align: left !important;
+  margin-right: 0 !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+}
+
+.progress-history-row .progress-history-score strong {
+  display: inline-block !important;
+  font-size: 16px !important;
+}
+
+.progress-history-row .progress-history-score span {
+  display: inline-block !important;
+  margin-top: 0 !important;
+  font-size: 12px !important;
+}
+
+.progress-history-row .progress-history-cta {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.progress-history-row .progress-review-badge {
+  padding: 6px 14px !important;
+}
+
 .mock-test-option {
   grid-template-columns: auto minmax(0,1fr) auto !important;
 }
@@ -3487,9 +3524,6 @@ body {
 }
 .progress-history-main p {
   font-size: 11px !important;
-}
-.progress-history-score strong {
-  font-size: 13px !important;
 }
 .dashboard-hero h1 {
   font-size: 24px !important;
