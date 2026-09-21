@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { getMockTestAttemptHistory, getMockTests } from "../api/mockTests";
 import { getStudyMaterials, type StudyMaterial } from "../api/studyMaterials";
+import { getSubjects, type Subject } from "../api/subjects";
 import { useAuth } from "../context/AuthContext";
 import {
   Sparkles,
@@ -9,13 +10,14 @@ import {
   CheckCircle,
   ArrowRight,
   Plus,
-  FileText,
+  Folder,
 } from "lucide-react";
 
 function Dashboard() {
   const { user } = useAuth();
   const firstName = user?.full_name?.split(" ")[0] || "Student";
   const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [mockTestCount, setMockTestCount] = useState(0);
   const [attemptCount, setAttemptCount] = useState(0);
   const [loadingActivity, setLoadingActivity] = useState(true);
@@ -26,14 +28,16 @@ function Dashboard() {
       try {
         setLoadingActivity(true);
         setActivityError("");
-        const [materialsData, tests] = await Promise.all([
+        const [materialsData, subjectsData, tests] = await Promise.all([
           getStudyMaterials(),
+          getSubjects(),
           getMockTests(),
         ]);
         const histories = await Promise.all(
           tests.map((test) => getMockTestAttemptHistory(test.id))
         );
         setMaterials(materialsData);
+        setSubjects(subjectsData);
         setMockTestCount(tests.length);
         setAttemptCount(
           histories.flat().filter((attempt) => attempt.submitted_at).length
@@ -49,7 +53,7 @@ function Dashboard() {
     void loadActivity();
   }, []);
 
-  const recentMaterials = materials.slice(0, 3);
+  const recentSubjects = subjects.slice(0, 3);
 
   return (
     <div className="dashboard-page">
@@ -300,26 +304,42 @@ function Dashboard() {
             <p className="dashboard-activity-error">{activityError}</p>
           )}
 
-          {recentMaterials.length > 0 ? (
+          {recentSubjects.length > 0 ? (
             <div className="recent-material-list">
-              {recentMaterials.map((material) => (
-                <NavLink
-                  to={`/materials/${material.id}`}
-                  className="recent-material-item"
-                  key={material.id}
-                >
-                  <span className="recent-material-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <FileText size={18} />
-                  </span>
-                  <span className="recent-material-info">
-                    <strong>{material.title}</strong>
-                    <small>{material.subject_name || "Unsorted material"}</small>
-                  </span>
-                  <span className="recent-material-arrow">
-                    <ArrowRight size={16} />
-                  </span>
-                </NavLink>
-              ))}
+              {recentSubjects.map((subject) => {
+                const count = materials.filter(
+                  (material) => material.subject_id === subject.id
+                ).length;
+
+                return (
+                  <NavLink
+                    to={`/materials/subjects/${subject.id}`}
+                    className="recent-material-item"
+                    key={subject.id}
+                  >
+                    <span
+                      className="recent-material-icon"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Folder size={18} />
+                    </span>
+                    <span className="recent-material-info">
+                      <strong>{subject.name}</strong>
+                      <small>
+                        {count} {count === 1 ? "material" : "materials"}
+                        {subject.description ? ` · ${subject.description}` : ""}
+                      </small>
+                    </span>
+                    <span className="recent-material-arrow">
+                      <ArrowRight size={16} />
+                    </span>
+                  </NavLink>
+                );
+              })}
             </div>
           ) : (
           <div className="recent-empty">
@@ -335,9 +355,8 @@ function Dashboard() {
               </h3>
 
               <p>
-                Upload your first material and Sikamitra
-                will turn it into summaries, important
-                points and practice questions.
+                Create your first subject to organize your study
+                materials, notes, and practice tests.
               </p>
 
             </div>
