@@ -1,4 +1,12 @@
-export type ThemePreference = "light" | "dim";
+export type ThemePreference =
+  | "light"
+  | "dim"
+  | "dark"
+  | "oled"
+  | "emerald"
+  | "sepia"
+  | "cyberpunk"
+  | "ocean";
 
 export interface UserPreferences {
   theme: ThemePreference;
@@ -14,6 +22,17 @@ export const defaultPreferences: UserPreferences = {
   reduceMotion: false,
 };
 
+export const VALID_THEMES: ThemePreference[] = [
+  "light",
+  "dim",
+  "dark",
+  "oled",
+  "emerald",
+  "sepia",
+  "cyberpunk",
+  "ocean",
+];
+
 export function getUserPreferences(): UserPreferences {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
@@ -21,7 +40,7 @@ export function getUserPreferences(): UserPreferences {
       ...defaultPreferences,
       ...(stored && typeof stored === "object" ? stored : {}),
     };
-    if (preferences.theme !== "light" && preferences.theme !== "dim") {
+    if (!VALID_THEMES.includes(preferences.theme)) {
       preferences.theme = defaultPreferences.theme;
     }
     return preferences;

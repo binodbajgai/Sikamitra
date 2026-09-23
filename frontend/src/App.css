@@ -1996,21 +1996,6 @@
   cursor: pointer;
 }
 
-html[data-theme="dim"] {
-  --color-bg: #e8edf4;
-  --color-surface: #f8fafc;
-  --color-surface-alt: #dfe6ef;
-  --color-surface-elevated: #ffffff;
-  --color-sidebar: #eef2f7;
-  --color-text-primary: #111827;
-  --color-text-secondary: #475569;
-  --color-text-muted: #64748b;
-  --color-border: #cbd5e1;
-  --color-border-strong: #94a3b8;
-  --color-shadow: rgba(15, 23, 42, 0.08);
-  --color-shadow-strong: rgba(15, 23, 42, 0.14);
-}
-
 html[data-font-size="large"] .app-shell {
   font-size: 1.08em;
 }
@@ -8079,12 +8064,10 @@ body {
 
 /* ---- Background: unified gradient just like landing page --- */
 body {
-  background-color: #ebf1f8 !important;
-  background-image:
-    radial-gradient(1000px circle at 80% -10%, rgba(99, 102, 241, 0.22), transparent 60%),
-    radial-gradient(900px circle at 10% 40%, rgba(16, 185, 129, 0.16), transparent 50%),
-    radial-gradient(800px circle at 60% 100%, rgba(99, 102, 241, 0.14), transparent 50%) !important;
+  background-color: var(--color-bg) !important;
+  background-image: var(--bg-radial-gradient) !important;
   background-attachment: fixed !important;
+  color: var(--color-text-primary) !important;
 }
 
 .app-shell,
@@ -8092,13 +8075,23 @@ body {
   background: transparent !important;
 }
 
-/* ---- Navbar: exact match to landing navbar ---- */
+/* ---- Navbar: adapts to theme ---- */
 .top-navbar {
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: var(--navbar-bg) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: 0 1px 3px var(--color-shadow) !important;
+}
+
+.topbar-text h1,
+.topbar-title {
+  color: var(--color-text-primary) !important;
+}
+
+.topbar-text p,
+.topbar-description {
+  color: var(--color-text-secondary) !important;
 }
 
 /* ---- Brand gradient matching landing ---- */
@@ -8106,9 +8099,9 @@ body {
 .sidebar-brand-mark,
 .auth-brand-mark,
 .app-loading-mark {
-  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-strong) 100%) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+  box-shadow: 0 4px 12px var(--color-shadow-strong) !important;
 }
 
 /* ---- Inner page wrappers: transparent bg so body gradient shows ---- */
@@ -8145,11 +8138,14 @@ body {
 .subject-detail-header h1,
 .material-detail-header h1,
 .progress-header h1,
-.profile-header h1 {
-  color: #0f172a !important;
+.profile-header h1,
+.section-heading h2,
+.settings-heading h2,
+.action-content h3,
+.recent-empty h3 {
+  color: var(--color-text-primary) !important;
   font-weight: 800 !important;
   letter-spacing: -0.04em !important;
-  font-size: clamp(30px, 4vw, 44px) !important;
 }
 
 .materials-kicker,
@@ -8158,8 +8154,14 @@ body {
 .subject-detail-kicker,
 .material-detail-kicker,
 .progress-kicker,
-.profile-kicker {
-  color: #6366f1 !important;
+.profile-kicker,
+.dashboard-kicker,
+.dashboard-section-kicker,
+.page-kicker,
+.section-label,
+.action-eyebrow,
+.overview-label {
+  color: var(--color-accent) !important;
   font-weight: 800 !important;
   font-size: 11px !important;
   letter-spacing: 0.12em !important;
@@ -8174,57 +8176,68 @@ body {
 .mock-test-score-card,
 .subject-detail-info-card,
 .dashboard-section,
-.dashboard-stat-card {
-  background: rgba(255, 255, 255, 0.92) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(226, 232, 240, 0.85) !important;
-  border-radius: 20px !important;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 1px 4px -1px rgba(15, 23, 42, 0.02) !important;
-}
-
-/* ---- Profile & Settings Cards ---- */
+.dashboard-stat-card,
+.overview-card,
+.action-card,
+.recent-material-item,
+.recent-empty,
 .profile-card,
 .profile-actions-card {
-  background: rgba(255, 255, 255, 0.92) !important;
+  background: var(--card-bg) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border: 1px solid var(--color-border) !important;
   border-radius: 20px !important;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04) !important;
+  box-shadow: 0 4px 16px -2px var(--color-shadow) !important;
+  color: var(--color-text-primary) !important;
 }
 
 /* ---- Material items & subject cards: hover lift ---- */
 .material-item,
 .materials-item,
 .subject-card {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  background: var(--card-bg) !important;
+  border: 1px solid var(--color-border) !important;
   border-radius: 16px !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+  box-shadow: 0 2px 8px var(--color-shadow) !important;
+  color: var(--color-text-primary) !important;
 }
 
 .material-item:hover,
 .materials-item:hover,
 .subject-card:hover {
   transform: translateY(-3px) !important;
-  border-color: #c7d2fe !important;
-  box-shadow: 0 16px 36px -8px rgba(79, 70, 229, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.03) !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 16px 36px -8px var(--color-shadow-strong) !important;
 }
 
-/* ---- Primary CTA Buttons: indigo gradient ---- */
+/* Overview card typography */
+.overview-number {
+  color: var(--color-text-primary) !important;
+}
+
+.overview-card p,
+.action-content p,
+.recent-material-info small,
+.recent-empty p,
+.profile-header p,
+.settings-heading p {
+  color: var(--color-text-secondary) !important;
+}
+
+/* ---- Primary CTA Buttons ---- */
 .dashboard-primary-action,
 .materials-primary-action,
 .mock-tests-primary-action,
 .mock-test-submit-button,
 .subject-detail-start-button {
-  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-strong) 100%) !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 12px !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.32) !important;
+  box-shadow: 0 4px 14px var(--color-shadow-strong) !important;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
   text-decoration: none !important;
 }
@@ -8235,33 +8248,151 @@ body {
 .mock-test-submit-button:hover:not(:disabled),
 .subject-detail-start-button:hover:not(:disabled) {
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.45) !important;
+  box-shadow: 0 8px 22px var(--color-shadow-strong) !important;
 }
 
 /* ---- General button defaults matching landing ---- */
-button:not(.profile-menu-item):not(.user-account-link):not(.notification-button):not(.user-menu-button):not(.mock-test-option):not(.mock-test-dot):not(.google-button):not(.btn-primary-gradient):not(.hero-cta-btn):not(.btn-text):not(.cta-large-btn) {
+button:not(.profile-menu-item):not(.user-account-link):not(.notification-button):not(.user-menu-button):not(.mock-test-option):not(.mock-test-dot):not(.google-button):not(.btn-primary-gradient):not(.hero-cta-btn):not(.btn-text):not(.cta-large-btn):not(.theme-card) {
   border-radius: 10px;
 }
 
 /* ---- Sidebar: glass-like surface ---- */
 .sidebar {
-  background: rgba(255, 255, 255, 0.88) !important;
+  background: var(--sidebar-bg) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-right: 1px solid rgba(226, 232, 240, 0.7) !important;
-  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04) !important;
+  border-right: 1px solid var(--color-border) !important;
+  box-shadow: 4px 0 24px var(--color-shadow) !important;
 }
 
-/* Sidebar active nav item: indigo highlight ---- */
+.sidebar-nav-item {
+  color: var(--color-text-secondary) !important;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--color-surface-alt) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Sidebar active nav item: accent highlight ---- */
 .sidebar-nav-item.active,
 .sidebar-nav-item[aria-current="page"] {
-  background: #eef2ff !important;
-  color: #4f46e5 !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
 }
 
 .sidebar-nav-item.active .sidebar-nav-icon,
 .sidebar-nav-item[aria-current="page"] .sidebar-nav-icon {
-  color: #4f46e5 !important;
+  color: var(--color-accent) !important;
+}
+
+/* Form inputs & selects across themes */
+.profile-edit-form input,
+.settings-credentials-form input,
+.settings-row select,
+.settings-row input[type="text"],
+.materials-search input,
+.mock-tests-filter select {
+  background: var(--input-bg) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.settings-row select option {
+  background: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* =========================================================
+   THEME SELECTION GRID (SETTINGS & ACCESSIBILITY)
+   ========================================================= */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  width: 100%;
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-strong) !important;
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.theme-card.active {
+  border-color: var(--color-accent) !important;
+  background: var(--color-surface-elevated) !important;
+  box-shadow: 0 0 0 2px var(--color-accent-soft), 0 4px 12px var(--color-shadow) !important;
+}
+
+.theme-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.theme-card-preview {
+  width: 42px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.theme-card-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.theme-card-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  background: var(--color-accent);
+}
+
+.theme-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.theme-card-desc {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
 }
 
 /* ---- Auth pages: keep consistent ---- */

@@ -6,7 +6,84 @@ import {
   saveUserPreferences,
   type ThemePreference,
 } from "../utils/preferences";
-import { Lock, Monitor, Accessibility, Eye, Zap } from "lucide-react";
+import { Lock, Monitor, Accessibility, Eye, Zap, Check } from "lucide-react";
+
+interface ThemeOption {
+  id: ThemePreference;
+  name: string;
+  description: string;
+  previewBg: string;
+  borderColor: string;
+  accentColor: string;
+}
+
+const THEME_OPTIONS: ThemeOption[] = [
+  {
+    id: "light",
+    name: "Light",
+    description: "Sikamitra classic bright & clean workspace",
+    previewBg: "#ebf1f8",
+    borderColor: "#cbd5e1",
+    accentColor: "#4f46e5",
+  },
+  {
+    id: "dim",
+    name: "Dim",
+    description: "Twilight slate with soft balanced contrast",
+    previewBg: "#1e293b",
+    borderColor: "#475569",
+    accentColor: "#818cf8",
+  },
+  {
+    id: "dark",
+    name: "Dark",
+    description: "Midnight indigo for night study sessions",
+    previewBg: "#090d16",
+    borderColor: "#334155",
+    accentColor: "#6366f1",
+  },
+  {
+    id: "oled",
+    name: "OLED",
+    description: "Pure pitch black for zero glare & battery saver",
+    previewBg: "#000000",
+    borderColor: "#3f3f46",
+    accentColor: "#818cf8",
+  },
+  {
+    id: "emerald",
+    name: "Emerald",
+    description: "Forest sage tones to soothe study fatigue",
+    previewBg: "#062017",
+    borderColor: "#1b684e",
+    accentColor: "#10b981",
+  },
+  {
+    id: "sepia",
+    name: "Sepia",
+    description: "Warm paper & amber to filter blue light",
+    previewBg: "#f8f3ea",
+    borderColor: "#cfc0a7",
+    accentColor: "#b45309",
+  },
+  {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    description: "High-tech synthwave violet with neon accents",
+    previewBg: "#0c071e",
+    borderColor: "#5b2fa8",
+    accentColor: "#d946ef",
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    description: "Deep oceanic navy with arctic blue highlights",
+    previewBg: "#061524",
+    borderColor: "#225180",
+    accentColor: "#0ea5e9",
+  },
+];
+
 
 
 function Settings() {
@@ -72,23 +149,62 @@ function Settings() {
           </div>
 
           <div className="settings-list">
-            <label className="settings-row">
-              <span>
-                <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Eye size={15} /> Theme
-                </strong>
-                <small>Choose the appearance used across the app.</small>
-              </span>
-              <select
-                value={preferences.theme}
-                onChange={(event) =>
-                  updatePreferences({ theme: event.target.value as ThemePreference })
-                }
-              >
-                <option value="light">Light</option>
-                <option value="dim">Dim</option>
-              </select>
-            </label>
+            <div className="settings-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                <span>
+                  <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Eye size={15} /> Theme
+                  </strong>
+                  <small>Choose the appearance used across the workspace.</small>
+                </span>
+                <select
+                  value={preferences.theme}
+                  onChange={(event) =>
+                    updatePreferences({ theme: event.target.value as ThemePreference })
+                  }
+                  aria-label="Theme selection"
+                >
+                  {THEME_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="theme-grid">
+                {THEME_OPTIONS.map((opt) => {
+                  const isActive = preferences.theme === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      className={`theme-card ${isActive ? "active" : ""}`}
+                      onClick={() => updatePreferences({ theme: opt.id })}
+                    >
+                      <div className="theme-card-top">
+                        <span
+                          className="theme-card-preview"
+                          style={{ background: opt.previewBg, borderColor: opt.borderColor }}
+                        >
+                          <span
+                            className="theme-card-dot"
+                            style={{ background: opt.accentColor }}
+                          />
+                        </span>
+                        {isActive && (
+                          <span className="theme-card-check">
+                            <Check size={12} strokeWidth={3} />
+                          </span>
+                        )}
+                      </div>
+                      <span className="theme-card-name">{opt.name}</span>
+                      <span className="theme-card-desc">{opt.description}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <label className="settings-row">
               <span>
