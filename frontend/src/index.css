@@ -10,6 +10,19 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html[data-theme="dim"],
+html[data-theme="dark"],
+html[data-theme="oled"],
+html[data-theme="aurora"],
+html[data-theme="cyberpunk"],
+html[data-theme="ocean"] {
+  color-scheme: dark;
+}
+
+html[data-theme="sepia"] {
+  color-scheme: light;
+}
+
 /* =========================================================
    RESET & CORE
 ========================================================= */
@@ -30,11 +43,8 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background-color: #ebf1f8;
-  background-image:
-    radial-gradient(1000px circle at 80% -10%, rgba(99, 102, 241, 0.22), transparent 60%),
-    radial-gradient(900px circle at 10% 40%, rgba(16, 185, 129, 0.16), transparent 50%),
-    radial-gradient(800px circle at 60% 100%, rgba(99, 102, 241, 0.14), transparent 50%);
+  background-color: var(--color-bg);
+  background-image: var(--bg-radial-gradient);
   background-attachment: fixed;
   color: var(--color-text-primary);
 }
@@ -58,7 +68,7 @@ a {
 
 ::selection {
   background: rgba(99, 102, 241, 0.2);
-  color: #1e1b4b;
+  color: var(--color-text-primary);
 }
 
 img {
@@ -3516,6 +3526,72 @@ body {
 
 .mock-test-option {
   grid-template-columns: auto minmax(0,1fr) auto !important;
+}
+
+/* Theme bridge for the original shell styles. */
+.top-navbar,
+.profile-menu,
+.notification-button,
+.user-menu-button,
+.user-account-link,
+.action-card,
+.action-card-primary,
+.overview-card {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.top-navbar {
+  background: var(--navbar-bg) !important;
+}
+
+.brand,
+.brand-name,
+.user-name,
+.profile-menu-item strong,
+.section-heading h2,
+.action-card h3,
+.overview-card h3,
+.overview-card strong {
+  color: var(--color-text-primary) !important;
+}
+
+.brand-tagline,
+.nav-item,
+.user-label,
+.profile-menu-item span,
+.action-content p,
+.overview-card p {
+  color: var(--color-text-secondary) !important;
+}
+
+.nav-item:hover,
+.profile-menu-item:hover,
+.user-account-link:hover,
+.notification-button:hover,
+.user-menu-button:hover {
+  background: var(--color-surface-alt) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.nav-item.active,
+.section-link,
+.action-icon {
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+input,
+textarea,
+select {
+  color-scheme: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 1;
 }
 
 /* Mobile text size adjustments */
