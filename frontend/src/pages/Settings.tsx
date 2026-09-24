@@ -12,77 +12,87 @@ interface ThemeOption {
   id: ThemePreference;
   name: string;
   description: string;
-  previewBg: string;
-  borderColor: string;
+  gradient: string;
   accentColor: string;
+  textColor: string;
+  borderColor: string;
 }
 
 const THEME_OPTIONS: ThemeOption[] = [
   {
     id: "light",
-    name: "Light",
-    description: "Sikamitra classic bright & clean workspace",
-    previewBg: "#ebf1f8",
-    borderColor: "#cbd5e1",
+    name: "Silk",
+    description: "Bright & clean with soft indigo aurora",
+    gradient: "linear-gradient(135deg, #eef2fa 0%, #dde6f8 50%, #e8eeff 100%)",
     accentColor: "#4f46e5",
+    textColor: "#0f172a",
+    borderColor: "#c5cfe8",
   },
   {
     id: "dim",
-    name: "Dim",
-    description: "Twilight slate with soft balanced contrast",
-    previewBg: "#1e293b",
-    borderColor: "#475569",
+    name: "Slate",
+    description: "Twilight blue-gray with frosted glass surfaces",
+    gradient: "linear-gradient(135deg, #16202e 0%, #1e2d40 50%, #1a2f4a 100%)",
     accentColor: "#818cf8",
+    textColor: "#f0f4f8",
+    borderColor: "#344b63",
   },
   {
     id: "dark",
-    name: "Dark",
-    description: "Midnight indigo for night study sessions",
-    previewBg: "#090d16",
-    borderColor: "#334155",
+    name: "Midnight",
+    description: "Deep navy-black with indigo nebula glow",
+    gradient: "linear-gradient(135deg, #07090f 0%, #0f1422 50%, #111c35 100%)",
     accentColor: "#6366f1",
+    textColor: "#f8fafc",
+    borderColor: "#233052",
   },
   {
     id: "oled",
-    name: "OLED",
-    description: "Pure pitch black for zero glare & battery saver",
-    previewBg: "#000000",
-    borderColor: "#3f3f46",
+    name: "Void",
+    description: "Pure pitch black — zero glare, AMOLED-ready",
+    gradient: "linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #111111 100%)",
     accentColor: "#818cf8",
+    textColor: "#ffffff",
+    borderColor: "#333333",
   },
   {
-    id: "emerald",
-    name: "Emerald",
-    description: "Forest sage tones to soothe study fatigue",
-    previewBg: "#062017",
-    borderColor: "#1b684e",
-    accentColor: "#10b981",
+    id: "aurora",
+    name: "Aurora",
+    description: "Arctic teal-black lit by northern light radials",
+    gradient: "linear-gradient(135deg, #080e18 0%, #0c1e30 40%, #0d2535 100%)",
+    accentColor: "#06b6d4",
+    textColor: "#e8f4f8",
+    borderColor: "#1e3c50",
   },
   {
     id: "sepia",
-    name: "Sepia",
-    description: "Warm paper & amber to filter blue light",
-    previewBg: "#f8f3ea",
-    borderColor: "#cfc0a7",
-    accentColor: "#b45309",
+    name: "Parchment",
+    description: "Warm aged paper — easier on eyes, blue-light minimal",
+    gradient: "linear-gradient(135deg, #f5ede0 0%, #ede3d3 50%, #e8d9c4 100%)",
+    accentColor: "#c2640a",
+    textColor: "#2c1e10",
+    borderColor: "#c8ac90",
   },
   {
     id: "cyberpunk",
-    name: "Cyberpunk",
-    description: "High-tech synthwave violet with neon accents",
-    previewBg: "#0c071e",
-    borderColor: "#5b2fa8",
-    accentColor: "#d946ef",
+    name: "Neon",
+    description: "Violet-black with dual cyan & magenta neon glow",
+    gradient: "linear-gradient(135deg, #0a0618 0%, #13093a 50%, #180d45 100%)",
+    accentColor: "#06b6d4",
+    textColor: "#f5f0ff",
+    borderColor: "#3d2080",
   },
   {
     id: "ocean",
-    name: "Ocean",
-    description: "Deep oceanic navy with arctic blue highlights",
-    previewBg: "#061524",
-    borderColor: "#225180",
+    name: "Abyss",
+    description: "Deep sea navy with bioluminescent blue accents",
+    gradient: "linear-gradient(135deg, #040c18 0%, #081828 50%, #0b2035 100%)",
     accentColor: "#0ea5e9",
+    textColor: "#e8f4ff",
+    borderColor: "#144060",
   },
 ];
+
 
 
 
@@ -181,20 +191,21 @@ function Settings() {
                       type="button"
                       className={`theme-card ${isActive ? "active" : ""}`}
                       onClick={() => updatePreferences({ theme: opt.id })}
+                      style={{ borderColor: isActive ? opt.accentColor : opt.borderColor }}
                     >
-                      <div className="theme-card-top">
-                        <span
-                          className="theme-card-preview"
-                          style={{ background: opt.previewBg, borderColor: opt.borderColor }}
-                        >
-                          <span
-                            className="theme-card-dot"
-                            style={{ background: opt.accentColor }}
-                          />
-                        </span>
+                      <div
+                        className="theme-card-preview"
+                        style={{ background: opt.gradient, borderColor: opt.borderColor }}
+                      >
+                        <div className="theme-card-preview-inner">
+                          <span className="theme-card-stripe" style={{ background: opt.accentColor }} />
+                          <span className="theme-card-preview-name" style={{ color: opt.textColor }}>
+                            {opt.name}
+                          </span>
+                        </div>
                         {isActive && (
-                          <span className="theme-card-check">
-                            <Check size={12} strokeWidth={3} />
+                          <span className="theme-card-check" style={{ background: opt.accentColor }}>
+                            <Check size={10} strokeWidth={3} />
                           </span>
                         )}
                       </div>

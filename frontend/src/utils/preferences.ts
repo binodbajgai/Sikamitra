@@ -3,7 +3,7 @@ export type ThemePreference =
   | "dim"
   | "dark"
   | "oled"
-  | "emerald"
+  | "aurora"
   | "sepia"
   | "cyberpunk"
   | "ocean";
@@ -27,7 +27,7 @@ export const VALID_THEMES: ThemePreference[] = [
   "dim",
   "dark",
   "oled",
-  "emerald",
+  "aurora",
   "sepia",
   "cyberpunk",
   "ocean",

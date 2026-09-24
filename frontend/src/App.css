@@ -8309,91 +8309,109 @@ button:not(.profile-menu-item):not(.user-account-link):not(.notification-button)
 
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
   width: 100%;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .theme-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 12px 14px;
+  padding: 0;
   border-radius: 14px;
   border: 1.5px solid var(--color-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text-primary) !important;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px var(--color-shadow);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 4px var(--color-shadow);
+  overflow: hidden;
   width: 100%;
 }
 
 .theme-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-border-strong) !important;
-  box-shadow: 0 4px 12px var(--color-shadow);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px var(--color-shadow);
 }
 
 .theme-card.active {
-  border-color: var(--color-accent) !important;
-  background: var(--color-surface-elevated) !important;
-  box-shadow: 0 0 0 2px var(--color-accent-soft), 0 4px 12px var(--color-shadow) !important;
+  box-shadow: 0 0 0 2px var(--color-accent), 0 6px 18px var(--color-shadow-strong) !important;
 }
 
-.theme-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 8px;
-}
-
+/* The large gradient swatch at the top of each card */
 .theme-card-preview {
-  width: 42px;
-  height: 24px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  width: 100%;
+  height: 72px;
+  border-bottom: 1.5px solid transparent;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.theme-card-preview-inner {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+  gap: 6px;
+  padding: 0 10px 8px;
+  width: 100%;
 }
 
-.theme-card-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+/* Accent color stripe / pill */
+.theme-card-stripe {
+  display: inline-block;
+  width: 22px;
+  height: 4px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
+/* Small theme name shown inside the gradient preview */
+.theme-card-preview-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  line-height: 1;
+}
+
+/* Active checkmark badge — top-right of preview */
 .theme-card-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 800;
   color: #ffffff;
-  background: var(--color-accent);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
 }
 
+/* Text block below the swatch */
 .theme-card-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-text-primary);
-  margin-bottom: 2px;
+  padding: 8px 10px 2px;
+  line-height: 1.2;
 }
 
 .theme-card-desc {
-  font-size: 11px;
-  color: var(--color-text-secondary);
+  font-size: 10.5px;
+  color: var(--color-text-muted);
   line-height: 1.4;
+  padding: 0 10px 10px;
 }
+
 
 /* ---- Auth pages: keep consistent ---- */
 .auth-page {
